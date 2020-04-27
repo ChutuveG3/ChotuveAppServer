@@ -9,7 +9,7 @@
   "scripts": {
     "console": "node console.js",
     "cover": "npm run test -- --coverage",
-    "test": "",
+    "test": "NODE_ENV=testing jest --runInBand --forceExit --detectOpenHandles",
     "test-inspect": "NODE_ENV=testing node --inspect --debug-brk jest",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls",
     "eslint-check": "eslint --print-config .eslintrc.js --ignore-pattern ./.eslintrc.js | eslint-config-prettier-check",
