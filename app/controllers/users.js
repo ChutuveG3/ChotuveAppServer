@@ -1,16 +1,17 @@
 const axios = require('axios').default;
+const {
+  common: {
+    urls: { authServer }
+  }
+} = require('../../config');
+const { authServerError } = require('../errors');
 
-exports.users = (req, res) => {
-  // Validar req.body params
+exports.users = (req, res) =>
   axios
-    .post('http://localhost:8081/users', req.body)
-    .then(response => {
-      // eslint-disable-next-line no-console
-      console.log(response.data.url);
+    .post(`${authServer}/users`, req.body)
+    .then(() => {
+      res.send({ message: 'ok' });
     })
     .catch(error => {
-      // eslint-disable-next-line no-console
-      console.log(error);
+      throw authServerError(error.message);
     });
-  res.send({ message: 'ok' });
-};
