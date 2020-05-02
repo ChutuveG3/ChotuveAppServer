@@ -1,17 +1,8 @@
-const axios = require('axios').default;
-const {
-  common: {
-    urls: { authServer }
-  }
-} = require('../../config');
-const { authServerError } = require('../errors');
+const { signupUser } = require('../services/users');
 
-exports.users = (req, res) =>
-  axios
-    .post(`${authServer}/users`, req.body)
+exports.signup = ({ body }, res, next) =>
+  signupUser(body)
     .then(() => {
-      res.send({ message: 'ok' });
+      res.status(201).send({ message: 'ok' });
     })
-    .catch(error => {
-      throw authServerError(error.message);
-    });
+    .catch(err => next(err));
