@@ -13,5 +13,4 @@ exports.INVALID_PARAMS = 'invalid_params';
 exports.invalidParams = message => internalError(message, exports.INVALID_PARAMS);
 
 exports.AUTH_SERVER_ERROR = 'auth_server_error';
-exports.authServerError = (message, internalCode) =>
-  internalError(message, internalCode || exports.AUTH_SERVER_ERROR);
+exports.authServerError = message => internalError(message, exports.AUTH_SERVER_ERROR);
