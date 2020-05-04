@@ -10,7 +10,7 @@ const { authServerError } = require('../errors');
 exports.signupUser = body => {
   info(`Sending signup request to Auth Server at ${authServer} and body ${body}`);
   return axios.post(`${authServer}/users`, body).catch(aserror => {
-    error(`Auth Server failed to create user. ${aserror.message}`);
-    throw authServerError(aserror.message);
+    error(`Auth Server failed to create user. ${aserror.response.data.message}`);
+    throw authServerError(aserror.response.data.message, aserror.response.data.internal_code);
   });
 };
