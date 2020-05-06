@@ -30,8 +30,7 @@ deploy:
       docker push chotuveg3/app-server-develop;
       docker push registry.heroku.com/$HEROKU_APP_NAME_DEVELOP/web;
       heroku container:release web --app $HEROKU_APP_NAME_DEVELOP
-    on:
-      branch: develop
+    branch: develop
 
   - provider: script
     script:
@@ -40,5 +39,4 @@ deploy:
       docker push chotuveg3/app-server-prod;
       docker push registry.heroku.com/$HEROKU_APP_NAME_PRODUCTION/web;
       heroku container:release web --app $HEROKU_APP_NAME_PRODUCTION
-    on:
-      branch: master
+    branch: master
