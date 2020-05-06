@@ -17,7 +17,7 @@ describe('POST /users signup', () => {
       const currentUserData = { ...userData };
       delete currentUserData.first_name;
       getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
-        expect(400);
+        expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -26,7 +26,7 @@ describe('POST /users signup', () => {
       const currentUserData = { ...userData };
       delete currentUserData.last_name;
       getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
-        expect(400);
+        expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -35,7 +35,7 @@ describe('POST /users signup', () => {
       const currentUserData = { ...userData };
       delete currentUserData.email;
       getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
-        expect(400);
+        expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -44,7 +44,7 @@ describe('POST /users signup', () => {
       const currentUserData = { ...userData };
       delete currentUserData.password;
       getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
-        expect(400);
+        expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -53,7 +53,7 @@ describe('POST /users signup', () => {
       const currentUserData = { ...userData };
       delete currentUserData.user_name;
       getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
-        expect(400);
+        expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -62,14 +62,14 @@ describe('POST /users signup', () => {
       const currentUserData = { ...userData };
       delete currentUserData.birthdate;
       getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
-        expect(400);
+        expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
 
     it('Should be status 400 if it is missing multiple parameters', () =>
       getResponse({ method: 'post', endpoint: baseUrl, body: { last_name: 'MyLastName' } }).then(res => {
-        expect(400);
+        expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       }));
   });
@@ -81,14 +81,14 @@ describe('POST /users signup', () => {
         endpoint: baseUrl,
         body: { ...userData, birthdate: 'invalid birthdate' }
       }).then(res => {
-        expect(400);
+        expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       }));
 
     it('Should be status 400 if email is invalid', () =>
       getResponse({ method: 'post', endpoint: baseUrl, body: { ...userData, email: 'invalid email' } }).then(
         res => {
-          expect(400);
+          expect(res.status).toBe(400);
           expect(res.body.internal_code).toBe('invalid_params');
         }
       ));
