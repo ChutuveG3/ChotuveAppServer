@@ -13,3 +13,31 @@ addons:
     - ubuntu-toolchain-r-test
     packages:
     - g++-4.8
+
+services:
+  - docker
+
+before_install:
+  - wget -q0- https://toolbelt.heroku.com/install.sh | sh
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - echo "$HEROKU_PASSWORD" | docker login -u "$HEROKU_USERNAME" --password-stdin registry.heroku.com
+
+deploy:
+  - provider: script
+    script:
+      docker build -t chotuveg3/app-server-develop .;
+      docker tag chotuveg3/app-server-develop registry.heroku.com/$HEROKU_APP_NAME_DEVELOP/web;
+      docker push chotuveg3/app-server-develop;
+      docker push registry.heroku.com/$HEROKU_APP_NAME_DEVELOP/web;
+      heroku container:release web --app $HEROKU_APP_NAME_DEVELOP;
+    on:
+      branch: develop
+  - provider: script
+    script:
+      docker build -t chotuveg3/app-server-prod .;
+      docker tag chotuveg3/app-server-prod registry.heroku.com/$HEROKU_APP_NAME_PRODUCTION/web;
+      docker push chotuveg3/app-server-prod;
+      docker push registry.heroku.com/$HEROKU_APP_NAME_PRODUCTION/web;
+      heroku container:release web --app $HEROKU_APP_NAME_PRODUCTION;
+    on:
+      branch: master

@@ -6,6 +6,6 @@
 
 [Change!] List any known issue of the feature you are implementing.
 
-## Trello Card
+## Zenhub Card
 
 [Change!] Link to the associated Trello card.
