@@ -92,5 +92,15 @@ describe('POST /users signup', () => {
           expect(res.body.internal_code).toBe('invalid_params');
         }
       ));
+
+    it('Should be status 400 if password length is not 6 at least', () =>
+      getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: { ...userData, password: 'aaaaa' }
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
   });
 });
