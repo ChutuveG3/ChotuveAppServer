@@ -16,7 +16,7 @@ describe('POST /users signup', () => {
     it('Should be status 400 if first name is missing', () => {
       const currentUserData = { ...userData };
       delete currentUserData.first_name;
-      getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
+      return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       });
@@ -25,7 +25,7 @@ describe('POST /users signup', () => {
     it('Should be status 400 if last name is missing', () => {
       const currentUserData = { ...userData };
       delete currentUserData.last_name;
-      getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
+      return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       });
@@ -34,7 +34,7 @@ describe('POST /users signup', () => {
     it('Should be status 400 if email is missing', () => {
       const currentUserData = { ...userData };
       delete currentUserData.email;
-      getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
+      return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       });
@@ -43,7 +43,7 @@ describe('POST /users signup', () => {
     it('Should be status 400 if password is missing', () => {
       const currentUserData = { ...userData };
       delete currentUserData.password;
-      getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
+      return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       });
@@ -52,7 +52,7 @@ describe('POST /users signup', () => {
     it('Should be status 400 if username is missing', () => {
       const currentUserData = { ...userData };
       delete currentUserData.user_name;
-      getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
+      return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       });
@@ -61,7 +61,7 @@ describe('POST /users signup', () => {
     it('Should be status 400 if birthdate is missing', () => {
       const currentUserData = { ...userData };
       delete currentUserData.birthdate;
-      getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
+      return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       });
@@ -92,5 +92,15 @@ describe('POST /users signup', () => {
           expect(res.body.internal_code).toBe('invalid_params');
         }
       ));
+
+    it('Should be status 400 if password length is not 6 at least', () =>
+      getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: { ...userData, password: 'aaaaa' }
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
   });
 });
