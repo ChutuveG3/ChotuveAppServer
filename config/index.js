@@ -47,7 +47,8 @@ const config = {
       nodeVersion: process.env.NODE_VERSION || 'X-Node-Version'
     },
     urls: {
-      authServer: process.env.AUTH_SERVER_URL
+      authServer: process.env.AUTH_SERVER_URL,
+      mediaServer: process.env.MEDIA_SERVER_URL
     }
   }
 };
