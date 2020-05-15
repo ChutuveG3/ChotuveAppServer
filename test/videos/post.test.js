@@ -84,7 +84,7 @@ describe('POST /videos upload', () => {
       getResponse({
         method: 'post',
         endpoint: baseUrl,
-        body: { ...videoData, datetime: '7384' }
+        body: { ...videoData, datetime: 'notadate94' }
       }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');

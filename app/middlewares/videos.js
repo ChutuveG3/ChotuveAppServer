@@ -20,7 +20,7 @@ exports.createVideoSchema = {
     in: ['body'],
     isISO8601: true,
     optional: false,
-    errorMessage: 'datetime should be a valid datetime YYYY-MM-DDThh:mm:ssTZD'
+    errorMessage: 'datetime should be a valid datetime YYYY-MM-DDThh:mm:ss'
   },
   visibility: {
     in: ['body'],

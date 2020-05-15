@@ -1,11 +1,12 @@
 const axios = require('axios').default;
+const { Schema, model } = require('mongoose');
 const {
   common: {
     urls: { mediaServer }
   }
 } = require('../../config');
 const { info, error } = require('../logger');
-const { Video } = require('../models/video');
+// const { Video } = require('../models/video');
 const { databaseError } = require('../errors');
 const { mediaServerError } = require('../errors');
 
@@ -23,6 +24,12 @@ exports.uploadVideo = body => {
 
 exports.createVideo = videoData => {
   info(`Creating video in db with title: ${videoData.title}`);
+  const videoSchema = new Schema({
+    title: { type: String },
+    description: { type: String },
+    visibility: { type: String, enum: ['public', 'private'], allowNull: false }
+  });
+  const Video = model('Video', videoSchema);
   const video = new Video({
     title: videoData.title,
     description: videoData.description,
