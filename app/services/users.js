@@ -14,3 +14,11 @@ exports.signupUser = body => {
     throw authServerError(aserror.response.data);
   });
 };
+
+exports.loginUser = body => {
+  info(`Sending login request to Auth Server at ${authServer} for user with email: ${body.email}`);
+  return axios.post(`${authServer}/users/sessions`, body).catch(aserror => {
+    error(`Auth Server failed to authenticate user. ${aserror.response.data.message}`);
+    throw authServerError(aserror.response.data);
+  });
+};
