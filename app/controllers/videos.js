@@ -1,15 +1,11 @@
 const { createVideo, uploadVideo } = require('../services/videos');
 
-// Si uploadear al media server falla, borrarlo de la bdd antes de terminar!
 exports.upload = ({ body }, res, next) =>
-  createVideo(body)
-    .then(() =>
-      uploadVideo(body)
+  uploadVideo(body)
+    .then(id =>
+      createVideo(body, id)
         .then(() => {
-          res
-            .status(201)
-            .json({ message: 'ok' })
-            .end();
+          res.status(201).send({ message: 'ok' });
         })
         .catch(err => next(err))
     )

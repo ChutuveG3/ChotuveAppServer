@@ -24,7 +24,9 @@ exports.createVideoSchema = {
   },
   visibility: {
     in: ['body'],
-    isIn: ['public', 'private'],
+    custom: {
+      options: visibility => ['public', 'private'].includes(visibility) === true
+    },
     optional: false,
     errorMessage: 'visibility should be either public or private'
   },
