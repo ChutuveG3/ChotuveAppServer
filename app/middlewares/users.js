@@ -41,3 +41,19 @@ exports.createUserSchema = {
     errorMessage: 'birthdate should be a valid date'
   }
 };
+
+exports.createUserLoginSchema = {
+  email: {
+    in: ['body'],
+    isEmail: true,
+    optional: false,
+    errorMessage: 'email should be a valid email'
+  },
+  password: {
+    in: ['body'],
+    isString: true,
+    isLength: { errorMessage: 'Password should have at least 6 characters', options: { min: 6 } },
+    optional: false,
+    errorMessage: 'password should be a string'
+  }
+};
