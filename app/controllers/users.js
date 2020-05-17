@@ -10,9 +10,6 @@ exports.signup = ({ body }, res, next) =>
 exports.login = ({ body }, res, next) =>
   loginUser(body)
     .then(response => {
-      res
-        .status(200)
-        .json({ token: response.data.token })
-        .end();
+      res.status(200).send({ token: response.data.token });
     })
     .catch(err => next(err));
