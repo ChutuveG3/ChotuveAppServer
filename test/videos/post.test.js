@@ -6,7 +6,7 @@ const videoData = {
   title: 'AVideoTitle',
   description: 'AVideoDescription',
   download_url: 'someUrl.com',
-  datetime: '2020-05-18T14:43:35Z',
+  datetime: '2020-05-18T14:43:35',
   visibility: 'private',
   file_name: 'video.mp4',
   file_size: '2Mb'
@@ -64,7 +64,7 @@ describe('POST /videos upload', () => {
       getResponse({
         method: 'post',
         endpoint: baseUrl,
-        body: { ...videoData, download_url: 'notAURL' }
+        body: { ...videoData, download_url: 'notAnURL' }
       }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
@@ -80,11 +80,31 @@ describe('POST /videos upload', () => {
         expect(res.body.internal_code).toBe('invalid_params');
       }));
 
-    it('Should be status 400 if datetime is invalid', () =>
+    it('Should be status 400 if datetime is invalid I', () =>
       getResponse({
         method: 'post',
         endpoint: baseUrl,
-        body: { ...videoData, datetime: 'notadate94' }
+        body: { ...videoData, datetime: 'notADate4632' }
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+
+    it('Should be status 400 if datetime is invalid II', () =>
+      getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: { ...videoData, datetime: '2/4/2020' }
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+
+    it('Should be status 400 if datetime is invalid III', () =>
+      getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: { ...videoData, datetime: '2020-05-18T14:43:35.0453Z' }
       }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');

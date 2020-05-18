@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 exports.createVideoSchema = {
   title: {
     in: ['body'],
@@ -18,7 +20,9 @@ exports.createVideoSchema = {
   },
   datetime: {
     in: ['body'],
-    isISO8601: true,
+    custom: {
+      options: datetime => moment(datetime, 'YYYY-MM-DDThh:mm:ss', true).isValid() === true
+    },
     optional: false,
     errorMessage: 'datetime should be a valid datetime YYYY-MM-DDThh:mm:ss'
   },
