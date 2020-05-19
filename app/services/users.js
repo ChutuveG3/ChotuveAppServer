@@ -5,7 +5,7 @@ const {
   }
 } = require('../../config');
 const { info, error } = require('../logger');
-const { authServerError } = require('../errors');
+const { authServerError, userNotExists } = require('../errors');
 
 exports.signupUser = body => {
   info(`Sending signup request to Auth Server at ${authServer} for user with email: ${body.email}`);
@@ -22,4 +22,20 @@ exports.loginUser = body => {
     error(`Auth Server failed to authenticate user. ${aserror.response.data.message}`);
     throw authServerError(aserror.response.data);
   });
+};
+
+exports.viewUserProfile = token => {
+  info(`Sending view profile request to Auth Server at ${authServer}`);
+  return axios
+    .get(`${authServer}/users/me`, { headers: { authorization: token } })
+    .catch(aserror => {
+      if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
+      error(`Auth Server failed to retrieve user profile. ${aserror.response.data.message}`);
+      if (aserror.response.status === 409) {
+        throw userNotExists(aserror.response.data);
+      } else {
+        throw authServerError(aserror.response.data);
+      }
+    })
+    .then(response => response.data);
 };

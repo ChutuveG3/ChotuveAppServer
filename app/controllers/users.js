@@ -1,4 +1,4 @@
-const { signupUser, loginUser } = require('../services/users');
+const { signupUser, loginUser, viewUserProfile } = require('../services/users');
 
 exports.signup = ({ body }, res, next) =>
   signupUser(body)
@@ -11,5 +11,12 @@ exports.login = ({ body }, res, next) =>
   loginUser(body)
     .then(response => {
       res.status(200).send({ token: response.data.token });
+    })
+    .catch(err => next(err));
+
+exports.viewProfile = ({ headers }, res, next) =>
+  viewUserProfile(headers.authorization)
+    .then(userProfile => {
+      res.status(200).send(userProfile);
     })
     .catch(err => next(err));
