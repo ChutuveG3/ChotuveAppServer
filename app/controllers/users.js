@@ -14,10 +14,9 @@ exports.login = ({ body }, res, next) =>
     })
     .catch(err => next(err));
 
-exports.viewProfile = ({ headers }, res, next) => {
+exports.viewProfile = ({ headers }, res, next) =>
   viewUserProfile(headers.authorization)
     .then(userProfile => {
       res.status(200).send(userProfile);
     })
     .catch(err => next(err));
-};
