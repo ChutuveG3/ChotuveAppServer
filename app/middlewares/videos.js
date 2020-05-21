@@ -21,10 +21,10 @@ exports.createVideoSchema = {
   datetime: {
     in: ['body'],
     custom: {
-      options: datetime => moment(datetime, 'YYYY-MM-DDThh:mm:ss', true).isValid() === true
+      options: datetime => moment(datetime, 'YYYY-MM-DDTHH:mm:ss', true).isValid() === true
     },
     optional: false,
-    errorMessage: 'datetime should be a valid datetime YYYY-MM-DDThh:mm:ss'
+    errorMessage: 'datetime should be a valid datetime YYYY-MM-DDTHH:mm:ss'
   },
   visibility: {
     in: ['body'],

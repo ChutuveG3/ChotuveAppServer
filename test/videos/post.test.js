@@ -5,11 +5,11 @@ const baseUrl = '/videos';
 const videoData = {
   title: 'AVideoTitle',
   description: 'AVideoDescription',
-  download_url: 'someUrl.com',
-  datetime: '2020-05-18T14:43:35',
+  download_url: 'https://someUrl.com',
+  datetime: '2020-05-18T18:43:35',
   visibility: 'private',
   file_name: 'video.mp4',
-  file_size: '2Mb'
+  file_size: '24335'
 };
 
 describe('POST /videos upload', () => {
