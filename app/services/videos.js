@@ -1,5 +1,4 @@
 const axios = require('axios').default;
-// const { Schema, model } = require('mongoose');
 const {
   common: {
     urls: { mediaServer }
