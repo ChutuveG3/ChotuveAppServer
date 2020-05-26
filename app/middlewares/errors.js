@@ -12,8 +12,6 @@ const statusCodes = {
   [errors.USER_NOT_EXISTS]: 409
 };
 
-
-
 exports.handle = (error, req, res, next) => {
   if (error.internalCode) res.status(statusCodes[error.internalCode] || DEFAULT_STATUS_CODE);
   else {
