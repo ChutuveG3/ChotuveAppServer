@@ -26,6 +26,8 @@ const deepMerge = (target, source) => {
 const config = {
   common: {
     database: {
+      url: process.env.DB_URL,
+      name: process.env.DB_NAME,
       host: process.env.DB_HOST,
       port: process.env.DB_PORT,
       username: process.env.DB_USERNAME,
@@ -46,7 +48,8 @@ const config = {
       nodeVersion: process.env.NODE_VERSION || 'X-Node-Version'
     },
     urls: {
-      authServer: process.env.AUTH_SERVER_URL
+      authServer: process.env.AUTH_SERVER_URL,
+      mediaServer: process.env.MEDIA_SERVER_URL
     }
   }
 };

@@ -7,7 +7,9 @@ const statusCodes = {
   [errors.DATABASE_ERROR]: 503,
   [errors.DEFAULT_ERROR]: 500,
   [errors.INVALID_PARAMS]: 400,
-  [errors.AUTH_SERVER_ERROR]: 500
+  [errors.AUTH_SERVER_ERROR]: 502,
+  [errors.MEDIA_SERVER_ERROR]: 502,
+  [errors.USER_NOT_EXISTS]: 409
 };
 
 exports.handle = (error, req, res, next) => {

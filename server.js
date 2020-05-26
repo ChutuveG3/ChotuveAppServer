@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-unused-vars
+const db = require('./config/db');
 const app = require('./app');
 const config = require('./config');
 const logger = require('./app/logger');
