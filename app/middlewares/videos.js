@@ -4,6 +4,7 @@ exports.createVideoSchema = {
   username: {
     in: ['body'],
     isString: true,
+    optional: false,
     errorMessage: 'username should be a string'
   },
   title: {
