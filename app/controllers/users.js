@@ -2,16 +2,13 @@ const { signupUser, createUser, loginUser, viewUserProfile } = require('../servi
 
 exports.signup = ({ body }, res, next) =>
   signupUser(body)
-    .then(() => {
-      next();
-    })
-    .catch(err => next(err));
-
-exports.createUser = ({ body }, res, next) =>
-  createUser(body)
-    .then(() => {
-      res.status(201).send({ message: 'ok' });
-    })
+    .then(() =>
+      createUser(body)
+        .then(() => {
+          res.status(201).send({ message: 'ok' });
+        })
+        .catch(err => next(err))
+    )
     .catch(err => next(err));
 
 exports.login = ({ body }, res, next) =>
