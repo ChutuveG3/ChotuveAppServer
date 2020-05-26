@@ -10,11 +10,13 @@ exports.createVideoSchema = {
   title: {
     in: ['body'],
     isString: true,
+    optional: true,
     errorMessage: 'title should be a string'
   },
   description: {
     in: ['body'],
     isString: true,
+    optional: true,
     errorMessage: 'description should be a string'
   },
   download_url: {
