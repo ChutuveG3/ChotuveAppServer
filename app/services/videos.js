@@ -11,7 +11,8 @@ const { databaseError } = require('../errors');
 const { mediaServerError } = require('../errors');
 
 exports.uploadVideo = body => {
-  const videoData = { ...body };
+  const videoData = { ...body, owner: body.username };
+  delete videoData.username;
   delete videoData.title;
   delete videoData.description;
   delete videoData.visibility;
