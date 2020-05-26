@@ -32,6 +32,7 @@ exports.uploadVideo = body => {
 exports.createVideo = (videoData, videoId) => {
   info(`Creating video in db with title: ${videoData.title}`);
   const video = new Video({
+    owner: videoData.username,
     id: videoId,
     title: videoData.title,
     description: videoData.description,
