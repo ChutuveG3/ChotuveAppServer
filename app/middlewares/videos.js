@@ -1,6 +1,11 @@
 const moment = require('moment');
 
 exports.createVideoSchema = {
+  authorization: {
+    in: ['headers'],
+    isString: true,
+    errorMessage: 'authorization should be a string and be present in headers'
+  },
   title: {
     in: ['body'],
     isString: true,
