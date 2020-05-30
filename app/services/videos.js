@@ -61,6 +61,21 @@ exports.getMediaVideosFromOwner = (owner, { offset, limit }) => {
     });
 };
 
+exports.getMediaVideos = ({ offset, limit }) => {
+  info('Getting videos from media');
+  return axios
+    .get(`${mediaServer}/videos`, {
+      offset,
+      limit
+    })
+    .then(res => res.data)
+    .catch(mserror => {
+      if (!mserror.response || !mserror.response.data) throw mediaServerError(mserror);
+      error(`Media Server failed to return video. ${mserror.response.data.message}`);
+      throw mediaServerError(mserror.response.data);
+    });
+};
+
 exports.getVideosFromIds = (ids, options = {}) => {
   // Lanzar un error si no es un array
   info('Getting videos from ids');
