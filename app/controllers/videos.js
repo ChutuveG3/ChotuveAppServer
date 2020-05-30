@@ -22,11 +22,11 @@ exports.getVideosFromOwner = ({ params: { username }, query: { offset, limit } }
     })
     .then(videos => {
       let auxVideo = {};
-      return mediaVideos.map(mediaVideo => {
-        auxVideo = videos.find(video => video.id === mediaVideo.id);
+      return videos.map(video => {
+        auxVideo = mediaVideos.find(mediaVideo => video.id === mediaVideo.id);
         return {
           ...auxVideo,
-          ...mediaVideo
+          ...video
         };
       });
     })
