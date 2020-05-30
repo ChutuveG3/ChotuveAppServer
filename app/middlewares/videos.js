@@ -1,14 +1,22 @@
 const moment = require('moment');
 
 exports.createVideoSchema = {
+  username: {
+    in: ['body'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
+  },
   title: {
     in: ['body'],
     isString: true,
+    optional: true,
     errorMessage: 'title should be a string'
   },
   description: {
     in: ['body'],
     isString: true,
+    optional: true,
     errorMessage: 'description should be a string'
   },
   download_url: {
