@@ -1,4 +1,5 @@
 const moment = require('moment');
+const { authorizationSchema } = require('./authorization');
 
 exports.createVideoSchema = {
   username: {
@@ -53,5 +54,15 @@ exports.createVideoSchema = {
     isString: true,
     optional: false,
     errorMessage: 'file_size should be a string'
+  }
+};
+
+exports.getVideosSchema = {
+  ...authorizationSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
   }
 };

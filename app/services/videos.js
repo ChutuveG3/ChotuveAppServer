@@ -45,3 +45,24 @@ exports.createVideo = (videoData, videoId) => {
     throw databaseError(`Video could not be created. Error: ${dbError}`);
   });
 };
+
+exports.getMediaVideosFromOwner = owner => {
+  info(`Getting videos media info from owner: ${owner}`);
+  return axios
+    .post(`${mediaServer}/videos/${owner}`)
+    .then(res => res.data)
+    .catch(mserror => {
+      if (!mserror.response || !mserror.response.data) throw mediaServerError(mserror);
+      error(`Media Server failed to return video. ${mserror.response.data.message}`);
+      throw mediaServerError(mserror.response.data);
+    });
+};
+
+exports.getVideosFromOwner = (owner, options = {}) => {
+  // Lanzar un error si no es un array
+  info(`Getting videos from owner: ${owner}`);
+  return Video.find({ owner, ...options }).catch(dbError => {
+    error(`Videos could not be found. Error: ${dbError}`);
+    throw databaseError(`Videos could not be found. Error: ${dbError}`);
+  });
+};
