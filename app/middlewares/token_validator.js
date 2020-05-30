@@ -5,7 +5,7 @@ const {
     urls: { authServer }
   }
 } = require('../../config');
-const { authServerError } = require('../errors');
+const { authServerError, invalidTokenError } = require('../errors');
 
 exports.validateToken = (req, res, next) => {
   info('Validating token');
@@ -16,8 +16,13 @@ exports.validateToken = (req, res, next) => {
     .then(() => next())
     .catch(aserror => {
       if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
-      error(`Auth Server token validation failed. ${aserror.response.data.message}`);
-      throw authServerError(aserror.response.data);
+      if (aserror.response.status === 401) {
+        error(`Invalid token. ${aserror.response.data.message}`);
+        throw invalidTokenError(aserror.response.data);
+      } else {
+        error(`Auth Server token validation failed. ${aserror.response.data.message}`);
+        throw authServerError(aserror.response.data);
+      }
     })
-    .catch(err => next(err));
+    .catch(next);
 };
