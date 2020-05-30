@@ -46,10 +46,13 @@ exports.createVideo = (videoData, videoId) => {
   });
 };
 
-exports.getMediaVideosFromOwner = owner => {
+exports.getMediaVideosFromOwner = ({ owner, offset, limit }) => {
   info(`Getting videos media info from owner: ${owner}`);
   return axios
-    .post(`${mediaServer}/videos/${owner}`)
+    .get(`${mediaServer}/videos/${owner}`, {
+      offset,
+      limit
+    })
     .then(res => res.data)
     .catch(mserror => {
       if (!mserror.response || !mserror.response.data) throw mediaServerError(mserror);

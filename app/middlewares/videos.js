@@ -1,5 +1,6 @@
 const moment = require('moment');
 const { authorizationSchema } = require('./authorization');
+const { pagingSchema } = require('./paging');
 
 exports.createVideoSchema = {
   username: {
@@ -57,8 +58,9 @@ exports.createVideoSchema = {
   }
 };
 
-exports.getVideosSchema = {
+exports.getVideosFromUserSchema = {
   ...authorizationSchema,
+  ...pagingSchema,
   username: {
     in: ['params'],
     isString: true,

@@ -17,17 +17,20 @@ exports.upload = ({ body }, res, next) =>
     )
     .catch(err => next(err));
 
-exports.getVideosFromOwner = ({ params: username }, res, next) =>
-  Promise.all([getVideosFromOwner(username, { visibility: 'public' }), getMediaVideosFromOwner(username)])
+exports.getVideosFromOwner = ({ params: { username }, query: { offset, limit } }, res, next) =>
+  Promise.all([
+    getVideosFromOwner(username, { visibility: 'public' }),
+    getMediaVideosFromOwner({ username, offset, limit })
+  ])
     .then(([videos, mediaVideos]) => {
       let auxVideo = {};
-      // const videosIds = videos.map(video => video.id);
-      // const publicMediaVideos = mediaVideos.filter(mediaVideo => videosIds.includes(mediaVideo.id));
-      return videos.map(video => {
-        auxVideo = mediaVideos.find(mediaVideo => video.id === mediaVideo.id);
+      const videosIds = videos.map(video => video.id);
+      const publicMediaVideos = mediaVideos.filter(mediaVideo => videosIds.includes(mediaVideo.id));
+      return publicMediaVideos.map(mediaVideo => {
+        auxVideo = videos.find(video => video.id === mediaVideo.id);
         return {
           ...auxVideo,
-          ...video
+          ...mediaVideo
         };
       });
     })
