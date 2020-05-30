@@ -1,9 +1,4 @@
-const {
-  createVideo,
-  uploadVideo,
-  getVideosFromOwner,
-  getMediaVideosFromOwner
-} = require('../services/videos');
+const { createVideo, uploadVideo, getVideosFromIds, getMediaVideosFromOwner } = require('../services/videos');
 const { getVideosFromUserSerializer } = require('../serializers/videos');
 
 exports.upload = ({ body }, res, next) =>
@@ -17,16 +12,17 @@ exports.upload = ({ body }, res, next) =>
     )
     .catch(err => next(err));
 
-exports.getVideosFromOwner = ({ params: { username }, query: { offset, limit } }, res, next) =>
-  Promise.all([
-    getVideosFromOwner(username, { visibility: 'public' }),
-    getMediaVideosFromOwner({ username, offset, limit })
-  ])
-    .then(([videos, mediaVideos]) => {
+exports.getVideosFromOwner = ({ params: { username }, query: { offset, limit } }, res, next) => {
+  let mediaVideos = {};
+  return getMediaVideosFromOwner(username, { offset, limit })
+    .then(mediaVideosFound => {
+      mediaVideos = mediaVideosFound;
+      const mediaVideosIds = mediaVideos.map(mediaVideo => mediaVideo.id);
+      return getVideosFromIds(mediaVideosIds, { visibility: 'public' });
+    })
+    .then(videos => {
       let auxVideo = {};
-      const videosIds = videos.map(video => video.id);
-      const publicMediaVideos = mediaVideos.filter(mediaVideo => videosIds.includes(mediaVideo.id));
-      return publicMediaVideos.map(mediaVideo => {
+      return mediaVideos.map(mediaVideo => {
         auxVideo = videos.find(video => video.id === mediaVideo.id);
         return {
           ...auxVideo,
@@ -36,3 +32,4 @@ exports.getVideosFromOwner = ({ params: { username }, query: { offset, limit } }
     })
     .then(getVideosFromUserSerializer)
     .catch(next);
+};
