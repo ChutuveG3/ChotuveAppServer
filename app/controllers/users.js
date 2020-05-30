@@ -1,7 +1,8 @@
-const { signupUser, loginUser, viewUserProfile } = require('../services/users');
+const { signupUser, createUser, loginUser, viewUserProfile } = require('../services/users');
 
 exports.signup = ({ body }, res, next) =>
   signupUser(body)
+    .then(() => createUser(body))
     .then(() => {
       res.status(201).send({ message: 'ok' });
     })
