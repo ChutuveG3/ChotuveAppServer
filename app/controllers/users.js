@@ -23,8 +23,8 @@ exports.viewProfile = ({ headers }, res, next) =>
 
 exports.updateProfile = ({ params: username, body, headers }, res, next) => {
   updateUserProfile(headers.authorization, username.username, body)
-    .then(() => {
-      res.status(200).end();
+    .then(token => {
+      res.status(200).send({ token });
     })
     .catch(next);
 };
