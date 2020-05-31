@@ -1,4 +1,4 @@
-const { signupUser, loginUser, viewUserProfile } = require('../services/users');
+const { signupUser, loginUser, viewUserProfile, updateUserProfile } = require('../services/users');
 
 exports.signup = ({ body }, res, next) =>
   signupUser(body)
@@ -20,3 +20,11 @@ exports.viewProfile = ({ headers }, res, next) =>
       res.status(200).send(userProfile);
     })
     .catch(err => next(err));
+
+exports.updateProfile = ({ params: username, body, headers }, res, next) => {
+  updateUserProfile(headers.authorization, username.username, body)
+    .then(() => {
+      res.status(200).end();
+    })
+    .catch(next);
+};

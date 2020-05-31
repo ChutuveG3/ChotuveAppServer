@@ -62,3 +62,39 @@ exports.createUserLoginSchema = {
 exports.getCurrentUserSchema = {
   ...authorizationSchema
 };
+
+exports.updateProfileSchema = {
+  ...authorizationSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
+  },
+  first_name: {
+    in: ['body'],
+    isString: true,
+    optional: true,
+    errorMessage: 'first_name should be a string'
+  },
+  last_name: {
+    in: ['body'],
+    isString: true,
+    optional: true,
+    errorMessage: 'last_name should be a string'
+  },
+  email: {
+    in: ['body'],
+    isEmail: true,
+    optional: true,
+    errorMessage: 'email should be a valid email'
+  },
+  birthdate: {
+    in: ['body'],
+    custom: {
+      options: birthdate => moment(birthdate, 'YYYY-MM-DD', true).isValid() === true
+    },
+    optional: true,
+    errorMessage: 'birthdate should be a valid date'
+  }
+};
