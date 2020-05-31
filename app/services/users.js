@@ -45,7 +45,6 @@ exports.updateUserProfile = (token, username, body) => {
   info(`Sending update profile request to Auth Server at ${authServer}`);
   return axios
     .put(`${authServer}/users/${username}`, body, { headers: { authorization: token } })
-    .then(response => response.data.token)
     .catch(aserror => {
       if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
       error(`Auth Server failed to update user profile. ${aserror.response.data.message}`);
