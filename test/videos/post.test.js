@@ -28,6 +28,7 @@ describe('POST /videos upload', () => {
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(2);
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -42,6 +43,8 @@ describe('POST /videos upload', () => {
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('datetime');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -56,6 +59,8 @@ describe('POST /videos upload', () => {
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('visibility');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -70,6 +75,8 @@ describe('POST /videos upload', () => {
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('file_name');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -84,6 +91,8 @@ describe('POST /videos upload', () => {
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('file_size');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -97,6 +106,8 @@ describe('POST /videos upload', () => {
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('download_url');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
 
@@ -108,6 +119,8 @@ describe('POST /videos upload', () => {
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('visibility');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
 
@@ -119,6 +132,8 @@ describe('POST /videos upload', () => {
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('datetime');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
 
@@ -130,6 +145,8 @@ describe('POST /videos upload', () => {
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('datetime');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
 
@@ -141,6 +158,8 @@ describe('POST /videos upload', () => {
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('datetime');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
   });

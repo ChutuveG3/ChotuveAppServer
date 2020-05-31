@@ -14,6 +14,8 @@ describe('POST /users/sessions login', () => {
       delete currentUserData.email;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('email');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -23,6 +25,7 @@ describe('POST /users/sessions login', () => {
       delete currentUserData.password;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(2);
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -30,6 +33,7 @@ describe('POST /users/sessions login', () => {
     it('Should be status 400 if both email and password are missing', () =>
       getResponse({ method: 'post', endpoint: baseUrl, body: {} }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(3);
         expect(res.body.internal_code).toBe('invalid_params');
       }));
   });
@@ -41,6 +45,8 @@ describe('POST /users/sessions login', () => {
         body: { ...userData, email: 'invalid email' }
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('email');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
 
@@ -48,6 +54,8 @@ describe('POST /users/sessions login', () => {
       getResponse({ method: 'post', endpoint: baseUrl, body: { ...userData, password: '1234' } }).then(
         res => {
           expect(res.status).toBe(400);
+          expect(res.body.message.errors).toHaveLength(1);
+          expect(res.body.message.errors[0].param).toBe('password');
           expect(res.body.internal_code).toBe('invalid_params');
         }
       ));

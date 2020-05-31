@@ -74,19 +74,19 @@ exports.updateProfileSchema = {
   first_name: {
     in: ['body'],
     isString: true,
-    optional: true,
+    optional: false,
     errorMessage: 'first_name should be a string'
   },
   last_name: {
     in: ['body'],
     isString: true,
-    optional: true,
+    optional: false,
     errorMessage: 'last_name should be a string'
   },
   email: {
     in: ['body'],
     isEmail: true,
-    optional: true,
+    optional: false,
     errorMessage: 'email should be a valid email'
   },
   birthdate: {
@@ -94,7 +94,7 @@ exports.updateProfileSchema = {
     custom: {
       options: birthdate => moment(birthdate, 'YYYY-MM-DD', true).isValid() === true
     },
-    optional: true,
+    optional: false,
     errorMessage: 'birthdate should be a valid date'
   }
 };
