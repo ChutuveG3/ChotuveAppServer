@@ -7,11 +7,11 @@ const {
 } = require('../../config');
 const { authServerError, invalidTokenError } = require('../errors');
 
-exports.validateToken = (req, res, next) => {
+exports.validateToken = ({ headers: { authorization: token } }, res, next) => {
   info('Validating token');
   return axios
-    .get(`${authServer}/connect/accesstokenvalidation`, {
-      headers: { authorization: req.headers.authorization }
+    .get(`${authServer}/connect/access_token_validation`, {
+      headers: { authorization: token }
     })
     .then(() => next())
     .catch(aserror => {

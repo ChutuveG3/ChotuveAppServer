@@ -1,28 +1,22 @@
-const { signupUser, loginUser, viewUserProfile, updateUserProfile } = require('../services/users');
+const { signUpUser, loginUser, viewUserProfile, updateUserProfile } = require('../services/users');
 
-exports.signup = ({ body }, res, next) =>
-  signupUser(body)
-    .then(() => {
-      res.status(201).send({ message: 'ok' });
-    })
-    .catch(err => next(err));
+exports.signUp = ({ body }, res, next) =>
+  signUpUser(body)
+    .then(() => res.status(201).send({ message: 'ok' }))
+    .catch(next);
 
 exports.login = ({ body }, res, next) =>
   loginUser(body)
-    .then(response => {
-      res.status(200).send({ token: response.data.token });
-    })
-    .catch(err => next(err));
+    .then(response => res.status(200).send({ token: response.data.token }))
+    .catch(next);
 
-exports.viewProfile = ({ headers }, res, next) =>
-  viewUserProfile(headers.authorization)
-    .then(userProfile => {
-      res.status(200).send(userProfile);
-    })
-    .catch(err => next(err));
+exports.viewProfile = ({ headers: { authorization: token } }, res, next) =>
+  viewUserProfile(token)
+    .then(userProfile => res.status(200).send(userProfile))
+    .catch(next);
 
-exports.updateProfile = ({ params: username, body, headers }, res, next) => {
-  updateUserProfile(headers.authorization, username.username, body)
-    .then(() => res.status(200).end())
+exports.updateProfile = ({ params: { username }, body, headers: { authorization: token } }, res, next) => {
+  updateUserProfile(token, username, body)
+    .then(() => res.status(200).send({ message: 'ok' }))
     .catch(next);
 };
