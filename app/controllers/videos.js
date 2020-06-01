@@ -19,12 +19,16 @@ exports.getVideosFromOwner = ({ params: { username }, query: { offset, limit } }
       videos = videosFound;
       return getMediaVideosFromIds(videos.map(video => video.id));
     })
-    .then(mediaVideos =>
-      videos.map(video => ({
-        video,
-        ...mediaVideos.filter(mediaVideo => mediaVideo.id === video.id)
-      }))
-    )
-    .then(getVideosFromUserSerializer)
+    .then(mediaVideos => {
+      res.status(200).send(
+        getVideosFromUserSerializer(
+          videos.map(video => ({
+            // eslint-disable-next-line no-underscore-dangle
+            ...video._doc,
+            ...mediaVideos.find(mediaVideo => mediaVideo.id === video.id)
+          }))
+        )
+      );
+    })
     .catch(next);
 };

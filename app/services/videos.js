@@ -46,10 +46,19 @@ exports.createVideo = (videoData, videoId) => {
   });
 };
 
+const buildIdsParam = ids => {
+  let param = '';
+  if (ids.length) {
+    param = `id=${ids[0]}`;
+  }
+  ids.slice(1).forEach(id => (param = `${param}&id=${id}`));
+  return param;
+};
+
 exports.getMediaVideosFromIds = ids => {
-  info('Getting media videos');
+  info('Getting media videos by ids');
   return axios
-    .get(`${mediaServer}/videos`, { id: ids })
+    .get(`${mediaServer}/videos?${buildIdsParam(ids)}`)
     .then(res => res.data)
     .catch(mserror => {
       if (!mserror.response || !mserror.response.data) throw mediaServerError(mserror);
@@ -58,11 +67,11 @@ exports.getMediaVideosFromIds = ids => {
     });
 };
 
-exports.getVideosByOwner = (owner, options = {}) => {
+exports.getVideosByOwner = (owner, { offset, limit }) => {
   // Lanzar un error si no es un array
-  info('Getting videos from ids');
-  return Video.find({ owner, ...options })
-    .sort({ id: 'desc' })
+  info('Getting videos by ids');
+  return Video.find({ owner }, null, { skip: offset, limit })
+    .sort({ id: 'asc' })
     .catch(dbError => {
       error(`Videos could not be found. Error: ${dbError}`);
       throw databaseError(`Videos could not be found. Error: ${dbError}`);
