@@ -19,5 +19,5 @@ exports.init = app => {
   app.post('/users/sessions', [validateSchema(createUserLoginSchema)], login);
   app.post('/videos', [validateSchema(createVideoSchema), validateToken], upload);
   app.get('/users/me', [validateSchema(getCurrentUserSchema), validateToken], viewProfile);
-  app.put('/users/:username', [validateSchema(updateProfileSchema), validateToken], updateProfile);
+  app.put('/users/me', [validateSchema(updateProfileSchema), validateToken], updateProfile);
 };

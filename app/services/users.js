@@ -41,17 +41,15 @@ exports.viewUserProfile = token => {
     .then(response => response.data);
 };
 
-exports.updateUserProfile = (token, username, body) => {
+exports.updateUserProfile = (token, body) => {
   info(`Sending update profile request to Auth Server at ${authServer}`);
-  return axios
-    .put(`${authServer}/users/${username}`, body, { headers: { authorization: token } })
-    .catch(aserror => {
-      if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
-      error(`Auth Server failed to update user profile. ${aserror.response.data.message}`);
-      if (aserror.response.status === 409) {
-        throw userNotExists(aserror.response.data);
-      } else {
-        throw authServerError(aserror.response.data);
-      }
-    });
+  return axios.put(`${authServer}/users/me`, body, { headers: { authorization: token } }).catch(aserror => {
+    if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
+    error(`Auth Server failed to update user profile. ${aserror.response.data.message}`);
+    if (aserror.response.status === 409) {
+      throw userNotExists(aserror.response.data);
+    } else {
+      throw authServerError(aserror.response.data);
+    }
+  });
 };

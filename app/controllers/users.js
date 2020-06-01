@@ -15,8 +15,8 @@ exports.viewProfile = ({ headers: { authorization: token } }, res, next) =>
     .then(userProfile => res.status(200).send(userProfile))
     .catch(next);
 
-exports.updateProfile = ({ params: { username }, body, headers: { authorization: token } }, res, next) => {
-  updateUserProfile(token, username, body)
+exports.updateProfile = ({ headers: { authorization: token }, body }, res, next) => {
+  updateUserProfile(token, body)
     .then(() => res.status(200).send({ message: 'ok' }))
     .catch(next);
 };
