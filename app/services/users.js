@@ -4,8 +4,9 @@ const {
     urls: { authServer }
   }
 } = require('../../config');
+const User = require('../models/user');
 const { info, error } = require('../logger');
-const { authServerError, userNotExists } = require('../errors');
+const { authServerError, userNotExists, databaseError } = require('../errors');
 
 exports.signupUser = body => {
   info(`Sending signup request to Auth Server at ${authServer} for user with email: ${body.email}`);
@@ -13,6 +14,18 @@ exports.signupUser = body => {
     if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
     error(`Auth Server failed to create user. ${aserror.response.data.message}`);
     throw authServerError(aserror.response.data);
+  });
+};
+
+exports.createUser = userData => {
+  info(`Creating user in db with username: ${userData.user_name}`);
+  const user = new User({
+    username: userData.user_name
+  });
+
+  return user.save().catch(dbError => {
+    error(`User could not be created. Error: ${dbError}`);
+    throw databaseError(`User could not be created. Error: ${dbError}`);
   });
 };
 
