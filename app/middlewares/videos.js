@@ -68,3 +68,13 @@ exports.getVideosFromUserSchema = {
     errorMessage: 'username should be a string'
   }
 };
+
+exports.getVideosSchema = {
+  ...authorizationSchema,
+  ...pagingSchema
+};
+
+exports.getOwnVideosSchema = {
+  ...authorizationSchema,
+  ...pagingSchema
+};

@@ -1,7 +1,12 @@
 const { healthCheck } = require('./controllers/healthCheck');
 const { home } = require('./controllers/home');
 const { upload, getVideosFromOwner } = require('./controllers/videos');
-const { createVideoSchema, getVideosFromUserSchema } = require('./middlewares/videos');
+const {
+  createVideoSchema,
+  getVideosFromUserSchema,
+  getVideosSchema,
+  getOwnVideosSchema
+} = require('./middlewares/videos');
 const { signup, login, viewProfile } = require('./controllers/users');
 const { createUserSchema, createUserLoginSchema, getCurrentUserSchema } = require('./middlewares/users');
 const { validateSchema } = require('./middlewares/params_validator');
@@ -19,4 +24,6 @@ exports.init = app => {
     [validateSchema(getVideosFromUserSchema), addPagingParams],
     getVideosFromOwner
   );
+  app.get('/videos', [validateSchema(getVideosSchema), addPagingParams], getVideos);
+  app.get('/videos/me', [validateSchema(getOwnVideosSchema), addPagingParams], getOwnVideos);
 };
