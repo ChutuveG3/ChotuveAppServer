@@ -1,4 +1,5 @@
 const moment = require('moment');
+const { authorizationSchema } = require('./authorization');
 
 exports.createUserSchema = {
   first_name: {
@@ -59,9 +60,5 @@ exports.createUserLoginSchema = {
 };
 
 exports.getCurrentUserSchema = {
-  authorization: {
-    in: ['headers'],
-    isString: true,
-    errorMessage: 'authorization should be a string and be present in headers'
-  }
+  ...authorizationSchema
 };

@@ -1,6 +1,8 @@
 const moment = require('moment');
+const { authorizationSchema } = require('./authorization');
 
 exports.createVideoSchema = {
+  ...authorizationSchema,
   username: {
     in: ['body'],
     isString: true,

@@ -20,3 +20,6 @@ exports.mediaServerError = message => internalError(message, exports.MEDIA_SERVE
 
 exports.USER_NOT_EXISTS = 'user_not_exists';
 exports.userNotExists = message => internalError(message, exports.USER_NOT_EXISTS);
+
+exports.INVALID_TOKEN_ERROR = 'invalid_token_error';
+exports.invalidTokenError = message => internalError(message, exports.INVALID_TOKEN_ERROR);
