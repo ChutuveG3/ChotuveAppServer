@@ -8,8 +8,8 @@ const User = require('../models/user');
 const { info, error } = require('../logger');
 const { authServerError, userNotExists, databaseError } = require('../errors');
 
-exports.signupUser = body => {
-  info(`Sending signup request to Auth Server at ${authServer} for user with email: ${body.email}`);
+exports.signUpUser = body => {
+  info(`Sending sign up request to Auth Server at ${authServer} for user with email: ${body.email}`);
   return axios.post(`${authServer}/users`, body).catch(aserror => {
     if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
     error(`Auth Server failed to create user. ${aserror.response.data.message}`);
@@ -52,4 +52,17 @@ exports.viewUserProfile = token => {
       }
     })
     .then(response => response.data);
+};
+
+exports.updateUserProfile = (token, body) => {
+  info(`Sending update profile request to Auth Server at ${authServer}`);
+  return axios.put(`${authServer}/users/me`, body, { headers: { authorization: token } }).catch(aserror => {
+    if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
+    error(`Auth Server failed to update user profile. ${aserror.response.data.message}`);
+    if (aserror.response.status === 409) {
+      throw userNotExists(aserror.response.data);
+    } else {
+      throw authServerError(aserror.response.data);
+    }
+  });
 };
