@@ -1,4 +1,10 @@
-const { signUpUser, createUser, loginUser, viewUserProfile, updateUserProfile } = require('../services/users');
+const {
+  signUpUser,
+  createUser,
+  loginUser,
+  viewUserProfile,
+  updateUserProfile
+} = require('../services/users');
 
 exports.signUp = ({ body }, res, next) =>
   signUpUser(body)
