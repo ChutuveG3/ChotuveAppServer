@@ -1,5 +1,4 @@
 const axios = require('axios').default;
-// const { Schema, model } = require('mongoose');
 const {
   common: {
     urls: { mediaServer }
@@ -11,7 +10,8 @@ const { databaseError } = require('../errors');
 const { mediaServerError } = require('../errors');
 
 exports.uploadVideo = body => {
-  const videoData = { ...body };
+  const videoData = { ...body, owner: body.username };
+  delete videoData.username;
   delete videoData.title;
   delete videoData.description;
   delete videoData.visibility;
@@ -32,6 +32,7 @@ exports.uploadVideo = body => {
 exports.createVideo = (videoData, videoId) => {
   info(`Creating video in db with title: ${videoData.title}`);
   const video = new Video({
+    owner: videoData.username,
     id: videoId,
     title: videoData.title,
     description: videoData.description,
