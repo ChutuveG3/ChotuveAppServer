@@ -7,7 +7,6 @@ const videoHeader = {
 };
 
 const videoData = {
-  username: 'AUser',
   title: 'AVideoTitle',
   description: 'AVideoDescription',
   download_url: 'https://someUrl.com',
@@ -19,15 +18,6 @@ const videoData = {
 
 describe('POST /videos upload', () => {
   describe('Missing parameters', () => {
-    it('Should be status 400 if username is missing', () => {
-      const currentVideoData = { ...videoData };
-      delete currentVideoData.username;
-      return getResponse({ method: 'post', endpoint: baseUrl, body: currentVideoData }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.internal_code).toBe('invalid_params');
-      });
-    });
-
     it('Should be status 400 if download url is missing', () => {
       const currentVideoData = { ...videoData };
       delete currentVideoData.download_url;
