@@ -44,3 +44,34 @@ exports.createVideo = (videoData, videoId) => {
     throw databaseError(`Video could not be created. Error: ${dbError}`);
   });
 };
+
+const buildIdsParam = ids => {
+  let param = '';
+  if (ids.length) {
+    param = `id=${ids[0]}`;
+  }
+  ids.slice(1).forEach(id => (param = `${param}&id=${id}`));
+  return param;
+};
+
+exports.getMediaVideosFromIds = ids => {
+  info('Getting media videos by ids');
+  return axios
+    .get(`${mediaServer}/videos?${buildIdsParam(ids)}`)
+    .then(res => res.data)
+    .catch(mserror => {
+      if (!mserror.response || !mserror.response.data) throw mediaServerError(mserror);
+      error(`Media Server failed to return video. ${mserror.response.data.message}`);
+      throw mediaServerError(mserror.response.data);
+    });
+};
+
+exports.getVideos = (filters, order, options) => {
+  info('Getting videos');
+  return Video.find(filters, null, { skip: options.offset, limit: options.limit })
+    .sort(order)
+    .catch(dbError => {
+      error(`Videos could not be found. Error: ${dbError}`);
+      throw databaseError(`Videos could not be found. Error: ${dbError}`);
+    });
+};
