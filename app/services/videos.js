@@ -11,7 +11,6 @@ const { mediaServerError } = require('../errors');
 
 exports.uploadVideo = (username, body) => {
   const videoData = { ...body, owner: username };
-  delete videoData.username;
   delete videoData.title;
   delete videoData.description;
   delete videoData.visibility;
