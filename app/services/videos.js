@@ -9,8 +9,8 @@ const Video = require('../models/video');
 const { databaseError } = require('../errors');
 const { mediaServerError } = require('../errors');
 
-exports.uploadVideo = body => {
-  const videoData = { ...body, owner: body.username };
+exports.uploadVideo = (username, body) => {
+  const videoData = { ...body, owner: username };
   delete videoData.username;
   delete videoData.title;
   delete videoData.description;
@@ -29,10 +29,10 @@ exports.uploadVideo = body => {
     });
 };
 
-exports.createVideo = (videoData, videoId) => {
+exports.createVideo = (username, videoData, videoId) => {
   info(`Creating video in db with title: ${videoData.title}`);
   const video = new Video({
-    owner: videoData.username,
+    owner: username,
     id: videoId,
     title: videoData.title,
     description: videoData.description,
