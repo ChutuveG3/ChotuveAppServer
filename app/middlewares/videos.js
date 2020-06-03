@@ -1,6 +1,7 @@
 const moment = require('moment');
 const { authorizationSchema } = require('./authorization');
 const { pagingSchema } = require('./paging');
+const { viewUserProfile } = require('../services/users');
 
 exports.createVideoSchema = {
   username: {
@@ -58,17 +59,6 @@ exports.createVideoSchema = {
   }
 };
 
-exports.getVideosFromUserSchema = {
-  ...authorizationSchema,
-  ...pagingSchema,
-  username: {
-    in: ['params'],
-    isString: true,
-    optional: false,
-    errorMessage: 'username should be a string'
-  }
-};
-
 exports.getVideosSchema = {
   ...authorizationSchema,
   ...pagingSchema
@@ -78,3 +68,11 @@ exports.getOwnVideosSchema = {
   ...authorizationSchema,
   ...pagingSchema
 };
+
+exports.loadUser = (req, res, next) =>
+  viewUserProfile(req.headers.authorization)
+    .then(user => {
+      req.user = user;
+      return next();
+    })
+    .catch(next);

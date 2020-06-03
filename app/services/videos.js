@@ -67,11 +67,10 @@ exports.getMediaVideosFromIds = ids => {
     });
 };
 
-exports.getVideosByOwner = (owner, { offset, limit }) => {
-  // Lanzar un error si no es un array
-  info('Getting videos by ids');
-  return Video.find({ owner }, null, { skip: offset, limit })
-    .sort({ id: 'asc' })
+exports.getVideos = (filters, order, options) => {
+  info('Getting videos');
+  return Video.find(filters, null, { skip: options.offset, limit: options.limit })
+    .sort(order)
     .catch(dbError => {
       error(`Videos could not be found. Error: ${dbError}`);
       throw databaseError(`Videos could not be found. Error: ${dbError}`);

@@ -1,4 +1,4 @@
-exports.getVideosFromUserSerializer = videos =>
+exports.getVideosSerializer = videos =>
   videos.map(video => ({
     url: video.download_url,
     title: video.title,

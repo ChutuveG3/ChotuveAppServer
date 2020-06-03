@@ -1,5 +1,5 @@
-const { createVideo, uploadVideo, getVideosByOwner, getMediaVideosFromIds } = require('../services/videos');
-const { getVideosFromUserSerializer } = require('../serializers/videos');
+const { createVideo, uploadVideo, getMediaVideosFromIds, getVideos } = require('../services/videos');
+const { getVideosSerializer } = require('../serializers/videos');
 
 exports.upload = ({ body }, res, next) =>
   uploadVideo(body)
@@ -12,23 +12,34 @@ exports.upload = ({ body }, res, next) =>
     )
     .catch(err => next(err));
 
-exports.getVideosFromOwner = ({ params: { username }, query: { offset, limit } }, res, next) => {
+const getVideosAndMedia = (filters, order, { offset, limit }) => {
   let videos = {};
-  return getVideosByOwner(username, { offset, limit })
+  return getVideos(filters, order, { offset, limit })
     .then(videosFound => {
       videos = videosFound;
       return getMediaVideosFromIds(videos.map(video => video.id));
     })
-    .then(mediaVideos => {
-      res.status(200).send(
-        getVideosFromUserSerializer(
-          videos.map(video => ({
-            // eslint-disable-next-line no-underscore-dangle
-            ...video._doc,
-            ...mediaVideos.find(mediaVideo => mediaVideo.id === video.id)
-          }))
-        )
-      );
+    .then(mediaVideos =>
+      getVideosSerializer(
+        videos.map(video => ({
+          // eslint-disable-next-line no-underscore-dangle
+          ...video._doc,
+          ...mediaVideos.find(mediaVideo => mediaVideo.id === video.id)
+        }))
+      )
+    );
+};
+
+exports.getVideosFromOwner = ({ params: { username }, query: { offset, limit } }, res, next) =>
+  getVideosAndMedia({ owner: username, visibility: 'public' }, { id: 'asc' }, { offset, limit })
+    .then(videos => {
+      res.status(200).send(videos);
     })
     .catch(next);
-};
+
+exports.getOwnVideos = ({ user: { user_name: username }, query: { offset, limit } }, res, next) =>
+  getVideosAndMedia({ owner: username }, { id: 'asc' }, { offset, limit })
+    .then(videos => {
+      res.status(200).send(videos);
+    })
+    .catch(next);
