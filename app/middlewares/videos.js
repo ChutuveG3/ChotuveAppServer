@@ -5,12 +5,6 @@ const { viewUserProfile } = require('../services/users');
 
 exports.createVideoSchema = {
   ...authorizationSchema,
-  username: {
-    in: ['body'],
-    isString: true,
-    optional: false,
-    errorMessage: 'username should be a string'
-  },
   title: {
     in: ['body'],
     isString: true,

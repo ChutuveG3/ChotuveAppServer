@@ -1,9 +1,9 @@
 const { createVideo, uploadVideo, getMediaVideosFromIds, getVideos } = require('../services/videos');
 const { getVideosSerializer } = require('../serializers/videos');
 
-exports.upload = ({ body }, res, next) =>
-  uploadVideo(body)
-    .then(id => createVideo(body, id))
+exports.upload = ({ user: { user_name }, body }, res, next) =>
+  uploadVideo(user_name, body)
+    .then(id => createVideo(user_name, body, id))
     .then(() => res.status(201).send({ message: 'ok' }))
     .catch(next);
 

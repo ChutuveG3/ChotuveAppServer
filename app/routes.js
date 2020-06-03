@@ -25,7 +25,7 @@ exports.init = app => {
     [validateSchema(getOwnVideosSchema), addPagingParams, validateToken, loadUser],
     getOwnVideos
   );
-  app.post('/videos', [validateSchema(createVideoSchema), validateToken], upload);
+  app.post('/videos', [validateSchema(createVideoSchema), validateToken, loadUser], upload);
   app.get('/users/me', [validateSchema(getCurrentUserSchema), validateToken], viewProfile);
   app.put('/users/me', [validateSchema(updateProfileSchema), validateToken], updateProfile);
 };
