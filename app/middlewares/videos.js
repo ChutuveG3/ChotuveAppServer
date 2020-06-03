@@ -4,6 +4,7 @@ const { pagingSchema } = require('./paging');
 const { viewUserProfile } = require('../services/users');
 
 exports.createVideoSchema = {
+  ...authorizationSchema,
   username: {
     in: ['body'],
     isString: true,

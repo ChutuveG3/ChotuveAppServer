@@ -3,14 +3,9 @@ const { getVideosSerializer } = require('../serializers/videos');
 
 exports.upload = ({ body }, res, next) =>
   uploadVideo(body)
-    .then(id =>
-      createVideo(body, id)
-        .then(() => {
-          res.status(201).send({ message: 'ok' });
-        })
-        .catch(err => next(err))
-    )
-    .catch(err => next(err));
+    .then(id => createVideo(body, id))
+    .then(() => res.status(201).send({ message: 'ok' }))
+    .catch(next);
 
 const getVideosAndMedia = (filters, order, { offset, limit }) => {
   let videos = {};
