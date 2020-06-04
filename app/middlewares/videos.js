@@ -1,14 +1,20 @@
 const moment = require('moment');
+const { authorizationSchema } = require('./authorization');
+const { pagingSchema } = require('./paging');
+const { viewUserProfile } = require('../services/users');
 
 exports.createVideoSchema = {
+  ...authorizationSchema,
   title: {
     in: ['body'],
     isString: true,
+    optional: true,
     errorMessage: 'title should be a string'
   },
   description: {
     in: ['body'],
     isString: true,
+    optional: true,
     errorMessage: 'description should be a string'
   },
   download_url: {
@@ -47,3 +53,21 @@ exports.createVideoSchema = {
     errorMessage: 'file_size should be a string'
   }
 };
+
+exports.getVideosSchema = {
+  ...authorizationSchema,
+  ...pagingSchema
+};
+
+exports.getOwnVideosSchema = {
+  ...authorizationSchema,
+  ...pagingSchema
+};
+
+exports.loadUser = (req, res, next) =>
+  viewUserProfile(req.headers.authorization)
+    .then(user => {
+      req.user = user;
+      return next();
+    })
+    .catch(next);

@@ -18,6 +18,8 @@ describe('POST /users signup', () => {
       delete currentUserData.first_name;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('first_name');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -27,6 +29,8 @@ describe('POST /users signup', () => {
       delete currentUserData.last_name;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('last_name');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -36,6 +40,8 @@ describe('POST /users signup', () => {
       delete currentUserData.email;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('email');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -45,6 +51,7 @@ describe('POST /users signup', () => {
       delete currentUserData.password;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(2);
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -54,6 +61,8 @@ describe('POST /users signup', () => {
       delete currentUserData.user_name;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('user_name');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -63,6 +72,8 @@ describe('POST /users signup', () => {
       delete currentUserData.birthdate;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('birthdate');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -70,6 +81,7 @@ describe('POST /users signup', () => {
     it('Should be status 400 if it is missing multiple parameters', () =>
       getResponse({ method: 'post', endpoint: baseUrl, body: { last_name: 'MyLastName' } }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(6);
         expect(res.body.internal_code).toBe('invalid_params');
       }));
   });
@@ -82,13 +94,17 @@ describe('POST /users signup', () => {
         body: { ...userData, birthdate: 'invalid birthdate' }
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('birthdate');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
 
     it('Should be status 400 if email is invalid', () =>
-      getResponse({ method: 'post', endpoint: baseUrl, body: { ...userData, email: 'invalid email' } }).then(
+      getResponse({ method: 'post', endpoint: baseUrl, body: { ...userData, email: 'invalidEmail' } }).then(
         res => {
           expect(res.status).toBe(400);
+          expect(res.body.message.errors).toHaveLength(1);
+          expect(res.body.message.errors[0].param).toBe('email');
           expect(res.body.internal_code).toBe('invalid_params');
         }
       ));
@@ -100,6 +116,8 @@ describe('POST /users signup', () => {
         body: { ...userData, password: 'aaaaa' }
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('password');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
   });

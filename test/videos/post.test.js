@@ -2,6 +2,10 @@ const { getResponse } = require('../setup');
 
 const baseUrl = '/videos';
 
+const videoHeader = {
+  authorization: 'aToken'
+};
+
 const videoData = {
   title: 'AVideoTitle',
   description: 'AVideoDescription',
@@ -17,8 +21,14 @@ describe('POST /videos upload', () => {
     it('Should be status 400 if download url is missing', () => {
       const currentVideoData = { ...videoData };
       delete currentVideoData.download_url;
-      return getResponse({ method: 'post', endpoint: baseUrl, body: currentVideoData }).then(res => {
+      return getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: currentVideoData,
+        header: videoHeader
+      }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(2);
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -26,8 +36,15 @@ describe('POST /videos upload', () => {
     it('Should be status 400 if datetime is missing', () => {
       const currentVideoData = { ...videoData };
       delete currentVideoData.datetime;
-      return getResponse({ method: 'post', endpoint: baseUrl, body: currentVideoData }).then(res => {
+      return getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: currentVideoData,
+        header: videoHeader
+      }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('datetime');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -35,8 +52,15 @@ describe('POST /videos upload', () => {
     it('Should be status 400 if visibility is missing', () => {
       const currentVideoData = { ...videoData };
       delete currentVideoData.visibility;
-      return getResponse({ method: 'post', endpoint: baseUrl, body: currentVideoData }).then(res => {
+      return getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: currentVideoData,
+        header: videoHeader
+      }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('visibility');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -44,8 +68,15 @@ describe('POST /videos upload', () => {
     it('Should be status 400 if file_name is missing', () => {
       const currentVideoData = { ...videoData };
       delete currentVideoData.file_name;
-      return getResponse({ method: 'post', endpoint: baseUrl, body: currentVideoData }).then(res => {
+      return getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: currentVideoData,
+        header: videoHeader
+      }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('file_name');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -53,8 +84,15 @@ describe('POST /videos upload', () => {
     it('Should be status 400 if file_size is missing', () => {
       const currentVideoData = { ...videoData };
       delete currentVideoData.file_size;
-      return getResponse({ method: 'post', endpoint: baseUrl, body: currentVideoData }).then(res => {
+      return getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: currentVideoData,
+        header: videoHeader
+      }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('file_size');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -64,9 +102,12 @@ describe('POST /videos upload', () => {
       getResponse({
         method: 'post',
         endpoint: baseUrl,
-        body: { ...videoData, download_url: 'notAnURL' }
+        body: { ...videoData, download_url: 'notAnURL' },
+        header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('download_url');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
 
@@ -74,9 +115,12 @@ describe('POST /videos upload', () => {
       getResponse({
         method: 'post',
         endpoint: baseUrl,
-        body: { ...videoData, visibility: 'notVisible' }
+        body: { ...videoData, visibility: 'notVisible' },
+        header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('visibility');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
 
@@ -84,9 +128,12 @@ describe('POST /videos upload', () => {
       getResponse({
         method: 'post',
         endpoint: baseUrl,
-        body: { ...videoData, datetime: 'notADate4632' }
+        body: { ...videoData, datetime: 'notADate4632' },
+        header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('datetime');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
 
@@ -94,9 +141,12 @@ describe('POST /videos upload', () => {
       getResponse({
         method: 'post',
         endpoint: baseUrl,
-        body: { ...videoData, datetime: '2/4/2020' }
+        body: { ...videoData, datetime: '2/4/2020' },
+        header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('datetime');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
 
@@ -104,9 +154,12 @@ describe('POST /videos upload', () => {
       getResponse({
         method: 'post',
         endpoint: baseUrl,
-        body: { ...videoData, datetime: '2020-05-18T14:43:35.0453Z' }
+        body: { ...videoData, datetime: '2020-05-18T14:43:35.0453Z' },
+        header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('datetime');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
   });
