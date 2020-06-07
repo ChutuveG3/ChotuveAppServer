@@ -60,7 +60,13 @@ exports.createUserLoginSchema = {
 };
 
 exports.getCurrentUserSchema = {
-  ...authorizationSchema
+  ...authorizationSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
+  }
 };
 
 exports.updateProfileSchema = {

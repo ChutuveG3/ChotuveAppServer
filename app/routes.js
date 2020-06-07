@@ -26,6 +26,6 @@ exports.init = app => {
     getOwnVideos
   );
   app.post('/videos', [validateSchema(createVideoSchema), validateToken, loadUser], upload);
-  app.get('/users/me', [validateSchema(getCurrentUserSchema), validateToken], viewProfile);
+  app.get('/users/:username', [validateSchema(getCurrentUserSchema), validateToken], viewProfile);
   app.put('/users/me', [validateSchema(updateProfileSchema), validateToken], updateProfile);
 };
