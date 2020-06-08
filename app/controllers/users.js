@@ -30,5 +30,5 @@ exports.updateProfile = ({ headers: { authorization: token }, body }, res, next)
 
 exports.sendFriendRequest = ({ params: { username1: srcUser, username2: dstUser } }, res, next) =>
   sendFriendRequest(srcUser, dstUser)
-    .then(() => res.status(200).send({ message: 'ok' }))
+    .then(() => res.status(201).send({ message: 'ok' }))
     .catch(next);

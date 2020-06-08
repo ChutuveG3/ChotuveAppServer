@@ -92,7 +92,7 @@ exports.sendFriendRequest = (srcUser, dstUser) => {
       return exports.getUserFromUsername(dstUser);
     })
     .then(user => {
-      if (user.friendRequests.includes(srcUser)) return null;
+      if (user.friendRequests.includes(srcUser)) return {};
       user.friendRequests.push(srcUser);
       return exports.saveUserInDB(user);
     });

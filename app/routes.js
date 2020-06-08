@@ -12,7 +12,7 @@ const {
   updateProfileSchema,
   friendRequestSchema,
   validateUser,
-  validateDifferentUsers
+  validateParamsUsers
 } = require('./middlewares/users');
 const { validateToken } = require('./middlewares/token_validator');
 
@@ -33,7 +33,7 @@ exports.init = app => {
   app.put('/users/me', [validateSchema(updateProfileSchema), validateToken], updateProfile);
   app.post(
     '/users/:username1/friends/:username2',
-    [validateSchema(friendRequestSchema), validateToken, loadUser, validateUser, validateDifferentUsers],
+    [validateSchema(friendRequestSchema), validateToken, loadUser, validateUser, validateParamsUsers],
     sendFriendRequest
   );
 };

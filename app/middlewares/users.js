@@ -103,7 +103,15 @@ exports.validateUser = ({ user: { user_name }, params: { username1 } }, res, nex
   return next();
 };
 
-exports.validateDifferentUsers = ({ params: { username1, username2 } }, res, next) => {
-  if (username1 === username2) next(sameUserError('You cannot befriend yourself!'));
+exports.validateParamsUsers = ({ params: { username1, username2 } }, res, next) => {
+  try {
+    exports.validateDifferentUsers(username1, username2);
+  } catch (err) {
+    return next(err);
+  }
   return next();
+};
+
+exports.validateDifferentUsers = (username1, username2) => {
+  if (username1 === username2) throw sameUserError(`Users must be different: ${username1}, ${username2}`);
 };
