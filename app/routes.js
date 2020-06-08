@@ -4,7 +4,7 @@ const { upload, getVideos, getOwnVideos } = require('./controllers/videos');
 const { createVideoSchema, getVideosSchema, getOwnVideosSchema, loadUser } = require('./middlewares/videos');
 const { validateSchema } = require('./middlewares/params_validator');
 const { addPagingParams } = require('./middlewares/paging');
-const { signUp, login, viewProfile, updateProfile } = require('./controllers/users');
+const { signUp, login, viewProfile, updateProfile, sendFriendRequest } = require('./controllers/users');
 const {
   createUserSchema,
   createUserLoginSchema,
@@ -33,6 +33,6 @@ exports.init = app => {
   app.post(
     '/users/:username1/friends/:username2',
     [validateSchema(friendRequestSchema), validateToken, loadUser, validateUser],
-    home
+    sendFriendRequest
   );
 };

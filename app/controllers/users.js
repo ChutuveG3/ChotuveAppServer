@@ -3,7 +3,8 @@ const {
   createUser,
   loginUser,
   viewUserProfile,
-  updateUserProfile
+  updateUserProfile,
+  sendFriendRequest
 } = require('../services/users');
 
 exports.signUp = ({ body }, res, next) =>
@@ -22,8 +23,12 @@ exports.viewProfile = ({ headers: { authorization: token } }, res, next) =>
     .then(userProfile => res.status(200).send(userProfile))
     .catch(next);
 
-exports.updateProfile = ({ headers: { authorization: token }, body }, res, next) => {
+exports.updateProfile = ({ headers: { authorization: token }, body }, res, next) =>
   updateUserProfile(token, body)
     .then(() => res.status(200).send({ message: 'ok' }))
     .catch(next);
-};
+
+exports.sendFriendRequest = ({ params: { username1: srcUser, username2: dstUser } }, res, next) =>
+  sendFriendRequest(srcUser, dstUser)
+    .then(() => res.status(200).send({ message: 'ok' }))
+    .catch(next);

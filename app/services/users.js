@@ -66,3 +66,22 @@ exports.updateUserProfile = (token, body) => {
     }
   });
 };
+
+exports.getUserFromUsername = username =>
+  User.find({ username })
+    .catch(dbError => {
+      error(`User could not be found. Error: ${dbError}`);
+      throw databaseError(`User could not be found. Error: ${dbError}`);
+    })
+    .then(user => {
+      if (!user) throw userNotExists(`${username} does not exist`);
+      return user;
+    });
+
+exports.sendFriendRequest = (srcUser, dstUser) => {
+  info(`Sending friend request from ${srcUser} to ${dstUser}`);
+  return exports
+    .getUserFromUsername(srcUser)
+    .then(() => exports.getUserFromUsername(dstUser))
+    .then(user => console.log(user));
+};
