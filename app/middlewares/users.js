@@ -1,5 +1,6 @@
 const moment = require('moment');
 const { authorizationSchema } = require('./authorization');
+const { userMismatchError } = require('../errors');
 
 exports.createUserSchema = {
   first_name: {
@@ -91,4 +92,13 @@ exports.updateProfileSchema = {
     optional: false,
     errorMessage: 'birthdate should be a valid date'
   }
+};
+
+exports.friendRequestSchema = {
+  ...authorizationSchema
+};
+
+exports.validateUser = ({ user: { user_name }, params: { username1 } }, res, next) => {
+  if (user_name !== username1) next(userMismatchError('Token user does not match route user'));
+  return next();
 };

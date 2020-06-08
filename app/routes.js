@@ -9,7 +9,9 @@ const {
   createUserSchema,
   createUserLoginSchema,
   getCurrentUserSchema,
-  updateProfileSchema
+  updateProfileSchema,
+  friendRequestSchema,
+  validateUser
 } = require('./middlewares/users');
 const { validateToken } = require('./middlewares/token_validator');
 
@@ -28,4 +30,9 @@ exports.init = app => {
   app.post('/videos', [validateSchema(createVideoSchema), validateToken, loadUser], upload);
   app.get('/users/me', [validateSchema(getCurrentUserSchema), validateToken], viewProfile);
   app.put('/users/me', [validateSchema(updateProfileSchema), validateToken], updateProfile);
+  app.post(
+    '/users/:username1/friends/:username2',
+    [validateSchema(friendRequestSchema), validateToken, loadUser, validateUser],
+    home
+  );
 };

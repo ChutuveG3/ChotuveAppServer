@@ -23,3 +23,6 @@ exports.userNotExists = message => internalError(message, exports.USER_NOT_EXIST
 
 exports.INVALID_TOKEN_ERROR = 'invalid_token_error';
 exports.invalidTokenError = message => internalError(message, exports.INVALID_TOKEN_ERROR);
+
+exports.USER_MISMATCH_ERROR = 'user_mismatch_error';
+exports.userMismatchError = message => internalError(message, exports.USER_MISMATCH_ERROR);
