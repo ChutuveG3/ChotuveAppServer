@@ -6,7 +6,7 @@ const {
 } = require('../../config');
 const User = require('../models/user');
 const { info, error } = require('../logger');
-const { authServerError, userNotExists, databaseError } = require('../errors');
+const { authServerError, userNotExists, databaseError, alreadyFriendsError } = require('../errors');
 
 exports.signUpUser = body => {
   info(`Sending sign up request to Auth Server at ${authServer} for user with email: ${body.email}`);
@@ -23,11 +23,14 @@ exports.createUser = userData => {
     username: userData.user_name
   });
 
-  return user.save().catch(dbError => {
-    error(`User could not be created. Error: ${dbError}`);
-    throw databaseError(`User could not be created. Error: ${dbError}`);
-  });
+  return exports.saveUserInDB(user);
 };
+
+exports.saveUserInDB = user =>
+  user.save().catch(dbError => {
+    error(`User could not be saved. Error: ${dbError}`);
+    throw databaseError(`User could not be saved. Error: ${dbError}`);
+  });
 
 exports.loginUser = body => {
   info(`Sending login request to Auth Server at ${authServer} for user with email: ${body.email}`);
@@ -68,7 +71,7 @@ exports.updateUserProfile = (token, body) => {
 };
 
 exports.getUserFromUsername = username =>
-  User.find({ username })
+  User.findOne({ username })
     .catch(dbError => {
       error(`User could not be found. Error: ${dbError}`);
       throw databaseError(`User could not be found. Error: ${dbError}`);
@@ -82,6 +85,15 @@ exports.sendFriendRequest = (srcUser, dstUser) => {
   info(`Sending friend request from ${srcUser} to ${dstUser}`);
   return exports
     .getUserFromUsername(srcUser)
-    .then(() => exports.getUserFromUsername(dstUser))
-    .then(user => console.log(user));
+    .then(user => {
+      if (user.friends.includes(dstUser)) {
+        throw alreadyFriendsError(`${srcUser} and ${dstUser} are already friends`);
+      }
+      return exports.getUserFromUsername(dstUser);
+    })
+    .then(user => {
+      if (user.friendRequests.includes(srcUser)) return null;
+      user.friendRequests.push(srcUser);
+      return exports.saveUserInDB(user);
+    });
 };

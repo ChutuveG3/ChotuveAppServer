@@ -26,3 +26,9 @@ exports.invalidTokenError = message => internalError(message, exports.INVALID_TO
 
 exports.USER_MISMATCH_ERROR = 'user_mismatch_error';
 exports.userMismatchError = message => internalError(message, exports.USER_MISMATCH_ERROR);
+
+exports.SAME_USER_ERROR = 'same_user_error';
+exports.sameUserError = message => internalError(message, exports.SAME_USER_ERROR);
+
+exports.ALREADY_FRIENDS_ERROR = 'already_friends_error';
+exports.alreadyFriendsError = message => internalError(message, exports.ALREADY_FRIENDS_ERROR);

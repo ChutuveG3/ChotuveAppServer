@@ -11,7 +11,9 @@ const statusCodes = {
   [errors.MEDIA_SERVER_ERROR]: 502,
   [errors.USER_NOT_EXISTS]: 409,
   [errors.INVALID_TOKEN_ERROR]: 401,
-  [errors.USER_MISMATCH_ERROR]: 400
+  [errors.USER_MISMATCH_ERROR]: 400,
+  [errors.SAME_USER_ERROR]: 400,
+  [errors.ALREADY_FRIENDS_ERROR]: 409
 };
 
 exports.handle = (error, req, res, next) => {

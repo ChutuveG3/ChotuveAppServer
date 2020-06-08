@@ -1,6 +1,6 @@
 const moment = require('moment');
 const { authorizationSchema } = require('./authorization');
-const { userMismatchError } = require('../errors');
+const { userMismatchError, sameUserError } = require('../errors');
 
 exports.createUserSchema = {
   first_name: {
@@ -100,5 +100,10 @@ exports.friendRequestSchema = {
 
 exports.validateUser = ({ user: { user_name }, params: { username1 } }, res, next) => {
   if (user_name !== username1) next(userMismatchError('Token user does not match route user'));
+  return next();
+};
+
+exports.validateDifferentUsers = ({ params: { username1, username2 } }, res, next) => {
+  if (username1 === username2) next(sameUserError('You cannot befriend yourself!'));
   return next();
 };
