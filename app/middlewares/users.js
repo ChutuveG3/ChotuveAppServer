@@ -129,7 +129,7 @@ exports.validateDifferentUsers = (username1, username2) => {
   if (username1 === username2) throw sameUserError(`Users must be different: ${username1}, ${username2}`);
 };
 
-exports.listFriendRequestsSchema = {
+const listSchema = {
   ...authorizationSchema,
   ...pagingSchema,
   username: {
@@ -138,4 +138,12 @@ exports.listFriendRequestsSchema = {
     optional: false,
     errorMessage: 'username should be a string'
   }
+};
+
+exports.listFriendRequestsSchema = {
+  ...listSchema
+};
+
+exports.listFriendsSchema = {
+  ...listSchema
 };

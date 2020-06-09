@@ -104,3 +104,8 @@ exports.listFriendRequests = (username, offset, limit) => {
     .getUserFromUsername(username)
     .then(user => user.friendRequests.slice(offset, offset + limit));
 };
+
+exports.listFriends = (username, offset, limit) => {
+  info(`Obtaining friends for ${username}`);
+  return exports.getUserFromUsername(username).then(user => user.friends.slice(offset, offset + limit));
+};

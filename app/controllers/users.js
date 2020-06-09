@@ -5,7 +5,8 @@ const {
   viewUserProfile,
   updateUserProfile,
   sendFriendRequest,
-  listFriendRequests
+  listFriendRequests,
+  listFriends
 } = require('../services/users');
 
 exports.signUp = ({ body }, res, next) =>
@@ -37,4 +38,9 @@ exports.sendFriendRequest = ({ params: { username: srcUser, username2: dstUser }
 exports.listFriendRequests = ({ params: { username }, query: { offset, limit } }, res, next) =>
   listFriendRequests(username, offset, limit)
     .then(friendRequests => res.status(200).send({ friendRequests }))
+    .catch(next);
+
+exports.listFriends = ({ params: { username }, query: { offset, limit } }, res, next) =>
+  listFriends(username, offset, limit)
+    .then(friends => res.status(200).send({ friends }))
     .catch(next);
