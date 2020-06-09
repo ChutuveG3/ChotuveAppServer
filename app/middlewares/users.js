@@ -1,6 +1,7 @@
 const moment = require('moment');
 const { authorizationSchema } = require('./authorization');
 const { userMismatchError, sameUserError } = require('../errors');
+const { pagingSchema } = require('./paging');
 
 exports.createUserSchema = {
   first_name: {
@@ -94,18 +95,30 @@ exports.updateProfileSchema = {
   }
 };
 
-exports.friendRequestSchema = {
-  ...authorizationSchema
+exports.sendFriendRequestSchema = {
+  ...authorizationSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username1 should be a string'
+  },
+  username2: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username2 should be a string'
+  }
 };
 
-exports.validateUser = ({ user: { user_name }, params: { username1 } }, res, next) => {
-  if (user_name !== username1) next(userMismatchError('Token user does not match route user'));
+exports.validateUser = ({ user: { user_name }, params: { username } }, res, next) => {
+  if (user_name !== username) next(userMismatchError('Token user does not match route user'));
   return next();
 };
 
-exports.validateParamsUsers = ({ params: { username1, username2 } }, res, next) => {
+exports.validateParamsUsers = ({ params: { username, username2 } }, res, next) => {
   try {
-    exports.validateDifferentUsers(username1, username2);
+    exports.validateDifferentUsers(username, username2);
   } catch (err) {
     return next(err);
   }
@@ -114,4 +127,15 @@ exports.validateParamsUsers = ({ params: { username1, username2 } }, res, next) 
 
 exports.validateDifferentUsers = (username1, username2) => {
   if (username1 === username2) throw sameUserError(`Users must be different: ${username1}, ${username2}`);
+};
+
+exports.listFriendRequestsSchema = {
+  ...authorizationSchema,
+  ...pagingSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
+  }
 };

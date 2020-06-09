@@ -97,3 +97,10 @@ exports.sendFriendRequest = (srcUser, dstUser) => {
       return exports.saveUserInDB(user);
     });
 };
+
+exports.listFriendRequests = (username, offset, limit) => {
+  info(`Obtaining friend requests for ${username}`);
+  return exports
+    .getUserFromUsername(username)
+    .then(user => user.friendRequests.slice(offset, offset + limit));
+};
