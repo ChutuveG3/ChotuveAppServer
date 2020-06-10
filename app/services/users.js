@@ -54,22 +54,6 @@ exports.viewUserProfile = (username, token) => {
     .then(response => response.data);
 };
 
-exports.loadUser = token => {
-  info(`Getting user from Auth Server at ${authServer}`);
-  return axios
-    .get(`${authServer}/user`, { headers: { authorization: token } })
-    .catch(aserror => {
-      if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
-      error(`Auth Server failed to retrieve user profile. ${aserror.response.data.message}`);
-      if (aserror.response.status === 409) {
-        throw userNotExists(aserror.response.data);
-      } else {
-        throw authServerError(aserror.response.data);
-      }
-    })
-    .then(response => response.data);
-};
-
 exports.updateUserProfile = (token, body) => {
   info(`Sending update profile request to Auth Server at ${authServer}`);
   return axios.put(`${authServer}/users/me`, body, { headers: { authorization: token } }).catch(aserror => {
