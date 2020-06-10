@@ -1,7 +1,6 @@
 const moment = require('moment');
 const { authorizationSchema } = require('./authorization');
 const { pagingSchema } = require('./paging');
-const { viewUserProfile } = require('../services/users');
 
 exports.createVideoSchema = {
   ...authorizationSchema,
@@ -63,11 +62,3 @@ exports.getOwnVideosSchema = {
   ...authorizationSchema,
   ...pagingSchema
 };
-
-exports.loadUser = (req, res, next) =>
-  viewUserProfile(req.headers.authorization)
-    .then(user => {
-      req.user = user;
-      return next();
-    })
-    .catch(next);
