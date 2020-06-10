@@ -32,3 +32,6 @@ exports.sameUserError = message => internalError(message, exports.SAME_USER_ERRO
 
 exports.ALREADY_FRIENDS_ERROR = 'already_friends_error';
 exports.alreadyFriendsError = message => internalError(message, exports.ALREADY_FRIENDS_ERROR);
+
+exports.MISSING_FRIEND_REQUEST_ERROR = 'missing_friend_request_error';
+exports.missingFriendRequestError = message => internalError(message, exports.MISSING_FRIEND_REQUEST_ERROR);

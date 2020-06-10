@@ -6,7 +6,9 @@ const {
   updateUserProfile,
   sendFriendRequest,
   listFriendRequests,
-  listFriends
+  listFriends,
+  acceptFriendRequest,
+  rejectFriendRequest
 } = require('../services/users');
 
 exports.signUp = ({ body }, res, next) =>
@@ -43,4 +45,14 @@ exports.listFriendRequests = ({ params: { username }, query: { offset, limit } }
 exports.listFriends = ({ params: { username }, query: { offset, limit } }, res, next) =>
   listFriends(username, offset, limit)
     .then(friends => res.status(200).send({ friends }))
+    .catch(next);
+
+exports.acceptFriendRequest = ({ params: { username: srcUser, username2: dstUser } }, res, next) =>
+  acceptFriendRequest(srcUser, dstUser)
+    .then(() => res.status(201).send({ message: 'ok' }))
+    .catch(next);
+
+exports.rejectFriendRequest = ({ params: { username: srcUser, username2: dstUser } }, res, next) =>
+  rejectFriendRequest(srcUser, dstUser)
+    .then(() => res.status(201).send({ message: 'ok' }))
     .catch(next);

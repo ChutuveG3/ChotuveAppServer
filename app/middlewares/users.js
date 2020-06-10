@@ -95,7 +95,7 @@ exports.updateProfileSchema = {
   }
 };
 
-exports.sendFriendRequestSchema = {
+exports.twoUsersSchema = {
   ...authorizationSchema,
   username: {
     in: ['params'],
@@ -109,6 +109,10 @@ exports.sendFriendRequestSchema = {
     optional: false,
     errorMessage: 'username2 should be a string'
   }
+};
+
+exports.sendFriendRequestSchema = {
+  ...exports.twoUsersSchema
 };
 
 exports.validateUser = ({ user: { user_name }, params: { username } }, res, next) => {
@@ -146,4 +150,12 @@ exports.listFriendRequestsSchema = {
 
 exports.listFriendsSchema = {
   ...listSchema
+};
+
+exports.acceptFriendRequestSchema = {
+  ...exports.twoUsersSchema
+};
+
+exports.rejectFriendRequestSchema = {
+  ...exports.twoUsersSchema
 };

@@ -6,7 +6,13 @@ const {
 } = require('../../config');
 const User = require('../models/user');
 const { info, error } = require('../logger');
-const { authServerError, userNotExists, databaseError, alreadyFriendsError } = require('../errors');
+const {
+  authServerError,
+  userNotExists,
+  databaseError,
+  alreadyFriendsError,
+  missingFriendRequestError
+} = require('../errors');
 
 exports.signUpUser = body => {
   info(`Sending sign up request to Auth Server at ${authServer} for user with email: ${body.email}`);
@@ -108,4 +114,41 @@ exports.listFriendRequests = (username, offset, limit) => {
 exports.listFriends = (username, offset, limit) => {
   info(`Obtaining friends for ${username}`);
   return exports.getUserFromUsername(username).then(user => user.friends.slice(offset, offset + limit));
+};
+
+exports.acceptFriendRequest = (srcUser, dstUser) => {
+  info(`Accepting friend request from ${dstUser}`);
+  return exports
+    .getUserFromUsername(srcUser)
+    .then(user => {
+      if (user.friends.includes(dstUser)) {
+        throw alreadyFriendsError(`${srcUser} and ${dstUser} are already friends`);
+      }
+      if (!user.friendRequests.includes(dstUser)) {
+        throw missingFriendRequestError('Missing friend request');
+      }
+      user.friendRequests.splice(user.friendRequests.indexOf(dstUser), 1);
+      user.friends.push(dstUser);
+      return exports.saveUserInDB(user);
+    })
+    .then(() => exports.getUserFromUsername(dstUser))
+    .then(user => {
+      user.friendRequests.splice(user.friendRequests.indexOf(srcUser), 1);
+      user.friends.push(srcUser);
+      return exports.saveUserInDB(user);
+    });
+};
+
+exports.rejectFriendRequest = (srcUser, dstUser) => {
+  info(`Rejecting friend request from ${dstUser}`);
+  return exports.getUserFromUsername(srcUser).then(user => {
+    if (user.friends.includes(dstUser)) {
+      throw alreadyFriendsError(`${srcUser} and ${dstUser} are already friends`);
+    }
+    if (!user.friendRequests.includes(dstUser)) {
+      throw missingFriendRequestError('Missing friend request');
+    }
+    user.friendRequests.splice(user.friendRequests.indexOf(dstUser), 1);
+    return exports.saveUserInDB(user);
+  });
 };

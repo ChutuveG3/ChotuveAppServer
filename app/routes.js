@@ -11,7 +11,9 @@ const {
   updateProfile,
   sendFriendRequest,
   listFriendRequests,
-  listFriends
+  listFriends,
+  acceptFriendRequest,
+  rejectFriendRequest
 } = require('./controllers/users');
 const {
   createUserSchema,
@@ -22,7 +24,9 @@ const {
   validateUser,
   validateParamsUsers,
   listFriendRequestsSchema,
-  listFriendsSchema
+  listFriendsSchema,
+  acceptFriendRequestSchema,
+  rejectFriendRequestSchema
 } = require('./middlewares/users');
 const { validateToken } = require('./middlewares/token_validator');
 
@@ -54,5 +58,15 @@ exports.init = app => {
     '/users/:username/friends',
     [validateSchema(listFriendsSchema), validateToken, loadUser, validateUser, addPagingParams],
     listFriends
+  );
+  app.post(
+    '/users/:username/friends/:username2/accept',
+    [validateSchema(acceptFriendRequestSchema), validateToken, loadUser, validateUser],
+    acceptFriendRequest
+  );
+  app.post(
+    '/users/:username/friends/:username2/reject',
+    [validateSchema(rejectFriendRequestSchema), validateToken, loadUser, validateUser],
+    rejectFriendRequest
   );
 };
