@@ -14,6 +14,12 @@ const {
   missingFriendRequestError
 } = require('../errors');
 
+const saveUserInDB = user =>
+  user.save().catch(dbError => {
+    error(`User could not be saved. Error: ${dbError}`);
+    throw databaseError(`User could not be saved. Error: ${dbError}`);
+  });
+
 exports.signUpUser = body => {
   info(`Sending sign up request to Auth Server at ${authServer} for user with email: ${body.email}`);
   return axios.post(`${authServer}/users`, body).catch(aserror => {
@@ -29,14 +35,8 @@ exports.createUser = userData => {
     username: userData.user_name
   });
 
-  return exports.saveUserInDB(user);
+  return saveUserInDB(user);
 };
-
-exports.saveUserInDB = user =>
-  user.save().catch(dbError => {
-    error(`User could not be saved. Error: ${dbError}`);
-    throw databaseError(`User could not be saved. Error: ${dbError}`);
-  });
 
 exports.loginUser = body => {
   info(`Sending login request to Auth Server at ${authServer} for user with email: ${body.email}`);
@@ -76,7 +76,7 @@ exports.updateUserProfile = (token, body) => {
   });
 };
 
-exports.getUserFromUsername = username =>
+const getUserFromUsername = username =>
   User.findOne({ username })
     .catch(dbError => {
       error(`User could not be found. Error: ${dbError}`);
@@ -87,68 +87,59 @@ exports.getUserFromUsername = username =>
       return user;
     });
 
-exports.sendFriendRequest = (srcUser, dstUser) => {
-  info(`Sending friend request from ${srcUser} to ${dstUser}`);
-  return exports
-    .getUserFromUsername(srcUser)
-    .then(user => {
-      if (user.friends.includes(dstUser)) {
-        throw alreadyFriendsError(`${srcUser} and ${dstUser} are already friends`);
+exports.sendFriendRequest = (srcUsername, dstUsername) => {
+  info(`Sending friend request from ${srcUsername} to ${dstUsername}`);
+  return Promise.all([getUserFromUsername(srcUsername), getUserFromUsername(dstUsername)]).then(
+    ([srcUser, dstUser]) => {
+      if (srcUser.friends.includes(dstUsername)) {
+        throw alreadyFriendsError(`${srcUsername} and ${dstUsername} are already friends`);
       }
-      return exports.getUserFromUsername(dstUser);
-    })
-    .then(user => {
-      if (user.friendRequests.includes(srcUser)) return {};
-      user.friendRequests.push(srcUser);
-      return exports.saveUserInDB(user);
-    });
+      if (dstUser.friendRequests.includes(srcUsername)) return {};
+      dstUser.friendRequests.push(srcUsername);
+      return saveUserInDB(dstUser);
+    }
+  );
 };
 
 exports.listFriendRequests = (username, offset, limit) => {
   info(`Obtaining friend requests for ${username}`);
-  return exports
-    .getUserFromUsername(username)
-    .then(user => user.friendRequests.slice(offset, offset + limit));
+  return getUserFromUsername(username).then(user => user.friendRequests.slice(offset, offset + limit));
 };
 
 exports.listFriends = (username, offset, limit) => {
   info(`Obtaining friends for ${username}`);
-  return exports.getUserFromUsername(username).then(user => user.friends.slice(offset, offset + limit));
+  return getUserFromUsername(username).then(user => user.friends.slice(offset, offset + limit));
 };
 
-exports.acceptFriendRequest = (srcUser, dstUser) => {
-  info(`Accepting friend request from ${dstUser}`);
-  return exports
-    .getUserFromUsername(srcUser)
-    .then(user => {
-      if (user.friends.includes(dstUser)) {
-        throw alreadyFriendsError(`${srcUser} and ${dstUser} are already friends`);
+exports.acceptFriendRequest = (srcUsername, dstUsername) => {
+  info(`Accepting friend request from ${dstUsername}`);
+  return Promise.all([getUserFromUsername(srcUsername), getUserFromUsername(dstUsername)]).then(
+    ([srcUser, dstUser]) => {
+      if (srcUser.friends.includes(dstUsername)) {
+        throw alreadyFriendsError(`${srcUsername} and ${dstUsername} are already friends`);
       }
-      if (!user.friendRequests.includes(dstUser)) {
+      if (!srcUser.friendRequests.includes(dstUsername)) {
         throw missingFriendRequestError('Missing friend request');
       }
-      user.friendRequests.splice(user.friendRequests.indexOf(dstUser), 1);
-      user.friends.push(dstUser);
-      return exports.saveUserInDB(user);
-    })
-    .then(() => exports.getUserFromUsername(dstUser))
-    .then(user => {
-      user.friendRequests.splice(user.friendRequests.indexOf(srcUser), 1);
-      user.friends.push(srcUser);
-      return exports.saveUserInDB(user);
-    });
+      srcUser.friendRequests.splice(srcUser.friendRequests.indexOf(dstUsername), 1);
+      srcUser.friends.push(dstUsername);
+      dstUser.friendRequests.splice(dstUser.friendRequests.indexOf(srcUsername), 1);
+      dstUser.friends.push(srcUsername);
+      return Promise.all([saveUserInDB(srcUser), saveUserInDB(dstUser)]);
+    }
+  );
 };
 
-exports.rejectFriendRequest = (srcUser, dstUser) => {
-  info(`Rejecting friend request from ${dstUser}`);
-  return exports.getUserFromUsername(srcUser).then(user => {
-    if (user.friends.includes(dstUser)) {
-      throw alreadyFriendsError(`${srcUser} and ${dstUser} are already friends`);
+exports.rejectFriendRequest = (srcUsername, dstUsername) => {
+  info(`Rejecting friend request from ${dstUsername}`);
+  return getUserFromUsername(srcUsername).then(user => {
+    if (user.friends.includes(dstUsername)) {
+      throw alreadyFriendsError(`${srcUsername} and ${dstUsername} are already friends`);
     }
-    if (!user.friendRequests.includes(dstUser)) {
+    if (!user.friendRequests.includes(dstUsername)) {
       throw missingFriendRequestError('Missing friend request');
     }
-    user.friendRequests.splice(user.friendRequests.indexOf(dstUser), 1);
-    return exports.saveUserInDB(user);
+    user.friendRequests.splice(user.friendRequests.indexOf(dstUsername), 1);
+    return saveUserInDB(user);
   });
 };

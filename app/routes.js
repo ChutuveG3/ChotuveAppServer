@@ -45,28 +45,28 @@ exports.init = app => {
   app.get('/users/me', [validateSchema(getCurrentUserSchema), validateToken], viewProfile);
   app.put('/users/me', [validateSchema(updateProfileSchema), validateToken], updateProfile);
   app.post(
-    '/users/:username/friends/:username2',
+    '/users/:src_username/friends/:dst_username',
     [validateSchema(sendFriendRequestSchema), validateToken, loadUser, validateUser, validateParamsUsers],
     sendFriendRequest
   );
   app.get(
-    '/users/:username/friends/pending',
+    '/users/:src_username/friends/pending',
     [validateSchema(listFriendRequestsSchema), validateToken, loadUser, validateUser, addPagingParams],
     listFriendRequests
   );
   app.get(
-    '/users/:username/friends',
+    '/users/:src_username/friends',
     [validateSchema(listFriendsSchema), validateToken, loadUser, validateUser, addPagingParams],
     listFriends
   );
   app.post(
-    '/users/:username/friends/:username2/accept',
-    [validateSchema(acceptFriendRequestSchema), validateToken, loadUser, validateUser],
+    '/users/:src_username/friends/:dst_username/accept',
+    [validateSchema(acceptFriendRequestSchema), validateToken, loadUser, validateUser, validateParamsUsers],
     acceptFriendRequest
   );
   app.post(
-    '/users/:username/friends/:username2/reject',
-    [validateSchema(rejectFriendRequestSchema), validateToken, loadUser, validateUser],
+    '/users/:src_username/friends/:dst_username/reject',
+    [validateSchema(rejectFriendRequestSchema), validateToken, loadUser, validateUser, validateParamsUsers],
     rejectFriendRequest
   );
 };

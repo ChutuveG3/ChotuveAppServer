@@ -97,17 +97,17 @@ exports.updateProfileSchema = {
 
 exports.twoUsersSchema = {
   ...authorizationSchema,
-  username: {
+  src_username: {
     in: ['params'],
     isString: true,
     optional: false,
-    errorMessage: 'username1 should be a string'
+    errorMessage: 'src_username should be a string'
   },
-  username2: {
+  dst_username: {
     in: ['params'],
     isString: true,
     optional: false,
-    errorMessage: 'username2 should be a string'
+    errorMessage: 'dst_username should be a string'
   }
 };
 
@@ -115,32 +115,32 @@ exports.sendFriendRequestSchema = {
   ...exports.twoUsersSchema
 };
 
-exports.validateUser = ({ user: { user_name }, params: { username } }, res, next) => {
-  if (user_name !== username) next(userMismatchError('Token user does not match route user'));
+exports.validateUser = ({ user: { user_name }, params: { src_username } }, res, next) => {
+  if (user_name !== src_username) return next(userMismatchError('Token user does not match route user'));
   return next();
 };
 
-exports.validateParamsUsers = ({ params: { username, username2 } }, res, next) => {
+const validateDifferentUsers = (username1, username2) => {
+  if (username1 === username2) throw sameUserError(`Users must be different: ${username1}, ${username2}`);
+};
+
+exports.validateParamsUsers = ({ params: { src_username, dst_username } }, res, next) => {
   try {
-    exports.validateDifferentUsers(username, username2);
+    validateDifferentUsers(src_username, dst_username);
   } catch (err) {
     return next(err);
   }
   return next();
 };
 
-exports.validateDifferentUsers = (username1, username2) => {
-  if (username1 === username2) throw sameUserError(`Users must be different: ${username1}, ${username2}`);
-};
-
 const listSchema = {
   ...authorizationSchema,
   ...pagingSchema,
-  username: {
+  src_username: {
     in: ['params'],
     isString: true,
     optional: false,
-    errorMessage: 'username should be a string'
+    errorMessage: 'src_username should be a string'
   }
 };
 
