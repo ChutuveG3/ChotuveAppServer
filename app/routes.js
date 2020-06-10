@@ -18,7 +18,6 @@ exports.init = app => {
   app.get('/', [], home);
   app.post('/users', [validateSchema(createUserSchema)], signUp);
   app.post('/users/sessions', [validateSchema(createUserLoginSchema)], login);
-  app.get('/users/me', [validateSchema(getCurrentUserSchema)], viewProfile);
   app.get('/videos', [validateSchema(getVideosSchema), addPagingParams, validateToken], getVideos);
   app.get(
     '/videos/me',
