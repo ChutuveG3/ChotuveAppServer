@@ -98,3 +98,19 @@ exports.updateProfileSchema = {
     errorMessage: 'birthdate should be a valid date'
   }
 };
+
+exports.twoUsersSchema = {
+  ...authorizationSchema,
+  src_username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'src_username should be a string'
+  },
+  dst_username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'dst_username should be a string'
+  }
+};
