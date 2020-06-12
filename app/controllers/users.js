@@ -23,8 +23,8 @@ exports.login = ({ body }, res, next) =>
     .then(response => res.status(200).send({ token: response.data.token }))
     .catch(next);
 
-exports.viewProfile = ({ headers: { authorization: token } }, res, next) =>
-  viewUserProfile(token)
+exports.viewProfile = ({ params: { username }, headers: { authorization: token } }, res, next) =>
+  viewUserProfile(username, token)
     .then(userProfile => res.status(200).send(userProfile))
     .catch(next);
 

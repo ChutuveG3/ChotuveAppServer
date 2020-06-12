@@ -1,6 +1,6 @@
 const { getResponse } = require('../setup');
 
-const viewProfileBaseUrl = '/users/me';
+const viewProfileBaseUrl = '/users';
 const updateProfileBaseUrl = '/users/me';
 
 const authHeader = {
@@ -9,8 +9,9 @@ const authHeader = {
 
 describe('GET /users/me to view profile', () => {
   describe('Missing or invalid params', () => {
+    const username = 'testUN';
     it('Should be status 400 if auth token header is missing', () =>
-      getResponse({ method: 'get', endpoint: viewProfileBaseUrl }).then(res => {
+      getResponse({ method: 'get', endpoint: `${viewProfileBaseUrl}/${username}` }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.message.errors).toHaveLength(1);
         expect(res.body.message.errors[0].param).toBe('authorization');

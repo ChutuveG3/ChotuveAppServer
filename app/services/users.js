@@ -40,7 +40,7 @@ exports.createUser = userData => {
 };
 
 exports.loginUser = body => {
-  info(`Sending login request to Auth Server at ${authServer} for user with email: ${body.email}`);
+  info(`Sending login request to Auth Server at ${authServer} for user with username: ${body.username}`);
   return axios.post(`${authServer}/users/sessions`, body).catch(aserror => {
     if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
     error(`Auth Server failed to authenticate user. ${aserror.response.data.message}`);
@@ -48,10 +48,10 @@ exports.loginUser = body => {
   });
 };
 
-exports.viewUserProfile = token => {
+exports.viewUserProfile = (username, token) => {
   info(`Sending view profile request to Auth Server at ${authServer}`);
   return axios
-    .get(`${authServer}/users/me`, { headers: { authorization: token } })
+    .get(`${authServer}/users/${username}`, { headers: { authorization: token } })
     .catch(aserror => {
       if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
       error(`Auth Server failed to retrieve user profile. ${aserror.response.data.message}`);

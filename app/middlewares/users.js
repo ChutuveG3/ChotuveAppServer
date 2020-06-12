@@ -46,11 +46,11 @@ exports.createUserSchema = {
 };
 
 exports.createUserLoginSchema = {
-  email: {
+  username: {
     in: ['body'],
-    isEmail: true,
+    isString: true,
     optional: false,
-    errorMessage: 'email should be a valid email'
+    errorMessage: 'username should be a string'
   },
   password: {
     in: ['body'],
@@ -62,7 +62,13 @@ exports.createUserLoginSchema = {
 };
 
 exports.getCurrentUserSchema = {
-  ...authorizationSchema
+  ...authorizationSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
+  }
 };
 
 exports.updateProfileSchema = {
