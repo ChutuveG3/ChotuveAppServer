@@ -3,19 +3,19 @@ const { getResponse } = require('../setup');
 const baseUrl = '/users/sessions';
 
 const userData = {
-  email: 'test@test.com',
+  username: 'MyUN',
   password: 'MyPassword'
 };
 
 describe('POST /users/sessions login', () => {
   describe('Missing parameters', () => {
-    it('Should be status 400 if email is missing', () => {
+    it('Should be status 400 if username is missing', () => {
       const currentUserData = { ...userData };
-      delete currentUserData.email;
+      delete currentUserData.username;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.message.errors).toHaveLength(1);
-        expect(res.body.message.errors[0].param).toBe('email');
+        expect(res.body.message.errors[0].param).toBe('username');
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
@@ -30,7 +30,7 @@ describe('POST /users/sessions login', () => {
       });
     });
 
-    it('Should be status 400 if both email and password are missing', () =>
+    it('Should be status 400 if both username and password are missing', () =>
       getResponse({ method: 'post', endpoint: baseUrl, body: {} }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.message.errors).toHaveLength(3);
@@ -38,18 +38,6 @@ describe('POST /users/sessions login', () => {
       }));
   });
   describe('Invalid parameters', () => {
-    it('Should be status 400 if email is invalid', () =>
-      getResponse({
-        method: 'post',
-        endpoint: baseUrl,
-        body: { ...userData, email: 'invalid email' }
-      }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(1);
-        expect(res.body.message.errors[0].param).toBe('email');
-        expect(res.body.internal_code).toBe('invalid_params');
-      }));
-
     it('Should be status 400 if password is shorter than 6 characters', () =>
       getResponse({ method: 'post', endpoint: baseUrl, body: { ...userData, password: '1234' } }).then(
         res => {
