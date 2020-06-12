@@ -96,6 +96,13 @@ exports.updateProfileSchema = {
     },
     optional: false,
     errorMessage: 'birthdate should be a valid date'
+  },
+  profile_img_url: {
+    in: ['body'],
+    isString: true,
+    optional: true,
+    isURL: true,
+    errorMessage: 'profile_image_url should be a string'
   }
 };
 
