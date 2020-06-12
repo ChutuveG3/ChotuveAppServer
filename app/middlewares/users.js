@@ -95,7 +95,7 @@ exports.updateProfileSchema = {
   }
 };
 
-exports.twoUsersSchema = {
+const twoUsersSchema = {
   ...authorizationSchema,
   src_username: {
     in: ['params'],
@@ -112,7 +112,7 @@ exports.twoUsersSchema = {
 };
 
 exports.sendFriendRequestSchema = {
-  ...exports.twoUsersSchema
+  ...twoUsersSchema
 };
 
 exports.validateUser = ({ user: { user_name }, params: { src_username } }, res, next) => {
@@ -153,9 +153,9 @@ exports.listFriendsSchema = {
 };
 
 exports.acceptFriendRequestSchema = {
-  ...exports.twoUsersSchema
+  ...twoUsersSchema
 };
 
 exports.rejectFriendRequestSchema = {
-  ...exports.twoUsersSchema
+  ...twoUsersSchema
 };

@@ -13,6 +13,7 @@ const {
   alreadyFriendsError,
   missingFriendRequestError
 } = require('../errors');
+const { userParamsMapper } = require('../mappers/params');
 
 const saveUserInDB = user =>
   user.save().catch(dbError => {
@@ -87,7 +88,8 @@ const getUserFromUsername = username =>
       return user;
     });
 
-exports.sendFriendRequest = (srcUsername, dstUsername) => {
+exports.sendFriendRequest = params => {
+  const { srcUsername, dstUsername } = userParamsMapper(params);
   info(`Sending friend request from ${srcUsername} to ${dstUsername}`);
   return Promise.all([getUserFromUsername(srcUsername), getUserFromUsername(dstUsername)]).then(
     ([srcUser, dstUser]) => {
@@ -101,17 +103,20 @@ exports.sendFriendRequest = (srcUsername, dstUsername) => {
   );
 };
 
-exports.listFriendRequests = (username, offset, limit) => {
+exports.listFriendRequests = (params, offset, limit) => {
+  const { srcUsername: username } = userParamsMapper(params);
   info(`Obtaining friend requests for ${username}`);
   return getUserFromUsername(username).then(user => user.friendRequests.slice(offset, offset + limit));
 };
 
-exports.listFriends = (username, offset, limit) => {
+exports.listFriends = (params, offset, limit) => {
+  const { srcUsername: username } = userParamsMapper(params);
   info(`Obtaining friends for ${username}`);
   return getUserFromUsername(username).then(user => user.friends.slice(offset, offset + limit));
 };
 
-exports.acceptFriendRequest = (srcUsername, dstUsername) => {
+exports.acceptFriendRequest = params => {
+  const { srcUsername, dstUsername } = userParamsMapper(params);
   info(`Accepting friend request from ${dstUsername}`);
   return Promise.all([getUserFromUsername(srcUsername), getUserFromUsername(dstUsername)]).then(
     ([srcUser, dstUser]) => {
@@ -130,7 +135,8 @@ exports.acceptFriendRequest = (srcUsername, dstUsername) => {
   );
 };
 
-exports.rejectFriendRequest = (srcUsername, dstUsername) => {
+exports.rejectFriendRequest = params => {
+  const { srcUsername, dstUsername } = userParamsMapper(params);
   info(`Rejecting friend request from ${dstUsername}`);
   return getUserFromUsername(srcUsername).then(user => {
     if (user.friends.includes(dstUsername)) {
