@@ -75,9 +75,9 @@ exports.makeFilter = ({ tokenUsername }, { pathUsername }) => {
   });
 };
 
-exports.getVideos = (filter, order, options) => {
+exports.getVideos = (filters, order, options) => {
   info('Getting videos');
-  return Video.find(filter, null, { skip: options.offset, limit: options.limit })
+  return Video.find(filters, null, { skip: options.offset, limit: options.limit })
     .sort(order)
     .catch(dbError => {
       error(`Videos could not be found. Error: ${dbError}`);

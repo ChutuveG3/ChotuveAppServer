@@ -34,7 +34,7 @@ const getVideosAndMedia = (filters, order, { offset, limit }) => {
 
 exports.getUserVideos = ({ user, params, query: { offset, limit } }, res, next) =>
   makeFilter(userTokenMapper(user), userParamMapper(params))
-    .then(filter => getVideosAndMedia(filter, { id: 'asc' }, { offset, limit }))
+    .then(filters => getVideosAndMedia(filters, { id: 'asc' }, { offset, limit }))
     .then(videos => res.status(200).send(videos))
     .catch(next);
 
