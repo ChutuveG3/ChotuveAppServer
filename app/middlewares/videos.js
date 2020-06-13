@@ -58,7 +58,13 @@ exports.getVideosSchema = {
   ...pagingSchema
 };
 
-exports.getOwnVideosSchema = {
+exports.getVideosFromUserSchema = {
   ...authorizationSchema,
-  ...pagingSchema
+  ...pagingSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
+  }
 };

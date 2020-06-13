@@ -6,8 +6,8 @@ const {
 } = require('../../config');
 const { info, error } = require('../logger');
 const Video = require('../models/video');
-const { databaseError } = require('../errors');
-const { mediaServerError } = require('../errors');
+const { databaseError, mediaServerError } = require('../errors');
+const { getUserFromUsername } = require('./users');
 
 exports.uploadVideo = (username, body) => {
   const videoData = { ...body, owner: username };
@@ -65,9 +65,19 @@ exports.getMediaVideosFromIds = ids => {
     });
 };
 
-exports.getVideos = (filters, order, options) => {
+exports.makeFilter = ({ tokenUsername }, { pathUsername }) => {
+  let filter = { owner: pathUsername };
+  return getUserFromUsername(tokenUsername).then(user => {
+    if (tokenUsername !== pathUsername && !user.friends.includes(pathUsername)) {
+      filter = { ...filter, visibility: 'public' };
+    }
+    return filter;
+  });
+};
+
+exports.getVideos = (filter, order, options) => {
   info('Getting videos');
-  return Video.find(filters, null, { skip: options.offset, limit: options.limit })
+  return Video.find(filter, null, { skip: options.offset, limit: options.limit })
     .sort(order)
     .catch(dbError => {
       error(`Videos could not be found. Error: ${dbError}`);
