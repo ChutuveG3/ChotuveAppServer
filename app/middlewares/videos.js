@@ -53,7 +53,7 @@ exports.createVideoSchema = {
   }
 };
 
-exports.getVideosSchema = {
+exports.homeSchema = {
   ...authorizationSchema,
   ...pagingSchema
 };
