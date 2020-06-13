@@ -23,3 +23,15 @@ exports.userNotExists = message => internalError(message, exports.USER_NOT_EXIST
 
 exports.INVALID_TOKEN_ERROR = 'invalid_token_error';
 exports.invalidTokenError = message => internalError(message, exports.INVALID_TOKEN_ERROR);
+
+exports.USER_MISMATCH_ERROR = 'user_mismatch_error';
+exports.userMismatchError = message => internalError(message, exports.USER_MISMATCH_ERROR);
+
+exports.SAME_USER_ERROR = 'same_user_error';
+exports.sameUserError = message => internalError(message, exports.SAME_USER_ERROR);
+
+exports.ALREADY_FRIENDS_ERROR = 'already_friends_error';
+exports.alreadyFriendsError = message => internalError(message, exports.ALREADY_FRIENDS_ERROR);
+
+exports.MISSING_FRIEND_REQUEST_ERROR = 'missing_friend_request_error';
+exports.missingFriendRequestError = message => internalError(message, exports.MISSING_FRIEND_REQUEST_ERROR);
