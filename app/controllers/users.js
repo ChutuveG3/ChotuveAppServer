@@ -8,10 +8,16 @@ const {
   listFriendRequests,
   listFriends,
   acceptFriendRequest,
-  rejectFriendRequest
+  rejectFriendRequest,
+  saveFirebaseToken
 } = require('../services/users');
 const { getFriendRequestsSerializer, getFriendsSerializer } = require('../serializers/friends');
-const { updateUserMapper, userFriendshipMapper } = require('../mappers/users');
+const {
+  updateUserMapper,
+  userFriendshipMapper,
+  userLoginMapper,
+  logOutUserMapper
+} = require('../mappers/users');
 
 exports.signUp = ({ body }, res, next) =>
   signUpUser(body)
@@ -21,6 +27,7 @@ exports.signUp = ({ body }, res, next) =>
 
 exports.login = ({ body }, res, next) =>
   loginUser(body)
+    .then(() => saveFirebaseToken(userLoginMapper(body)))
     .then(response => res.status(200).send({ token: response.data.token }))
     .catch(next);
 
@@ -57,4 +64,9 @@ exports.acceptFriendRequest = ({ params }, res, next) =>
 exports.rejectFriendRequest = ({ params }, res, next) =>
   rejectFriendRequest(userFriendshipMapper(params))
     .then(() => res.status(201).send({ message: 'ok' }))
+    .catch(next);
+
+exports.logOut = ({ params }, res, next) =>
+  saveFirebaseToken({ ...logOutUserMapper(params), firebaseToken: null })
+    .then(() => res.status(200).send({ message: 'ok' }))
     .catch(next);

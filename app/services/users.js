@@ -145,3 +145,11 @@ exports.rejectFriendRequest = ({ srcUsername, dstUsername }) => {
     return saveUserInDB(user);
   });
 };
+
+exports.saveFirebaseToken = ({ username, firebaseToken }) => {
+  info(`Saving firebase token for user ${username}`);
+  return getUserFromUsername(username).then(user => {
+    user.firebaseToken = firebaseToken;
+    return saveUserInDB(user);
+  });
+};

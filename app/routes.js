@@ -13,7 +13,8 @@ const {
   listFriendRequests,
   listFriends,
   acceptFriendRequest,
-  rejectFriendRequest
+  rejectFriendRequest,
+  logOut
 } = require('./controllers/users');
 const {
   createUserSchema,
@@ -26,7 +27,8 @@ const {
   listFriendRequestsSchema,
   listFriendsSchema,
   acceptFriendRequestSchema,
-  rejectFriendRequestSchema
+  rejectFriendRequestSchema,
+  logOutUserSchema
 } = require('./middlewares/users');
 const { validateToken, validateTokenAndLoadUser } = require('./middlewares/token_validator');
 
@@ -72,5 +74,11 @@ exports.init = app => {
     '/users/:src_username/friends/:dst_username/reject',
     [validateSchema(rejectFriendRequestSchema), validateTokenAndLoadUser, validateUser, validateParamsUsers],
     rejectFriendRequest
+  );
+
+  app.delete(
+    '/users/:src_username/sessions',
+    [validateSchema(logOutUserSchema), validateTokenAndLoadUser, validateUser],
+    logOut
   );
 };
