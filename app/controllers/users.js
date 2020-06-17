@@ -9,7 +9,8 @@ const {
   listFriends,
   acceptFriendRequest,
   rejectFriendRequest,
-  saveFirebaseToken
+  saveFirebaseToken,
+  getUserFromUsername
 } = require('../services/users');
 const { getFriendRequestsSerializer, getFriendsSerializer } = require('../serializers/friends');
 const {
@@ -18,6 +19,8 @@ const {
   userLoginMapper,
   logOutUserMapper
 } = require('../mappers/users');
+const { notifyUser } = require('../services/push_notifications');
+const { sendFriendRequestPushBuilder, acceptFriendRequestPushBuilder } = require('../utils/push_builder');
 
 exports.signUp = ({ body }, res, next) =>
   signUpUser(body)
@@ -44,10 +47,16 @@ exports.updateProfile = ({ headers: { authorization: token }, body, params }, re
     .then(() => res.status(200).send({ message: 'ok' }))
     .catch(next);
 
-exports.sendFriendRequest = ({ params }, res, next) =>
-  sendFriendRequest(userFriendshipMapper(params))
-    .then(() => res.status(201).send({ message: 'ok' }))
+exports.sendFriendRequest = ({ params }, res, next) => {
+  const { srcUsername, dstUsername } = userFriendshipMapper(params);
+  return sendFriendRequest({ srcUsername, dstUsername })
+    .then(() => getUserFromUsername(dstUsername))
+    .then(dstUser => {
+      notifyUser(sendFriendRequestPushBuilder({ srcUsername, dstUserFirebaseToken: dstUser.firebaseToken }));
+      return res.status(201).send({ message: 'ok' });
+    })
     .catch(next);
+};
 
 exports.listFriendRequests = ({ params, query: { offset, limit } }, res, next) =>
   listFriendRequests(userFriendshipMapper(params), offset, limit)
@@ -59,10 +68,18 @@ exports.listFriends = ({ params, query: { offset, limit } }, res, next) =>
     .then(friends => res.status(200).send(getFriendsSerializer(friends)))
     .catch(next);
 
-exports.acceptFriendRequest = ({ params }, res, next) =>
-  acceptFriendRequest(userFriendshipMapper(params))
-    .then(() => res.status(201).send({ message: 'ok' }))
+exports.acceptFriendRequest = ({ params }, res, next) => {
+  const { srcUsername, dstUsername } = userFriendshipMapper(params);
+  return acceptFriendRequest({ srcUsername, dstUsername })
+    .then(() => getUserFromUsername(dstUsername))
+    .then(dstUser => {
+      notifyUser(
+        acceptFriendRequestPushBuilder({ srcUsername, dstUserFirebaseToken: dstUser.firebaseToken })
+      );
+      return res.status(201).send({ message: 'ok' });
+    })
     .catch(next);
+};
 
 exports.rejectFriendRequest = ({ params }, res, next) =>
   rejectFriendRequest(userFriendshipMapper(params))
