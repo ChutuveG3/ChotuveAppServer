@@ -11,7 +11,7 @@ const {
   rejectFriendRequest
 } = require('../services/users');
 const { getFriendRequestsSerializer, getFriendsSerializer } = require('../serializers/friends');
-const { userParamsMapper } = require('../mappers/params');
+const { userFriendshipMapper } = require('../mappers/users');
 
 exports.signUp = ({ body }, res, next) =>
   signUpUser(body)
@@ -35,26 +35,26 @@ exports.updateProfile = ({ headers: { authorization: token }, body }, res, next)
     .catch(next);
 
 exports.sendFriendRequest = ({ params }, res, next) =>
-  sendFriendRequest(userParamsMapper(params))
+  sendFriendRequest(userFriendshipMapper(params))
     .then(() => res.status(201).send({ message: 'ok' }))
     .catch(next);
 
 exports.listFriendRequests = ({ params, query: { offset, limit } }, res, next) =>
-  listFriendRequests(userParamsMapper(params), offset, limit)
+  listFriendRequests(userFriendshipMapper(params), offset, limit)
     .then(friendRequests => res.status(200).send(getFriendRequestsSerializer(friendRequests)))
     .catch(next);
 
 exports.listFriends = ({ params, query: { offset, limit } }, res, next) =>
-  listFriends(userParamsMapper(params), offset, limit)
+  listFriends(userFriendshipMapper(params), offset, limit)
     .then(friends => res.status(200).send(getFriendsSerializer(friends)))
     .catch(next);
 
 exports.acceptFriendRequest = ({ params }, res, next) =>
-  acceptFriendRequest(userParamsMapper(params))
+  acceptFriendRequest(userFriendshipMapper(params))
     .then(() => res.status(201).send({ message: 'ok' }))
     .catch(next);
 
 exports.rejectFriendRequest = ({ params }, res, next) =>
-  rejectFriendRequest(userParamsMapper(params))
+  rejectFriendRequest(userFriendshipMapper(params))
     .then(() => res.status(201).send({ message: 'ok' }))
     .catch(next);

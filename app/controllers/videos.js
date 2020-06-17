@@ -6,7 +6,7 @@ const {
   makeFilter
 } = require('../services/videos');
 const { getVideosSerializer } = require('../serializers/videos');
-const { userTokenMapper, userParamMapper } = require('../mappers/params');
+const { userTokenMapper, userParamMapper } = require('../mappers/users');
 
 exports.upload = ({ user: { user_name }, body }, res, next) =>
   uploadVideo(user_name, body)
