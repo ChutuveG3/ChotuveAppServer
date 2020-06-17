@@ -11,7 +11,7 @@ const {
   rejectFriendRequest
 } = require('../services/users');
 const { getFriendRequestsSerializer, getFriendsSerializer } = require('../serializers/friends');
-const { userFriendshipMapper } = require('../mappers/users');
+const { updateUserMapper, userFriendshipMapper } = require('../mappers/users');
 
 exports.signUp = ({ body }, res, next) =>
   signUpUser(body)
@@ -29,8 +29,8 @@ exports.viewProfile = ({ params: { username }, headers: { authorization: token }
     .then(userProfile => res.status(200).send(userProfile))
     .catch(next);
 
-exports.updateProfile = ({ headers: { authorization: token }, body }, res, next) =>
-  updateUserProfile(token, body)
+exports.updateProfile = ({ headers: { authorization: token }, body, params }, res, next) =>
+  updateUserProfile(token, body, updateUserMapper(params))
     .then(() => res.status(200).send({ message: 'ok' }))
     .catch(next);
 

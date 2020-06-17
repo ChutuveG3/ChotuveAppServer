@@ -47,7 +47,11 @@ exports.init = app => {
   );
   app.post('/videos', [validateSchema(createVideoSchema), validateTokenAndLoadUser], upload);
   app.get('/users/:username', [validateSchema(getCurrentUserSchema), validateToken], viewProfile);
-  app.put('/users/me', [validateSchema(updateProfileSchema), validateToken], updateProfile);
+  app.put(
+    '/users/:src_username',
+    [validateSchema(updateProfileSchema), validateTokenAndLoadUser, validateUser],
+    updateProfile
+  );
   app.post(
     '/users/:src_username/friends/:dst_username',
     [validateSchema(sendFriendRequestSchema), validateTokenAndLoadUser, validateUser, validateParamsUsers],
