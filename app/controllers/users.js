@@ -27,8 +27,11 @@ exports.signUp = ({ body }, res, next) =>
 
 exports.login = ({ body }, res, next) =>
   loginUser(body)
-    .then(() => saveFirebaseToken(userLoginMapper(body)))
-    .then(response => res.status(200).send({ token: response.data.token }))
+    .then(response =>
+      saveFirebaseToken(userLoginMapper(body)).then(() =>
+        res.status(200).send({ token: response.data.token })
+      )
+    )
     .catch(next);
 
 exports.viewProfile = ({ params: { username }, headers: { authorization: token } }, res, next) =>
