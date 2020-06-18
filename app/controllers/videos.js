@@ -1,8 +1,15 @@
-const { createVideo, uploadVideo, getMediaVideosFromIds, getVideos } = require('../services/videos');
+const {
+  createVideo,
+  uploadVideo,
+  getMediaVideosFromIds,
+  getVideos,
+  makeFilter
+} = require('../services/videos');
 const { getVideosSerializer } = require('../serializers/videos');
 const { getUserFromUsername } = require('../services/users');
 const { notifyUser } = require('../services/push_notifications');
 const { newVideoPushBuilder } = require('../utils/push_builder');
+const { userTokenMapper, userParamMapper } = require('../mappers/users');
 
 const notifyFriendsOnNewVideo = username =>
   getUserFromUsername(username)
@@ -40,8 +47,9 @@ const getVideosAndMedia = (filters, order, { offset, limit }) => {
     );
 };
 
-exports.getOwnVideos = ({ user: { user_name: username }, query: { offset, limit } }, res, next) =>
-  getVideosAndMedia({ owner: username }, { id: 'asc' }, { offset, limit })
+exports.getUserVideos = ({ user, params, query: { offset, limit } }, res, next) =>
+  makeFilter(userTokenMapper(user), userParamMapper(params))
+    .then(filters => getVideosAndMedia(filters, { id: 'asc' }, { offset, limit }))
     .then(videos => res.status(200).send(videos))
     .catch(next);
 

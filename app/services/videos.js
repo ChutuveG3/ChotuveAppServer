@@ -6,8 +6,8 @@ const {
 } = require('../../config');
 const { info, error } = require('../logger');
 const Video = require('../models/video');
-const { databaseError } = require('../errors');
-const { mediaServerError } = require('../errors');
+const { databaseError, mediaServerError } = require('../errors');
+const { getUserFromUsername } = require('./users');
 
 exports.uploadVideo = (username, body) => {
   const videoData = { ...body, owner: username };
@@ -63,6 +63,16 @@ exports.getMediaVideosFromIds = ids => {
       error(`Media Server failed to return video. ${mserror.response.data.message}`);
       throw mediaServerError(mserror.response.data);
     });
+};
+
+exports.makeFilter = ({ tokenUsername }, { pathUsername }) => {
+  let filter = { owner: pathUsername };
+  return getUserFromUsername(tokenUsername).then(user => {
+    if (tokenUsername !== pathUsername && !user.friends.includes(pathUsername)) {
+      filter = { ...filter, visibility: 'public' };
+    }
+    return filter;
+  });
 };
 
 exports.getVideos = (filters, order, options) => {
