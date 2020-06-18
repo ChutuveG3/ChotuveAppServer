@@ -1,5 +1,12 @@
-const { createVideo, uploadVideo, getMediaVideosFromIds, getVideos } = require('../services/videos');
+const {
+  createVideo,
+  uploadVideo,
+  getMediaVideosFromIds,
+  getVideos,
+  makeFilter
+} = require('../services/videos');
 const { getVideosSerializer } = require('../serializers/videos');
+const { userTokenMapper, userParamMapper } = require('../mappers/users');
 
 exports.upload = ({ user: { user_name }, body }, res, next) =>
   uploadVideo(user_name, body)
@@ -25,8 +32,9 @@ const getVideosAndMedia = (filters, order, { offset, limit }) => {
     );
 };
 
-exports.getOwnVideos = ({ user: { user_name: username }, query: { offset, limit } }, res, next) =>
-  getVideosAndMedia({ owner: username }, { id: 'asc' }, { offset, limit })
+exports.getUserVideos = ({ user, params, query: { offset, limit } }, res, next) =>
+  makeFilter(userTokenMapper(user), userParamMapper(params))
+    .then(filters => getVideosAndMedia(filters, { id: 'asc' }, { offset, limit }))
     .then(videos => res.status(200).send(videos))
     .catch(next);
 

@@ -78,7 +78,7 @@ exports.updateUserProfile = (token, body, { srcUsername }) => {
     });
 };
 
-const getUserFromUsername = username =>
+exports.getUserFromUsername = username =>
   User.findOne({ username })
     .catch(dbError => {
       error(`User could not be found. Error: ${dbError}`);
@@ -91,50 +91,54 @@ const getUserFromUsername = username =>
 
 exports.sendFriendRequest = ({ srcUsername, dstUsername }) => {
   info(`Sending friend request from ${srcUsername} to ${dstUsername}`);
-  return Promise.all([getUserFromUsername(srcUsername), getUserFromUsername(dstUsername)]).then(
-    ([srcUser, dstUser]) => {
-      if (srcUser.friends.includes(dstUsername)) {
-        throw alreadyFriendsError(`${srcUsername} and ${dstUsername} are already friends`);
-      }
-      if (dstUser.friendRequests.includes(srcUsername)) return {};
-      dstUser.friendRequests.push(srcUsername);
-      return saveUserInDB(dstUser);
+  return Promise.all([
+    exports.getUserFromUsername(srcUsername),
+    exports.getUserFromUsername(dstUsername)
+  ]).then(([srcUser, dstUser]) => {
+    if (srcUser.friends.includes(dstUsername)) {
+      throw alreadyFriendsError(`${srcUsername} and ${dstUsername} are already friends`);
     }
-  );
+    if (dstUser.friendRequests.includes(srcUsername)) return {};
+    dstUser.friendRequests.push(srcUsername);
+    return saveUserInDB(dstUser);
+  });
 };
 
 exports.listFriendRequests = ({ srcUsername: username }, offset, limit) => {
   info(`Obtaining friend requests for ${username}`);
-  return getUserFromUsername(username).then(user => user.friendRequests.slice(offset, offset + limit));
+  return exports
+    .getUserFromUsername(username)
+    .then(user => user.friendRequests.slice(offset, offset + limit));
 };
 
 exports.listFriends = ({ srcUsername: username }, offset, limit) => {
   info(`Obtaining friends for ${username}`);
-  return getUserFromUsername(username).then(user => user.friends.slice(offset, offset + limit));
+  return exports.getUserFromUsername(username).then(user => user.friends.slice(offset, offset + limit));
 };
 
 exports.acceptFriendRequest = ({ srcUsername, dstUsername }) => {
   info(`Accepting friend request from ${dstUsername}`);
-  return Promise.all([getUserFromUsername(srcUsername), getUserFromUsername(dstUsername)]).then(
-    ([srcUser, dstUser]) => {
-      if (srcUser.friends.includes(dstUsername)) {
-        throw alreadyFriendsError(`${srcUsername} and ${dstUsername} are already friends`);
-      }
-      if (!srcUser.friendRequests.includes(dstUsername)) {
-        throw missingFriendRequestError('Missing friend request');
-      }
-      srcUser.friendRequests.splice(srcUser.friendRequests.indexOf(dstUsername), 1);
-      srcUser.friends.push(dstUsername);
-      dstUser.friendRequests.splice(dstUser.friendRequests.indexOf(srcUsername), 1);
-      dstUser.friends.push(srcUsername);
-      return Promise.all([saveUserInDB(srcUser), saveUserInDB(dstUser)]);
+  return Promise.all([
+    exports.getUserFromUsername(srcUsername),
+    exports.getUserFromUsername(dstUsername)
+  ]).then(([srcUser, dstUser]) => {
+    if (srcUser.friends.includes(dstUsername)) {
+      throw alreadyFriendsError(`${srcUsername} and ${dstUsername} are already friends`);
     }
-  );
+    if (!srcUser.friendRequests.includes(dstUsername)) {
+      throw missingFriendRequestError('Missing friend request');
+    }
+    srcUser.friendRequests.splice(srcUser.friendRequests.indexOf(dstUsername), 1);
+    srcUser.friends.push(dstUsername);
+    dstUser.friendRequests.splice(dstUser.friendRequests.indexOf(srcUsername), 1);
+    dstUser.friends.push(srcUsername);
+    return Promise.all([saveUserInDB(srcUser), saveUserInDB(dstUser)]);
+  });
 };
 
 exports.rejectFriendRequest = ({ srcUsername, dstUsername }) => {
   info(`Rejecting friend request from ${dstUsername}`);
-  return getUserFromUsername(srcUsername).then(user => {
+  return exports.getUserFromUsername(srcUsername).then(user => {
     if (user.friends.includes(dstUsername)) {
       throw alreadyFriendsError(`${srcUsername} and ${dstUsername} are already friends`);
     }

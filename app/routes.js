@@ -1,7 +1,7 @@
 const { healthCheck } = require('./controllers/healthCheck');
 const { home } = require('./controllers/home');
-const { upload, getVideos, getOwnVideos } = require('./controllers/videos');
-const { createVideoSchema, getVideosSchema, getOwnVideosSchema } = require('./middlewares/videos');
+const { upload, getVideos, getUserVideos } = require('./controllers/videos');
+const { createVideoSchema, homeSchema, getVideosFromUserSchema } = require('./middlewares/videos');
 const { validateSchema } = require('./middlewares/params_validator');
 const { addPagingParams } = require('./middlewares/paging');
 const {
@@ -35,11 +35,15 @@ exports.init = app => {
   app.get('/', [], home);
   app.post('/users', [validateSchema(createUserSchema)], signUp);
   app.post('/users/sessions', [validateSchema(createUserLoginSchema)], login);
-  app.get('/videos', [validateSchema(getVideosSchema), addPagingParams, validateToken], getVideos);
   app.get(
-    '/videos/me',
-    [validateSchema(getOwnVideosSchema), addPagingParams, validateTokenAndLoadUser],
-    getOwnVideos
+    '/users/:src_username/home',
+    [validateSchema(homeSchema), validateTokenAndLoadUser, validateUser, addPagingParams],
+    getVideos
+  );
+  app.get(
+    '/users/:username/videos',
+    [validateSchema(getVideosFromUserSchema), validateTokenAndLoadUser, addPagingParams],
+    getUserVideos
   );
   app.post('/videos', [validateSchema(createVideoSchema), validateTokenAndLoadUser], upload);
   app.get('/users/:username', [validateSchema(getCurrentUserSchema), validateToken], viewProfile);
