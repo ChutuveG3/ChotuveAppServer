@@ -58,6 +58,12 @@ exports.createUserLoginSchema = {
     isLength: { errorMessage: 'Password should have at least 6 characters', options: { min: 6 } },
     optional: false,
     errorMessage: 'password should be a string'
+  },
+  firebase_token: {
+    in: ['body'],
+    isString: true,
+    optional: true,
+    errorMessage: 'firebase_token should be a string'
   }
 };
 
@@ -171,4 +177,14 @@ exports.acceptFriendRequestSchema = {
 
 exports.rejectFriendRequestSchema = {
   ...twoUsersSchema
+};
+
+exports.logOutUserSchema = {
+  ...authorizationSchema,
+  src_username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'src_username should be a string'
+  }
 };

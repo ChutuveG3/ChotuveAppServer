@@ -35,3 +35,6 @@ exports.alreadyFriendsError = message => internalError(message, exports.ALREADY_
 
 exports.MISSING_FRIEND_REQUEST_ERROR = 'missing_friend_request_error';
 exports.missingFriendRequestError = message => internalError(message, exports.MISSING_FRIEND_REQUEST_ERROR);
+
+exports.NOTIFICATION_ERROR = 'notification_error';
+exports.notificationError = message => internalError(message, exports.NOTIFICATION_ERROR);

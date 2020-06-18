@@ -6,12 +6,27 @@ const {
   makeFilter
 } = require('../services/videos');
 const { getVideosSerializer } = require('../serializers/videos');
+const { getUserFromUsername } = require('../services/users');
+const { notifyUser } = require('../services/push_notifications');
+const { newVideoPushBuilder } = require('../utils/push_builder');
 const { userTokenMapper, userParamMapper } = require('../mappers/users');
+
+const notifyFriendsOnNewVideo = username =>
+  getUserFromUsername(username)
+    .then(user => Promise.all(user.friends.map(friendUsername => getUserFromUsername(friendUsername))))
+    .then(friends => {
+      friends.forEach(friend => {
+        notifyUser(newVideoPushBuilder({ username, friendFirebaseToken: friend.firebaseToken }));
+      });
+    });
 
 exports.upload = ({ user: { user_name }, body }, res, next) =>
   uploadVideo(user_name, body)
     .then(id => createVideo(user_name, body, id))
-    .then(() => res.status(201).send({ message: 'ok' }))
+    .then(() => {
+      notifyFriendsOnNewVideo(user_name);
+      return res.status(201).send({ message: 'ok' });
+    })
     .catch(next);
 
 const getVideosAndMedia = (filters, order, { offset, limit }) => {

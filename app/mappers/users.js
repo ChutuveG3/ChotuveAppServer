@@ -7,6 +7,9 @@ exports.userFriendshipMapper = params => ({
   dstUsername: params.dst_username
 });
 
+exports.userLoginMapper = body => ({ username: body.username, firebaseToken: body.firebase_token });
+
+exports.logOutUserMapper = params => ({ username: params.src_username });
 exports.userTokenMapper = user => ({
   tokenUsername: user.user_name
 });
