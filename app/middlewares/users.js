@@ -60,7 +60,7 @@ exports.createUserLoginSchema = {
     errorMessage: 'password should be a string'
   },
   firebase_token: {
-    in: ['headers'],
+    in: ['body'],
     isString: true,
     optional: true,
     errorMessage: 'firebase_token should be a string'

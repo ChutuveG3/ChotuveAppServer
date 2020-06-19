@@ -28,10 +28,10 @@ exports.signUp = ({ body }, res, next) =>
     .then(() => res.status(201).send({ message: 'ok' }))
     .catch(next);
 
-exports.login = ({ body, headers }, res, next) =>
+exports.login = ({ body }, res, next) =>
   loginUser(body)
     .then(response =>
-      saveFirebaseToken(userLoginMapper(body, headers)).then(() =>
+      saveFirebaseToken(userLoginMapper(body)).then(() =>
         res.status(200).send({ token: response.data.token })
       )
     )
