@@ -7,10 +7,10 @@ const {
   }
 } = require('../../config');
 
+admin.initializeApp({ credentials: JSON.parse(gcloudCredentials) });
+
 exports.notifyUser = ({ title, body, firebaseToken }) => {
   info('Sending push notification');
-
-  admin.initializeApp({ credentials: JSON.parse(gcloudCredentials) });
 
   if (!firebaseToken) {
     info('User does not have a firebase token, so it cannot be notified.');
