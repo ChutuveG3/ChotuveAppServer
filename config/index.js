@@ -50,6 +50,9 @@ const config = {
     urls: {
       authServer: process.env.AUTH_SERVER_URL,
       mediaServer: process.env.MEDIA_SERVER_URL
+    },
+    firebase: {
+      gcloudCredentials: process.env.GOOGLE_CREDENTIALS
     }
   }
 };
