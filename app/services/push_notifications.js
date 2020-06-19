@@ -1,13 +1,8 @@
 const admin = require('firebase-admin');
 const { notificationError } = require('../errors');
 const { error, info } = require('../logger');
-const {
-  common: {
-    firebase: { gcloudCredentials }
-  }
-} = require('../../config');
 
-admin.initializeApp({ credential: JSON.parse(gcloudCredentials) });
+admin.initializeApp();
 
 exports.notifyUser = ({ title, body, firebaseToken }) => {
   info('Sending push notification');
