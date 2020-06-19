@@ -2,10 +2,9 @@ const admin = require('firebase-admin');
 const { notificationError } = require('../errors');
 const { error, info } = require('../logger');
 
-admin.initializeApp();
-
 exports.notifyUser = ({ title, body, firebaseToken }) => {
   info('Sending push notification');
+  admin.initializeApp({ credential: admin.credential.applicationDefault() });
 
   if (!firebaseToken) {
     info('User does not have a firebase token, so it cannot be notified.');
