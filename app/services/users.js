@@ -152,8 +152,20 @@ exports.rejectFriendRequest = ({ srcUsername, dstUsername }) => {
 
 exports.saveFirebaseToken = ({ username, firebaseToken }) => {
   info(`Saving firebase token for user ${username}`);
+  if (!firebaseToken) {
+    info("Not updating firebaseToken because it's not received.");
+    return Promise.resolve();
+  }
   return exports.getUserFromUsername(username).then(user => {
     user.firebaseToken = firebaseToken;
+    return saveUserInDB(user);
+  });
+};
+
+exports.deleteFirebaseToken = ({ username }) => {
+  info(`Deleting firebase token for user ${username}`);
+  return exports.getUserFromUsername(username).then(user => {
+    user.firebaseToken = null;
     return saveUserInDB(user);
   });
 };

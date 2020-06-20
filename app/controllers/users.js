@@ -10,7 +10,8 @@ const {
   acceptFriendRequest,
   rejectFriendRequest,
   saveFirebaseToken,
-  getUserFromUsername
+  getUserFromUsername,
+  deleteFirebaseToken
 } = require('../services/users');
 const { getFriendRequestsSerializer, getFriendsSerializer } = require('../serializers/friends');
 const {
@@ -87,6 +88,6 @@ exports.rejectFriendRequest = ({ params }, res, next) =>
     .catch(next);
 
 exports.logOut = ({ params }, res, next) =>
-  saveFirebaseToken({ ...logOutUserMapper(params), firebaseToken: null })
+  deleteFirebaseToken({ ...logOutUserMapper(params) })
     .then(() => res.status(200).send({ message: 'ok' }))
     .catch(next);
