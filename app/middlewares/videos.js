@@ -68,3 +68,13 @@ exports.getVideosFromUserSchema = {
     errorMessage: 'username should be a string'
   }
 };
+
+exports.deleteVideoSchema = {
+  ...authorizationSchema,
+  id: {
+    in: ['params'],
+    isInt: true,
+    optional: false,
+    errorMessage: 'id should be an int'
+  }
+};
