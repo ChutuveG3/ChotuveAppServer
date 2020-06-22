@@ -5,13 +5,13 @@ const {
   firebase: { firebaseConfig }
 } = require('../../config').common;
 
-const serviceAccount = JSON.parse(firebaseConfig);
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
 exports.notifyUser = ({ title, body, firebaseToken }) => {
+  const serviceAccount = JSON.parse(firebaseConfig);
+
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+
   info('Sending push notification');
   if (!firebaseToken) {
     info('User does not have a firebase token, so it cannot be notified.');
