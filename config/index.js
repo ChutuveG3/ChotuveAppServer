@@ -52,7 +52,7 @@ const config = {
       mediaServer: process.env.MEDIA_SERVER_URL
     },
     firebase: {
-      gcloudCredentials: process.env.GOOGLE_CREDENTIALS || '{}'
+      firebaseConfig: process.env.FIREBASE_CONFIG || '{}'
     }
   }
 };

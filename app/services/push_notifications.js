@@ -2,7 +2,11 @@ const admin = require('firebase-admin');
 const { notificationError } = require('../errors');
 const { error, info } = require('../logger');
 
-admin.initializeApp();
+const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 exports.notifyUser = ({ title, body, firebaseToken }) => {
   info('Sending push notification');
