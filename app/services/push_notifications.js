@@ -6,11 +6,13 @@ const {
 } = require('../../config').common;
 
 exports.notifyUser = ({ title, body, firebaseToken }) => {
-  const serviceAccount = JSON.parse(firebaseConfig);
+  if (!admin.apps.length) {
+    const serviceAccount = JSON.parse(firebaseConfig);
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+  }
 
   info('Sending push notification');
   if (!firebaseToken) {
