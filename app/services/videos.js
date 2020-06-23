@@ -84,3 +84,21 @@ exports.getVideos = (filters, order, options) => {
       throw databaseError(`Videos could not be found. Error: ${dbError}`);
     });
 };
+
+const getVideoFromId = id =>
+  Video.findOne({ id }).catch(dbError => {
+    error(`Videos could not be found. Error: ${dbError}`);
+    throw databaseError(`Videos could not be found. Error: ${dbError}`);
+  });
+
+exports.deleteVideo = id => {
+  info(`Deleting video with id ${id}`);
+  return getVideoFromId(id).then(video =>
+    Video.deleteOne({ id })
+      .catch(dbError => {
+        error(`Video could not be deleted. Error: ${dbError}`);
+        throw databaseError(`Video could not be deleted. Error: ${dbError}`);
+      })
+      .then(() => video.owner)
+  );
+};

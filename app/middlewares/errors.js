@@ -14,7 +14,8 @@ const statusCodes = {
   [errors.USER_MISMATCH_ERROR]: 400,
   [errors.SAME_USER_ERROR]: 400,
   [errors.ALREADY_FRIENDS_ERROR]: 409,
-  [errors.MISSING_FRIEND_REQUEST_ERROR]: 409
+  [errors.MISSING_FRIEND_REQUEST_ERROR]: 409,
+  [errors.UNAUTHORIZED]: 403
 };
 
 exports.handle = (error, req, res, next) => {

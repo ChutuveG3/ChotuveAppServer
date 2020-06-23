@@ -1,7 +1,12 @@
 const { healthCheck } = require('./controllers/healthCheck');
 const { home } = require('./controllers/home');
-const { upload, getVideos, getUserVideos } = require('./controllers/videos');
-const { createVideoSchema, homeSchema, getVideosFromUserSchema } = require('./middlewares/videos');
+const { upload, getVideos, getUserVideos, deleteVideo } = require('./controllers/videos');
+const {
+  createVideoSchema,
+  homeSchema,
+  getVideosFromUserSchema,
+  deleteVideoSchema
+} = require('./middlewares/videos');
 const { validateSchema } = require('./middlewares/params_validator');
 const { addPagingParams } = require('./middlewares/paging');
 const {
@@ -30,7 +35,7 @@ const {
   rejectFriendRequestSchema,
   logOutUserSchema
 } = require('./middlewares/users');
-const { validateToken, validateTokenAndLoadUser } = require('./middlewares/token_validator');
+const { validateToken, validateTokenAndLoadUser, checkPrivileges } = require('./middlewares/token_validator');
 
 exports.init = app => {
   app.get('/health', healthCheck);
@@ -85,4 +90,5 @@ exports.init = app => {
     [validateSchema(logOutUserSchema), validateTokenAndLoadUser, validateUser],
     logOut
   );
+  app.delete('/videos/:id', [validateSchema(deleteVideoSchema), validateToken, checkPrivileges], deleteVideo);
 };

@@ -38,3 +38,6 @@ exports.missingFriendRequestError = message => internalError(message, exports.MI
 
 exports.NOTIFICATION_ERROR = 'notification_error';
 exports.notificationError = message => internalError(message, exports.NOTIFICATION_ERROR);
+
+exports.UNAUTHORIZED = 'unauthorized';
+exports.unauthorized = message => internalError(message, exports.UNAUTHORIZED);

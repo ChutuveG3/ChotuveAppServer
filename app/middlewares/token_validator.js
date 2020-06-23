@@ -5,15 +5,18 @@ const {
     urls: { authServer }
   }
 } = require('../../config');
-const { authServerError, invalidTokenError } = require('../errors');
+const { authServerError, invalidTokenError, unauthorized } = require('../errors');
 
-exports.validateToken = ({ headers: { authorization: token } }, res, next) => {
+exports.validateToken = (req, res, next) => {
   info('Validating token');
   return axios
     .get(`${authServer}/connect/access_token_validation`, {
-      headers: { authorization: token }
+      headers: { authorization: req.headers.authorization }
     })
-    .then(() => next())
+    .then(response => {
+      req.privilege = response.data.privilege;
+      return next();
+    })
     .catch(aserror => {
       if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
       if (aserror.response.status === 401) {
@@ -48,4 +51,9 @@ exports.validateTokenAndLoadUser = (req, res, next) => {
       return next();
     })
     .catch(next);
+};
+
+exports.checkPrivileges = ({ privilege }, res, next) => {
+  if (!privilege) return next(unauthorized('You do not have the privileges to perform this operation'));
+  return next();
 };

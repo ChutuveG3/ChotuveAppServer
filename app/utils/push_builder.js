@@ -15,3 +15,9 @@ exports.newVideoPushBuilder = ({ username, friendFirebaseToken }) => ({
   body: `${username} has uploaded a new video. Check it out! `,
   firebaseToken: friendFirebaseToken
 });
+
+exports.deleteVideoPushBuilder = ({ ownerFirebaseToken }) => ({
+  title: 'Video deleted',
+  body: 'One of your videos has been taken down.',
+  firebaseToken: ownerFirebaseToken
+});
