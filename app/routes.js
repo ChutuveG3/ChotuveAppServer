@@ -1,5 +1,4 @@
 const { healthCheck } = require('./controllers/healthCheck');
-const { home } = require('./controllers/home');
 const { upload, getVideos, getUserVideos, deleteVideo } = require('./controllers/videos');
 const {
   createVideoSchema,
@@ -38,8 +37,8 @@ const {
 const { validateToken, validateTokenAndLoadUser, checkPrivileges } = require('./middlewares/token_validator');
 
 exports.init = app => {
+  // Testeado
   app.get('/health', healthCheck);
-  app.get('/', [], home);
   app.post('/users', [validateSchema(createUserSchema)], signUp);
   app.post('/users/sessions', [validateSchema(createUserLoginSchema)], login);
   app.get(

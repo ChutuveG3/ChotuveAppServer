@@ -1,15 +1,10 @@
 const { getResponse } = require('../setup');
+const { userDataFactory } = require('../factories/users');
+const { mockSignUpOnce } = require('../mocks/users');
 
 const baseUrl = '/users';
 
-const userData = {
-  first_name: 'MyFirstName',
-  last_name: 'MyLastName',
-  email: 'test@test.com',
-  password: 'MyPassword',
-  user_name: 'MyUserName',
-  birthdate: '1995-07-22'
-};
+const userData = userDataFactory();
 
 describe('POST /users signup', () => {
   describe('Missing parameters', () => {
@@ -79,9 +74,9 @@ describe('POST /users signup', () => {
     });
 
     it('Should be status 400 if it is missing multiple parameters', () =>
-      getResponse({ method: 'post', endpoint: baseUrl, body: { last_name: 'MyLastName' } }).then(res => {
+      getResponse({ method: 'post', endpoint: baseUrl, body: {} }).then(res => {
         expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(6);
+        expect(res.body.message.errors).toHaveLength(7);
         expect(res.body.internal_code).toBe('invalid_params');
       }));
   });
@@ -120,5 +115,20 @@ describe('POST /users signup', () => {
         expect(res.body.message.errors[0].param).toBe('password');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
+  });
+
+  describe.only('Success signup', () => {
+    let signUpResponse = {};
+
+    beforeAll(async () => {
+      mockSignUpOnce();
+      signUpResponse = await getResponse({ endpoint: baseUrl, body: userData, method: 'post' });
+    });
+
+    afterAll(() => jest.clearAllMocks());
+
+    it('Check response status', () => {
+      expect(signUpResponse.status).toBe(200);
+    });
   });
 });
