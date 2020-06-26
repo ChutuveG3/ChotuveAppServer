@@ -53,6 +53,9 @@ const config = {
     },
     firebase: {
       firebaseConfig: process.env.FIREBASE_CONFIG || '{}'
+    },
+    authorization: {
+      apiKey: process.env.API_KEY
     }
   }
 };

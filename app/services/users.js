@@ -1,7 +1,8 @@
 const axios = require('axios').default;
 const {
   common: {
-    urls: { authServer }
+    urls: { authServer },
+    authorization: { apiKey }
   }
 } = require('../../config');
 const User = require('../models/user');
@@ -22,7 +23,7 @@ const saveUserInDB = user =>
 
 exports.signUpUser = body => {
   info(`Sending sign up request to Auth Server at ${authServer} for user with email: ${body.email}`);
-  return axios.post(`${authServer}/users`, body).catch(aserror => {
+  return axios.post(`${authServer}/users`, body, { headers: { x_api_key: apiKey } }).catch(aserror => {
     if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
     error(`Auth Server failed to create user. ${aserror.response.data.message}`);
     throw authServerError(aserror.response.data);
@@ -40,17 +41,19 @@ exports.createUser = userData => {
 
 exports.loginUser = body => {
   info(`Sending login request to Auth Server at ${authServer} for user with username: ${body.username}`);
-  return axios.post(`${authServer}/users/sessions`, body).catch(aserror => {
-    if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
-    error(`Auth Server failed to authenticate user. ${aserror.response.data.message}`);
-    throw authServerError(aserror.response.data);
-  });
+  return axios
+    .post(`${authServer}/users/sessions`, body, { headers: { x_api_key: apiKey } })
+    .catch(aserror => {
+      if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
+      error(`Auth Server failed to authenticate user. ${aserror.response.data.message}`);
+      throw authServerError(aserror.response.data);
+    });
 };
 
 exports.viewUserProfile = (username, token) => {
   info(`Sending view profile request to Auth Server at ${authServer}`);
   return axios
-    .get(`${authServer}/users/${username}`, { headers: { authorization: token } })
+    .get(`${authServer}/users/${username}`, { headers: { authorization: token, x_api_key: apiKey } })
     .catch(aserror => {
       if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
       error(`Auth Server failed to retrieve user profile. ${aserror.response.data.message}`);
@@ -66,7 +69,7 @@ exports.viewUserProfile = (username, token) => {
 exports.updateUserProfile = (token, body, { srcUsername }) => {
   info(`Sending update profile request to Auth Server at ${authServer}`);
   return axios
-    .put(`${authServer}/users/${srcUsername}`, body, { headers: { authorization: token } })
+    .put(`${authServer}/users/${srcUsername}`, body, { headers: { authorization: token, x_api_key: apiKey } })
     .catch(aserror => {
       if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
       error(`Auth Server failed to update user profile. ${aserror.response.data.message}`);
