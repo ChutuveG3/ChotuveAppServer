@@ -53,7 +53,7 @@ exports.init = app => {
     getUserVideos
   );
   app.post('/videos', [validateSchema(createVideoSchema), validateTokenAndLoadUser], upload);
-  app.get('/users/:username', [validateSchema(getCurrentUserSchema), validateToken], viewProfile);
+  app.get('/users/:username', [validateSchema(getCurrentUserSchema), validateTokenAndLoadUser], viewProfile);
   app.put(
     '/users/:src_username',
     [validateSchema(updateProfileSchema), validateTokenAndLoadUser, validateUser],
