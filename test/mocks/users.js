@@ -12,3 +12,22 @@ exports.mockLoginOnce = () =>
       token: LOGIN_TOKEN
     }
   });
+
+exports.mockFailViewProfileOnce = () =>
+  axios.get.mockRejectedValueOnce({
+    status: 409,
+    error: { message: 'Could not found user with username', internal_code: 'user_not_exists' }
+  });
+
+exports.mockViewProfileOnce = userData =>
+  axios.get.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      first_name: userData.firstName,
+      last_name: userData.lastName,
+      user_name: userData.username,
+      email: userData.email,
+      birthdate: userData.birthdate,
+      profile_img_url: userData.profileImgUrl
+    }
+  });

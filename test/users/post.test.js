@@ -9,9 +9,15 @@ const sessionsUrl = `${baseUrl}/sessions`;
 
 describe('POST /users signup', () => {
   const userData = userDataFactory();
+  const requestData = {
+    ...userData,
+    first_name: userData.firstName,
+    last_name: userData.lastName,
+    user_name: userData.username
+  };
   describe('Missing parameters', () => {
     it('Should be status 400 if first name is missing', () => {
-      const currentUserData = { ...userData };
+      const currentUserData = { ...requestData };
       delete currentUserData.first_name;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
@@ -22,7 +28,7 @@ describe('POST /users signup', () => {
     });
 
     it('Should be status 400 if last name is missing', () => {
-      const currentUserData = { ...userData };
+      const currentUserData = { ...requestData };
       delete currentUserData.last_name;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
@@ -33,7 +39,7 @@ describe('POST /users signup', () => {
     });
 
     it('Should be status 400 if email is missing', () => {
-      const currentUserData = { ...userData };
+      const currentUserData = { ...requestData };
       delete currentUserData.email;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
@@ -44,7 +50,7 @@ describe('POST /users signup', () => {
     });
 
     it('Should be status 400 if password is missing', () => {
-      const currentUserData = { ...userData };
+      const currentUserData = { ...requestData };
       delete currentUserData.password;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
@@ -54,7 +60,7 @@ describe('POST /users signup', () => {
     });
 
     it('Should be status 400 if username is missing', () => {
-      const currentUserData = { ...userData };
+      const currentUserData = { ...requestData };
       delete currentUserData.user_name;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
@@ -65,7 +71,7 @@ describe('POST /users signup', () => {
     });
 
     it('Should be status 400 if birthdate is missing', () => {
-      const currentUserData = { ...userData };
+      const currentUserData = { ...requestData };
       delete currentUserData.birthdate;
       return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
@@ -88,7 +94,7 @@ describe('POST /users signup', () => {
       getResponse({
         method: 'post',
         endpoint: baseUrl,
-        body: { ...userData, birthdate: 'invalid birthdate' }
+        body: { ...requestData, birthdate: 'invalid birthdate' }
       }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.message.errors).toHaveLength(1);
@@ -97,20 +103,22 @@ describe('POST /users signup', () => {
       }));
 
     it('Should be status 400 if email is invalid', () =>
-      getResponse({ method: 'post', endpoint: baseUrl, body: { ...userData, email: 'invalidEmail' } }).then(
-        res => {
-          expect(res.status).toBe(400);
-          expect(res.body.message.errors).toHaveLength(1);
-          expect(res.body.message.errors[0].param).toBe('email');
-          expect(res.body.internal_code).toBe('invalid_params');
-        }
-      ));
+      getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: { ...requestData, email: 'invalidEmail' }
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('email');
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
 
     it('Should be status 400 if password length is not 6 at least', () =>
       getResponse({
         method: 'post',
         endpoint: baseUrl,
-        body: { ...userData, password: 'aaaaa' }
+        body: { ...requestData, password: 'aaaaa' }
       }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.message.errors).toHaveLength(1);
@@ -124,7 +132,7 @@ describe('POST /users signup', () => {
 
     beforeAll(async () => {
       mockSignUpOnce();
-      signUpResponse = await getResponse({ endpoint: baseUrl, body: userData, method: 'post' });
+      signUpResponse = await getResponse({ endpoint: baseUrl, body: requestData, method: 'post' });
     });
 
     afterAll(() => jest.clearAllMocks());
@@ -142,10 +150,10 @@ describe('POST /users signup', () => {
     describe('Check created user data', () => {
       let user = {};
       beforeAll(async () => {
-        user = await User.findOne({ username: userData.user_name }).lean();
+        user = await User.findOne({ username: userData.username }).lean();
       });
       it('Check that the created user has the correct username', () => {
-        expect(user.username).toBe(userData.user_name);
+        expect(user.username).toBe(userData.username);
       });
 
       it('Check user has friends empty list', () => {
@@ -163,7 +171,7 @@ describe('POST /users/sessions', () => {
   const userData = userDataFactory();
   describe('Missing parameters', () => {
     it('Should be status 400 if username is missing', () => {
-      const currentUserData = { username: userData.user_name, password: userData.password };
+      const currentUserData = { ...userData };
       delete currentUserData.username;
       return getResponse({ method: 'post', endpoint: sessionsUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
@@ -174,7 +182,7 @@ describe('POST /users/sessions', () => {
     });
 
     it('Should be status 400 if password is missing', () => {
-      const currentUserData = { username: userData.user_name, password: userData.password };
+      const currentUserData = { ...userData };
       delete currentUserData.password;
       return getResponse({ method: 'post', endpoint: sessionsUrl, body: currentUserData }).then(res => {
         expect(res.status).toBe(400);
@@ -196,7 +204,7 @@ describe('POST /users/sessions', () => {
       getResponse({
         method: 'post',
         endpoint: sessionsUrl,
-        body: { username: userData.user_name, password: '1234' }
+        body: { ...userData, password: '1234' }
       }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.message.errors).toHaveLength(1);
@@ -208,7 +216,7 @@ describe('POST /users/sessions', () => {
       getResponse({
         method: 'post',
         endpoint: sessionsUrl,
-        body: { username: userData.user_name, password: userData.password, firebase_token: 4 }
+        body: { ...userData, firebase_token: 4 }
       }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.message.errors).toHaveLength(1);
@@ -224,7 +232,7 @@ describe('POST /users/sessions', () => {
       mockLoginOnce();
       LoginResponse = await getResponse({
         endpoint: sessionsUrl,
-        body: { username: userData.user_name, password: userData.password },
+        body: { ...userData },
         method: 'post'
       });
     });
