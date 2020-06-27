@@ -39,7 +39,9 @@ const { validateToken, validateTokenAndLoadUser, checkPrivileges } = require('./
 exports.init = app => {
   // Testeado
   app.get('/health', healthCheck);
+  // Testeado
   app.post('/users', [validateSchema(createUserSchema)], signUp);
+  // Testeado
   app.post('/users/sessions', [validateSchema(createUserLoginSchema)], login);
   app.get(
     '/users/:src_username/home',

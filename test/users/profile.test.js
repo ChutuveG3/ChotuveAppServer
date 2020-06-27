@@ -1,4 +1,4 @@
-const { getResponse } = require('../setup');
+const { getResponse } = require('../utils/utils');
 
 const viewProfileBaseUrl = '/users';
 const updateProfileBaseUrl = '/users/me';

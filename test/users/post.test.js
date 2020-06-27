@@ -1,12 +1,14 @@
-const { getResponse } = require('../setup');
+const { getResponse } = require('../utils/utils');
 const { userDataFactory } = require('../factories/users');
-const { mockSignUpOnce } = require('../mocks/users');
+const { mockSignUpOnce, mockLoginOnce } = require('../mocks/users');
+const User = require('../../app/models/user');
+const { LOGIN_TOKEN } = require('../utils/constants');
 
 const baseUrl = '/users';
-
-const userData = userDataFactory();
+const sessionsUrl = `${baseUrl}/sessions`;
 
 describe('POST /users signup', () => {
+  const userData = userDataFactory();
   describe('Missing parameters', () => {
     it('Should be status 400 if first name is missing', () => {
       const currentUserData = { ...userData };
@@ -117,7 +119,7 @@ describe('POST /users signup', () => {
       }));
   });
 
-  describe.only('Success signup', () => {
+  describe('Success signup', () => {
     let signUpResponse = {};
 
     beforeAll(async () => {
@@ -127,8 +129,114 @@ describe('POST /users signup', () => {
 
     afterAll(() => jest.clearAllMocks());
 
+    describe('Check response', () => {
+      it('Check response status', () => {
+        expect(signUpResponse.status).toBe(201);
+      });
+
+      it('Check response message', () => {
+        expect(signUpResponse.body).toStrictEqual({ message: 'ok' });
+      });
+    });
+
+    describe('Check created user data', () => {
+      let user = {};
+      beforeAll(async () => {
+        user = await User.findOne({ username: userData.user_name }).lean();
+      });
+      it('Check that the created user has the correct username', () => {
+        expect(user.username).toBe(userData.user_name);
+      });
+
+      it('Check user has friends empty list', () => {
+        expect(user.friends).toStrictEqual([]);
+      });
+
+      it('Check user has friends request empty list', () => {
+        expect(user.friendRequests).toStrictEqual([]);
+      });
+    });
+  });
+});
+
+describe('POST /users/sessions', () => {
+  const userData = userDataFactory();
+  describe('Missing parameters', () => {
+    it('Should be status 400 if username is missing', () => {
+      const currentUserData = { username: userData.user_name, password: userData.password };
+      delete currentUserData.username;
+      return getResponse({ method: 'post', endpoint: sessionsUrl, body: currentUserData }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('username');
+        expect(res.body.internal_code).toBe('invalid_params');
+      });
+    });
+
+    it('Should be status 400 if password is missing', () => {
+      const currentUserData = { username: userData.user_name, password: userData.password };
+      delete currentUserData.password;
+      return getResponse({ method: 'post', endpoint: sessionsUrl, body: currentUserData }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(2);
+        expect(res.body.internal_code).toBe('invalid_params');
+      });
+    });
+
+    it('Should be status 400 if both username and password are missing', () =>
+      getResponse({ method: 'post', endpoint: sessionsUrl, body: {} }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(3);
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+  });
+
+  describe('Invalid parameters', () => {
+    it('Should be status 400 if password is shorter than 6 characters', () =>
+      getResponse({
+        method: 'post',
+        endpoint: sessionsUrl,
+        body: { username: userData.user_name, password: '1234' }
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('password');
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+
+    it('Should be status 400 if firebase_token is not a string', () =>
+      getResponse({
+        method: 'post',
+        endpoint: sessionsUrl,
+        body: { username: userData.user_name, password: userData.password, firebase_token: 4 }
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('firebase_token');
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+  });
+
+  describe('Correct login', () => {
+    let LoginResponse = {};
+
+    beforeAll(async () => {
+      mockLoginOnce();
+      LoginResponse = await getResponse({
+        endpoint: sessionsUrl,
+        body: { username: userData.user_name, password: userData.password },
+        method: 'post'
+      });
+    });
+
+    afterAll(() => jest.clearAllMocks());
+
     it('Check response status', () => {
-      expect(signUpResponse.status).toBe(200);
+      expect(LoginResponse.status).toBe(200);
+    });
+
+    it('Check token in response', () => {
+      expect(LoginResponse.body.token).toBe(LOGIN_TOKEN);
     });
   });
 });

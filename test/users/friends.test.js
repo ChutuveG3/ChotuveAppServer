@@ -1,4 +1,4 @@
-const { getResponse } = require('../setup');
+const { getResponse } = require('../utils/utils');
 
 const sendFriendRequestBaseUrl = (user1, user2) => `/users/${user1}/friends/${user2}`;
 const listFriendRequestsBaseUrl = user => `/users/${user}/friends/pending`;

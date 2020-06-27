@@ -1,11 +1,6 @@
-const request = require('supertest');
-
-exports.getResponse = ({ endpoint, header = {}, params = {}, body = {}, method = 'put' }) => {
-  const app = require('../app'); // eslint-disable-line
-  return request(app)
-  [method](`${endpoint}`) // eslint-disable-line
-    .set(header)
-    .query(params)
-    .send(body)
-    .then(res => res);
-};
+/* eslint-disable global-require */
+jest.setTimeout(50000);
+beforeAll(async () => {
+  // eslint-disable-next-line no-unused-vars
+  const db = await require('../config/db');
+});
