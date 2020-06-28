@@ -1,5 +1,3 @@
-// const mongoose = require('mongoose');
-
 const ENVIRONMENT = process.env.NODE_ENV || 'development';
 
 // eslint-disable-next-line global-require
@@ -60,9 +58,4 @@ const config = {
 };
 
 const customConfig = require(configFile).config;
-// mongoose.connect(customConfig.common.database.url || config.common.database.url, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-//   dbName: customConfig.common.database.name || config.common.database.name
-// });
 module.exports = deepMerge(config, customConfig);

@@ -1,5 +1,6 @@
 const request = require('supertest');
 const User = require('../../app/models/user');
+const Video = require('../../app/models/video');
 
 exports.getResponse = ({ endpoint, header = {}, params = {}, body = {}, method = 'put' }) => {
   const app = require('../../app'); // eslint-disable-line
@@ -12,3 +13,5 @@ exports.getResponse = ({ endpoint, header = {}, params = {}, body = {}, method =
 };
 
 exports.truncateUserCollection = () => User.deleteMany();
+
+exports.truncateVideoCollection = () => Video.deleteMany();

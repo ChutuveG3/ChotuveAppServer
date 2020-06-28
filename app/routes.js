@@ -53,6 +53,7 @@ exports.init = app => {
     [validateSchema(getVideosFromUserSchema), validateTokenAndLoadUser, addPagingParams],
     getUserVideos
   );
+
   app.post('/videos', [validateSchema(createVideoSchema), validateTokenAndLoadUser], upload);
   // Testeado
   app.get('/users/:username', [validateSchema(getCurrentUserSchema), validateToken], viewProfile);
@@ -74,16 +75,19 @@ exports.init = app => {
     [validateSchema(listFriendRequestsSchema), validateTokenAndLoadUser, validateUser, addPagingParams],
     listFriendRequests
   );
+  // Testeado
   app.get(
     '/users/:src_username/friends',
     [validateSchema(listFriendsSchema), validateTokenAndLoadUser, validateUser, addPagingParams],
     listFriends
   );
+  // Testeado
   app.post(
     '/users/:src_username/friends/:dst_username/accept',
     [validateSchema(acceptFriendRequestSchema), validateTokenAndLoadUser, validateUser, validateParamsUsers],
     acceptFriendRequest
   );
+  // Testeado
   app.post(
     '/users/:src_username/friends/:dst_username/reject',
     [validateSchema(rejectFriendRequestSchema), validateTokenAndLoadUser, validateUser, validateParamsUsers],
