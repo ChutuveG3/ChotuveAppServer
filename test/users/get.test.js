@@ -5,7 +5,6 @@ const { mockFailViewProfileOnce, mockViewProfileOnce } = require('../mocks/users
 const { TOKEN_FOR_AUTH } = require('../utils/constants');
 
 const viewProfileUrl = username => `/users/${username}`;
-const updateProfileBaseUrl = '/users/me';
 
 const authHeader = {
   authorization: 'aToken'
@@ -37,16 +36,15 @@ describe('GET /users/:username to view profile', () => {
     afterAll(() => jest.clearAllMocks());
 
     it('Check status code', () => {
-      expect(invalidTokenResponse.status).toBe(502);
+      expect(invalidTokenResponse.status).toBe(401);
     });
 
     it('Check message', () => {
-      expect(invalidTokenResponse.body.message.status).toBe(401);
-      expect(invalidTokenResponse.body.message.error.internal_code).toBe('invalid_token_error');
+      expect(invalidTokenResponse.body.message.internal_code).toBe('invalid_token_error');
     });
 
     it('Check internal code', () => {
-      expect(invalidTokenResponse.body.internal_code).toBe('auth_server_error');
+      expect(invalidTokenResponse.body.internal_code).toBe('invalid_token_error');
     });
   });
 
@@ -67,16 +65,15 @@ describe('GET /users/:username to view profile', () => {
 
     describe('Check response', () => {
       it('Check status code', () => {
-        expect(userNotFoundResponse.status).toBe(502);
+        expect(userNotFoundResponse.status).toBe(409);
       });
 
       it('Check message', () => {
-        expect(userNotFoundResponse.body.message.error.internal_code).toBe('user_not_exists');
-        expect(userNotFoundResponse.body.message.status).toBe(409);
+        expect(userNotFoundResponse.body.message.internal_code).toBe('user_not_exists');
       });
 
       it('Check internal code', () => {
-        expect(userNotFoundResponse.body.internal_code).toBe('auth_server_error');
+        expect(userNotFoundResponse.body.internal_code).toBe('user_not_exists');
       });
     });
   });
@@ -111,123 +108,5 @@ describe('GET /users/:username to view profile', () => {
     it('Check body', () => {
       expect(profileResponse.body).toStrictEqual(correctBodyResponse);
     });
-  });
-});
-
-describe('PUT /users/me to update profile', () => {
-  const updatedUserData = {
-    first_name: 'MyNewFirstName',
-    last_name: 'MyNewLastName',
-    email: 'newEmail@test.com',
-    birthdate: '1995-07-22'
-  };
-  describe('Missing or invalid params', () => {
-    it('Should be status 400 if auth token header is missing', () =>
-      getResponse({
-        method: 'put',
-        endpoint: updateProfileBaseUrl,
-        body: updatedUserData
-      }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(1);
-        expect(res.body.message.errors[0].param).toBe('authorization');
-        expect(res.body.internal_code).toBe('invalid_params');
-      }));
-
-    it('Should be status 400 if first name is missing', () => {
-      const currentUpdateUserData = { ...updatedUserData };
-      delete currentUpdateUserData.first_name;
-      return getResponse({
-        method: 'put',
-        endpoint: updateProfileBaseUrl,
-        body: currentUpdateUserData,
-        header: authHeader
-      }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(1);
-        expect(res.body.message.errors[0].param).toBe('first_name');
-        expect(res.body.internal_code).toBe('invalid_params');
-      });
-    });
-    it('Should be status 400 if last name is missing', () => {
-      const currentUpdateUserData = { ...updatedUserData };
-      delete currentUpdateUserData.last_name;
-      return getResponse({
-        method: 'put',
-        endpoint: updateProfileBaseUrl,
-        body: currentUpdateUserData,
-        header: authHeader
-      }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(1);
-        expect(res.body.message.errors[0].param).toBe('last_name');
-        expect(res.body.internal_code).toBe('invalid_params');
-      });
-    });
-    it('Should be status 400 if email is missing', () => {
-      const currentUpdateUserData = { ...updatedUserData };
-      delete currentUpdateUserData.email;
-      return getResponse({
-        method: 'put',
-        endpoint: updateProfileBaseUrl,
-        body: currentUpdateUserData,
-        header: authHeader
-      }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(1);
-        expect(res.body.message.errors[0].param).toBe('email');
-        expect(res.body.internal_code).toBe('invalid_params');
-      });
-    });
-    it('Should be status 400 if birthdate is missing', () => {
-      const currentUpdateUserData = { ...updatedUserData };
-      delete currentUpdateUserData.birthdate;
-      return getResponse({
-        method: 'put',
-        endpoint: updateProfileBaseUrl,
-        body: currentUpdateUserData,
-        header: authHeader
-      }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(1);
-        expect(res.body.message.errors[0].param).toBe('birthdate');
-        expect(res.body.internal_code).toBe('invalid_params');
-      });
-    });
-    it('Should be status 400 if all the body is missing', () =>
-      getResponse({
-        method: 'put',
-        endpoint: updateProfileBaseUrl,
-        header: authHeader
-      }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(4);
-        expect(res.body.internal_code).toBe('invalid_params');
-      }));
-    it('Should be status 400 if email is invalid', () =>
-      getResponse({
-        method: 'put',
-        endpoint: updateProfileBaseUrl,
-        body: { ...updatedUserData, email: 'notanemail.com' },
-        header: authHeader
-      }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(1);
-        expect(res.body.message.errors[0].param).toBe('email');
-        expect(res.body.internal_code).toBe('invalid_params');
-      }));
-
-    it('Should be status 400 if birthdate is invalid', () =>
-      getResponse({
-        method: 'put',
-        endpoint: updateProfileBaseUrl,
-        body: { ...updatedUserData, birthdate: '4/6/95' },
-        header: authHeader
-      }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(1);
-        expect(res.body.message.errors[0].param).toBe('birthdate');
-        expect(res.body.internal_code).toBe('invalid_params');
-      }));
   });
 });

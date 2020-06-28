@@ -15,8 +15,10 @@ exports.mockLoginOnce = () =>
 
 exports.mockFailViewProfileOnce = () =>
   axios.get.mockRejectedValueOnce({
-    status: 409,
-    error: { message: 'Could not found user with username', internal_code: 'user_not_exists' }
+    response: {
+      status: 409,
+      data: { message: 'Could not found user with username', internal_code: 'user_not_exists' }
+    }
   });
 
 exports.mockViewProfileOnce = userData =>
@@ -31,3 +33,10 @@ exports.mockViewProfileOnce = userData =>
       profile_img_url: userData.profileImgUrl
     }
   });
+
+exports.mockUpdateProfileOnce = () => {
+  axios.put.mockResolvedValueOnce({
+    status: 200,
+    data: {}
+  });
+};
