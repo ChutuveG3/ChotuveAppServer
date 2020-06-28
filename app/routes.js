@@ -62,11 +62,13 @@ exports.init = app => {
     [validateSchema(updateProfileSchema), validateTokenAndLoadUser, validateUser],
     updateProfile
   );
+  // Testeado
   app.post(
     '/users/:src_username/friends/:dst_username',
     [validateSchema(sendFriendRequestSchema), validateTokenAndLoadUser, validateUser, validateParamsUsers],
     sendFriendRequest
   );
+  // Testeado
   app.get(
     '/users/:src_username/friends/pending',
     [validateSchema(listFriendRequestsSchema), validateTokenAndLoadUser, validateUser, addPagingParams],

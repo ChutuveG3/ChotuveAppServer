@@ -1,10 +1,21 @@
-const { getResponse } = require('../utils/utils');
-const { userDataFactory } = require('../factories/users');
-const { mockValidateTokenOnce, mockFailValidateTokenOnce } = require('../mocks/authorization');
+const { getResponse, truncateUserCollection } = require('../utils/utils');
+const {
+  userDataFactory,
+  createUserFactory,
+  friendRequestFactory,
+  friendFactory
+} = require('../factories/users');
+const {
+  mockValidateTokenOnce,
+  mockFailValidateTokenOnce,
+  mockValidateTokenAndLoadUser
+} = require('../mocks/authorization');
 const { mockFailViewProfileOnce, mockViewProfileOnce } = require('../mocks/users');
 const { TOKEN_FOR_AUTH } = require('../utils/constants');
 
 const viewProfileUrl = username => `/users/${username}`;
+const listFriendRequestsBaseUrl = username => `/users/${username}/friends/pending`;
+const listFriendsBaseUrl = username => `/users/${username}/friends`;
 
 const authHeader = {
   authorization: 'aToken'
@@ -107,6 +118,116 @@ describe('GET /users/:username to view profile', () => {
 
     it('Check body', () => {
       expect(profileResponse.body).toStrictEqual(correctBodyResponse);
+    });
+  });
+});
+
+describe('GET /users/:src_username/friends/pending', () => {
+  const srcUserData = userDataFactory();
+  let emptyListResponse = {};
+  let twoFriendsRequestResponse = {};
+  beforeAll(async () => {
+    await truncateUserCollection();
+    await createUserFactory(srcUserData.username);
+    mockValidateTokenAndLoadUser(srcUserData);
+    emptyListResponse = await getResponse({
+      method: 'get',
+      endpoint: listFriendRequestsBaseUrl(srcUserData.username),
+      header: { authorization: TOKEN_FOR_AUTH }
+    });
+
+    await friendRequestFactory({ srcUsername: srcUserData.username, dstUsername: 'un1' });
+    await friendRequestFactory({ srcUsername: srcUserData.username, dstUsername: 'un2' });
+    mockValidateTokenAndLoadUser(srcUserData);
+    twoFriendsRequestResponse = await getResponse({
+      method: 'get',
+      endpoint: listFriendRequestsBaseUrl(srcUserData.username),
+      header: { authorization: TOKEN_FOR_AUTH }
+    });
+  });
+
+  describe('Missing params', () => {
+    it('Should be status 400 if auth token header is missing', () =>
+      getResponse({ method: 'get', endpoint: listFriendRequestsBaseUrl('un') }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('authorization');
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+  });
+
+  describe('Empty friends request list', () => {
+    it('Check status', () => {
+      expect(emptyListResponse.status).toBe(200);
+    });
+
+    it('Check list length', () => {
+      expect(emptyListResponse.body.friend_requests.length).toBe(0);
+    });
+  });
+
+  describe('Two friends request list', () => {
+    it('Check status', () => {
+      expect(twoFriendsRequestResponse.status).toBe(200);
+    });
+
+    it('Check list length', () => {
+      expect(twoFriendsRequestResponse.body.friend_requests.length).toBe(2);
+    });
+  });
+});
+
+describe('GET /users/:username/friends', () => {
+  const srcUserData = userDataFactory();
+  let emptyListResponse = {};
+  let twoFriendsResponse = {};
+  beforeAll(async () => {
+    await truncateUserCollection();
+    await createUserFactory(srcUserData.username);
+    mockValidateTokenAndLoadUser(srcUserData);
+    emptyListResponse = await getResponse({
+      method: 'get',
+      endpoint: listFriendsBaseUrl(srcUserData.username),
+      header: { authorization: TOKEN_FOR_AUTH }
+    });
+
+    await friendFactory({ srcUsername: srcUserData.username, dstUsername: 'un1' });
+    await friendFactory({ srcUsername: srcUserData.username, dstUsername: 'un2' });
+    mockValidateTokenAndLoadUser(srcUserData);
+    twoFriendsResponse = await getResponse({
+      method: 'get',
+      endpoint: listFriendsBaseUrl(srcUserData.username),
+      header: { authorization: TOKEN_FOR_AUTH }
+    });
+  });
+
+  describe('Missing params', () => {
+    it('Should be status 400 if auth token header is missing', () =>
+      getResponse({ method: 'get', endpoint: listFriendsBaseUrl('un') }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('authorization');
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+  });
+
+  describe('Empty friends list', () => {
+    it('Check status', () => {
+      expect(emptyListResponse.status).toBe(200);
+    });
+
+    it('Check list length', () => {
+      expect(emptyListResponse.body.friends.length).toBe(0);
+    });
+  });
+
+  describe('Two friends list', () => {
+    it('Check status', () => {
+      expect(twoFriendsResponse.status).toBe(200);
+    });
+
+    it('Check list length', () => {
+      expect(twoFriendsResponse.body.friends.length).toBe(2);
     });
   });
 });
