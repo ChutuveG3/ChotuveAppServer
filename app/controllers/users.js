@@ -11,14 +11,20 @@ const {
   rejectFriendRequest,
   saveFirebaseToken,
   getUserFromUsername,
-  deleteFirebaseToken
+  deleteFirebaseToken,
+  getPotentialFriends
 } = require('../services/users');
-const { getFriendRequestsSerializer, getFriendsSerializer } = require('../serializers/friends');
+const {
+  getFriendRequestsSerializer,
+  getFriendsSerializer,
+  getPotentialFriendsSerializer
+} = require('../serializers/friends');
 const {
   updateUserMapper,
   userFriendshipMapper,
   userLoginMapper,
-  logOutUserMapper
+  logOutUserMapper,
+  potentialFriendsMapper
 } = require('../mappers/users');
 const { notifyUser } = require('../services/push_notifications');
 const { sendFriendRequestPushBuilder, acceptFriendRequestPushBuilder } = require('../utils/push_builder');
@@ -90,4 +96,9 @@ exports.rejectFriendRequest = ({ params }, res, next) =>
 exports.logOut = ({ params }, res, next) =>
   deleteFirebaseToken({ ...logOutUserMapper(params) })
     .then(() => res.status(200).send({ message: 'ok' }))
+    .catch(next);
+
+exports.getPotentialFriends = ({ params, query }, res, next) =>
+  getPotentialFriends(potentialFriendsMapper(params, query))
+    .then(usernames => res.status(200).send(getPotentialFriendsSerializer(usernames)))
     .catch(next);

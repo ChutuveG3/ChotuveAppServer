@@ -188,3 +188,19 @@ exports.logOutUserSchema = {
     errorMessage: 'src_username should be a string'
   }
 };
+
+exports.potentialFriendsSchema = {
+  ...authorizationSchema,
+  src_username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'src_username should be a string'
+  },
+  username: {
+    in: ['query'],
+    isString: true,
+    optional: true,
+    errorMessage: 'username should be a string'
+  }
+};

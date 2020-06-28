@@ -19,7 +19,8 @@ const {
   listFriends,
   acceptFriendRequest,
   rejectFriendRequest,
-  logOut
+  logOut,
+  getPotentialFriends
 } = require('./controllers/users');
 const {
   createUserSchema,
@@ -33,7 +34,8 @@ const {
   listFriendsSchema,
   acceptFriendRequestSchema,
   rejectFriendRequestSchema,
-  logOutUserSchema
+  logOutUserSchema,
+  potentialFriendsSchema
 } = require('./middlewares/users');
 const { validateToken, validateTokenAndLoadUser, checkPrivileges } = require('./middlewares/token_validator');
 
@@ -91,4 +93,9 @@ exports.init = app => {
     logOut
   );
   app.delete('/videos/:id', [validateSchema(deleteVideoSchema), validateToken, checkPrivileges], deleteVideo);
+  app.get(
+    '/users/:src_username/potential_friends',
+    [validateSchema(potentialFriendsSchema), validateTokenAndLoadUser, validateUser],
+    getPotentialFriends
+  );
 };
