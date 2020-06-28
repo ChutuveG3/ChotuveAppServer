@@ -136,8 +136,8 @@ describe('GET /users/:src_username/friends/pending', () => {
       header: { authorization: TOKEN_FOR_AUTH }
     });
 
-    await friendRequestFactory({ srcUsername: srcUserData.username, dstUsername: 'un1' });
-    await friendRequestFactory({ srcUsername: srcUserData.username, dstUsername: 'un2' });
+    await friendRequestFactory({ srcUsername: 'un1', dstUsername: srcUserData.username });
+    await friendRequestFactory({ srcUsername: 'un2', dstUsername: srcUserData.username });
     mockValidateTokenAndLoadUser(srcUserData);
     twoFriendsRequestResponse = await getResponse({
       method: 'get',

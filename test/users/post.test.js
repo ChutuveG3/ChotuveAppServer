@@ -1,6 +1,11 @@
 /* eslint-disable max-lines */
 const { getResponse, truncateUserCollection } = require('../utils/utils');
-const { userDataFactory, createUserFactory, friendFactory } = require('../factories/users');
+const {
+  userDataFactory,
+  createUserFactory,
+  friendFactory,
+  friendRequestFactory
+} = require('../factories/users');
 const { mockSignUpOnce, mockLoginOnce } = require('../mocks/users');
 const { mockValidateTokenAndLoadUser } = require('../mocks/authorization');
 const { mockNotifyUser } = require('../mocks/push_notifications');
@@ -9,7 +14,9 @@ const { LOGIN_TOKEN, TOKEN_FOR_AUTH } = require('../utils/constants');
 
 const baseUrl = '/users';
 const sessionsUrl = `${baseUrl}/sessions`;
-const sendFriendRequestBaseUrl = (user1, user2) => `/users/${user1}/friends/${user2}`;
+const sendFriendRequestBaseUrl = (user1, user2) => `${baseUrl}/${user1}/friends/${user2}`;
+const acceptFriendBaseUrl = (user1, user2) => `${baseUrl}/${user1}/friends/${user2}/accept`;
+const rejectFriendBaseUrl = (user1, user2) => `${baseUrl}/${user1}/friends/${user2}/reject`;
 
 describe('POST /users signup', () => {
   const userData = userDataFactory();
@@ -396,6 +403,175 @@ describe('POST users/:src_username/friends/:dst_username', () => {
       expect(friendRequestToFriendResponse.body.message).toBe(
         `${srcUserData.username} and ${dstUserData.username} are already friends`
       );
+    });
+  });
+});
+
+describe.each([
+  { endpoint: acceptFriendBaseUrl, action: 'accept' },
+  { endpoint: rejectFriendBaseUrl, action: 'reject' }
+])('Accept/Reject friend request', ({ endpoint, action }) => {
+  describe(`POST users/:src_username/friends/:dst_username/${action}`, () => {
+    describe('Missing params', () => {
+      it('Should be status 400 if auth token header is missing', () =>
+        getResponse({ method: 'post', endpoint: endpoint('un1', 'un2') }).then(res => {
+          expect(res.status).toBe(400);
+          expect(res.body.message.errors).toHaveLength(1);
+          expect(res.body.message.errors[0].param).toBe('authorization');
+          expect(res.body.internal_code).toBe('invalid_params');
+        }));
+    });
+
+    describe('Invalid users', () => {
+      const srcUserData = userDataFactory();
+      const dstUserData = userDataFactory();
+      const unexistentDstUsername = 'un2';
+      let withoutFriendRequestResponse = {};
+      let alreadyFriendsResponse = {};
+      let sameUserResponse = {};
+      let nonExistingDstResponse = {};
+
+      beforeAll(async () => {
+        await truncateUserCollection();
+        await createUserFactory(srcUserData.username);
+        await createUserFactory(dstUserData.username);
+        mockValidateTokenAndLoadUser(srcUserData);
+        withoutFriendRequestResponse = await getResponse({
+          method: 'post',
+          endpoint: endpoint(srcUserData.username, dstUserData.username),
+          header: { authorization: TOKEN_FOR_AUTH }
+        });
+
+        mockValidateTokenAndLoadUser(srcUserData);
+        sameUserResponse = await getResponse({
+          method: 'post',
+          endpoint: endpoint(srcUserData.username, srcUserData.username),
+          header: { authorization: TOKEN_FOR_AUTH }
+        });
+
+        await friendFactory({ srcUsername: dstUserData.username, dstUsername: srcUserData.username });
+        await friendFactory({ srcUsername: srcUserData.username, dstUsername: dstUserData.username });
+        await friendRequestFactory({ srcUsername: dstUserData.username, dstUsername: srcUserData.username });
+
+        mockValidateTokenAndLoadUser(srcUserData);
+        alreadyFriendsResponse = await getResponse({
+          method: 'post',
+          endpoint: endpoint(srcUserData.username, dstUserData.username),
+          header: { authorization: TOKEN_FOR_AUTH }
+        });
+
+        mockValidateTokenAndLoadUser(srcUserData);
+        nonExistingDstResponse = await getResponse({
+          method: 'post',
+          endpoint: sendFriendRequestBaseUrl(srcUserData.username, unexistentDstUsername),
+          header: { authorization: TOKEN_FOR_AUTH }
+        });
+      });
+
+      describe('Without friend request', () => {
+        it('Check status', () => {
+          expect(withoutFriendRequestResponse.status).toBe(409);
+        });
+
+        it('Check internal_code', () => {
+          expect(withoutFriendRequestResponse.body.internal_code).toBe('missing_friend_request_error');
+        });
+
+        it('Check message', () => {
+          expect(withoutFriendRequestResponse.body.message).toBe('Missing friend request');
+        });
+      });
+
+      describe('Same user', () => {
+        it('Check status', () => {
+          expect(sameUserResponse.status).toBe(400);
+        });
+
+        it('Check internal code', () => {
+          expect(sameUserResponse.body.internal_code).toBe('same_user_error');
+        });
+
+        it('Check message', () => {
+          expect(sameUserResponse.body.message).toBe(
+            `Users must be different: ${srcUserData.username}, ${srcUserData.username}`
+          );
+        });
+      });
+
+      describe(`${action} friend request from a friend`, () => {
+        it('Check status', () => {
+          expect(alreadyFriendsResponse.status).toBe(409);
+        });
+        it('Check internal code', () => {
+          expect(alreadyFriendsResponse.body.internal_code).toBe('already_friends_error');
+        });
+        it('Check message', () => {
+          expect(alreadyFriendsResponse.body.message).toBe(
+            `${srcUserData.username} and ${dstUserData.username} are already friends`
+          );
+        });
+      });
+
+      describe('dst_user does not exist', () => {
+        it('Check status', () => {
+          expect(nonExistingDstResponse.status).toBe(409);
+        });
+
+        it('Check internal code', () => {
+          expect(nonExistingDstResponse.body.internal_code).toBe('user_not_exists');
+        });
+
+        it('Check message', () => {
+          expect(nonExistingDstResponse.body.message).toBe(`${unexistentDstUsername} does not exist`);
+        });
+      });
+    });
+
+    describe(`Correctly ${action} friend request`, () => {
+      let correctResponse = {};
+      const srcUserData = userDataFactory();
+      const dstUserData = userDataFactory();
+      beforeAll(async () => {
+        await truncateUserCollection();
+        await createUserFactory(srcUserData.username);
+        await createUserFactory(dstUserData.username);
+        mockValidateTokenAndLoadUser(srcUserData);
+        mockNotifyUser();
+        await friendRequestFactory({ srcUsername: dstUserData.username, dstUsername: srcUserData.username });
+        correctResponse = await getResponse({
+          method: 'post',
+          endpoint: endpoint(srcUserData.username, dstUserData.username),
+          header: { authorization: TOKEN_FOR_AUTH }
+        });
+      });
+
+      it('Check status', () => {
+        expect(correctResponse.status).toBe(201);
+      });
+
+      it('Check srcUser friends and requests', () =>
+        User.findOne({ username: srcUserData.username })
+          .lean()
+          .then(user => {
+            if (action === 'accept') {
+              expect(user.friends).toContain(dstUserData.username);
+              expect(user.friendRequests).not.toContain(dstUserData.username);
+            } else {
+              expect(user.friends).not.toContain(dstUserData.username);
+              expect(user.friendRequests).not.toContain(dstUserData.username);
+            }
+          }));
+
+      it('Check dstUser friends and requests', () =>
+        User.findOne({ username: dstUserData.username })
+          .lean()
+          .then(user => {
+            if (action === 'accept') {
+              expect(user.friends).toContain(srcUserData.username);
+            } else {
+              expect(user.friends).not.toContain(srcUserData.username);
+            }
+          }));
     });
   });
 });

@@ -23,7 +23,7 @@ exports.friendFactory = ({ srcUsername, dstUsername }) =>
   });
 
 exports.friendRequestFactory = ({ srcUsername, dstUsername }) =>
-  User.findOne({ username: srcUsername }).then(user => {
-    user.friendRequests.push(dstUsername);
+  User.findOne({ username: dstUsername }).then(user => {
+    user.friendRequests.push(srcUsername);
     return user.save();
   });

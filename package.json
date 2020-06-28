@@ -55,7 +55,8 @@
       "!**/build/**",
       "!**/migrations/**",
       "!**/config/**",
-      "!**/scripts/**"
+      "!**/scripts/**",
+      "!**/coverage/**"
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup.js"
