@@ -22,7 +22,7 @@ const videoData = {
   file_size: '24335'
 };
 
-describe.only('POST /videos upload', () => {
+describe('POST /videos upload', () => {
   describe('Missing parameters', () => {
     it('Should be 400 if header is missing', () => {
       const currentVideoData = { ...videoData };
