@@ -44,9 +44,20 @@ exports.login = ({ body }, res, next) =>
     )
     .catch(next);
 
-exports.viewProfile = ({ params: { username }, headers: { authorization: token } }, res, next) =>
+exports.viewProfile = ({ user, params: { username }, headers: { authorization: token } }, res, next) =>
   viewUserProfile(username, token)
-    .then(userProfile => res.status(200).send(userProfile))
+    .then(dstUserProfile =>
+      getUserFromUsername(dstUserProfile.user_name).then(dstUser => {
+        if (dstUser.friendRequests.includes(user.user_name)) {
+          dstUserProfile.friendship = 'pending';
+        } else if (dstUser.friends.includes(user.user_name)) {
+          dstUserProfile.friendship = 'yes';
+        } else {
+          dstUserProfile.friendship = 'no';
+        }
+        return res.status(200).send(dstUserProfile);
+      })
+    )
     .catch(next);
 
 exports.updateProfile = ({ headers: { authorization: token }, body, params }, res, next) =>

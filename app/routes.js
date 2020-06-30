@@ -55,10 +55,9 @@ exports.init = app => {
     [validateSchema(getVideosFromUserSchema), validateTokenAndLoadUser, addPagingParams],
     getUserVideos
   );
-
   app.post('/videos', [validateSchema(createVideoSchema), validateTokenAndLoadUser], upload);
   // Testeado
-  app.get('/users/:username', [validateSchema(getCurrentUserSchema), validateToken], viewProfile);
+  app.get('/users/:username', [validateSchema(getCurrentUserSchema), validateTokenAndLoadUser], viewProfile);
   // Testeado
   app.put(
     '/users/:src_username',

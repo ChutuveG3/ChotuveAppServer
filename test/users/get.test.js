@@ -5,11 +5,7 @@ const {
   friendRequestFactory,
   friendFactory
 } = require('../factories/users');
-const {
-  mockValidateTokenOnce,
-  mockFailValidateTokenOnce,
-  mockValidateTokenAndLoadUser
-} = require('../mocks/authorization');
+const { mockFailValidateTokenOnce, mockValidateTokenAndLoadUser } = require('../mocks/authorization');
 const { mockFailViewProfileOnce, mockViewProfileOnce } = require('../mocks/users');
 const { TOKEN_FOR_AUTH } = require('../utils/constants');
 
@@ -17,9 +13,6 @@ const viewProfileUrl = username => `/users/${username}`;
 const listFriendRequestsBaseUrl = username => `/users/${username}/friends/pending`;
 const listFriendsBaseUrl = username => `/users/${username}/friends`;
 
-const authHeader = {
-  authorization: 'aToken'
-};
 describe('GET /users/:username to view profile', () => {
   describe('Missing params', () => {
     const username = 'testUN';
@@ -40,7 +33,7 @@ describe('GET /users/:username to view profile', () => {
       invalidTokenResponse = await getResponse({
         method: 'get',
         endpoint: viewProfileUrl(userData.username),
-        header: authHeader
+        header: { authorization: 'A bad token' }
       });
     });
 
@@ -59,9 +52,9 @@ describe('GET /users/:username to view profile', () => {
     });
   });
 
-  describe('User does not exists', () => {
+  describe('User does not exist', () => {
     const userData = userDataFactory();
-    mockValidateTokenOnce();
+    mockValidateTokenAndLoadUser(userData);
     mockFailViewProfileOnce();
     let userNotFoundResponse = {};
     beforeAll(async () => {
@@ -97,12 +90,15 @@ describe('GET /users/:username to view profile', () => {
       user_name: userData.username,
       email: userData.email,
       birthdate: userData.birthdate,
-      profile_img_url: userData.profileImgUrl
+      profile_img_url: userData.profileImgUrl,
+      friendship: 'no'
     };
-    mockValidateTokenOnce();
+    mockValidateTokenAndLoadUser(userData);
     mockViewProfileOnce({ ...userData });
     let profileResponse = {};
     beforeAll(async () => {
+      await truncateUserCollection();
+      await createUserFactory(userData.username);
       profileResponse = await getResponse({
         method: 'get',
         endpoint: viewProfileUrl(userData.username),
