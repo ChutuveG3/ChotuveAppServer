@@ -1,7 +1,8 @@
 const axios = require('axios');
 const {
   common: {
-    urls: { mediaServer }
+    urls: { mediaServer },
+    authorization: { apiKey }
   }
 } = require('../../config');
 const { info, error } = require('../logger');
@@ -16,7 +17,7 @@ exports.uploadVideo = (username, body) => {
   delete videoData.visibility;
   info(`Sending video data to Media Server at ${mediaServer} for video with url: ${videoData.download_url}`);
   return axios
-    .post(`${mediaServer}/videos`, videoData)
+    .post(`${mediaServer}/videos`, videoData, { headers: { x_api_key: apiKey } })
     .catch(mserror => {
       if (!mserror.response || !mserror.response.data) throw mediaServerError(mserror);
       error(`Media Server failed to save video. ${mserror.response.data.message}`);
@@ -56,7 +57,7 @@ const buildIdsParam = ids => {
 exports.getMediaVideosFromIds = ids => {
   info('Getting media videos by ids');
   return axios
-    .get(`${mediaServer}/videos?${buildIdsParam(ids)}`)
+    .get(`${mediaServer}/videos?${buildIdsParam(ids)}`, { headers: { x_api_key: apiKey } })
     .then(res => res.data)
     .catch(mserror => {
       if (!mserror.response || !mserror.response.data) throw mediaServerError(mserror);
