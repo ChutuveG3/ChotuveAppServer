@@ -51,12 +51,12 @@ const getVideosAndMedia = (filters, order, { offset, limit }) => {
 exports.getUserVideos = ({ user, params, query: { offset, limit } }, res, next) =>
   makeFilter(userTokenMapper(user), userParamMapper(params))
     .then(filters => getVideosAndMedia(filters, { id: 'asc' }, { offset, limit }))
-    .then(videos => res.status(200).send(videos))
+    .then(videos => res.status(200).send({ videos }))
     .catch(next);
 
 exports.getVideos = ({ query: { offset, limit } }, res, next) =>
   getVideosAndMedia({ visibility: 'public' }, { id: 'asc' }, { offset, limit })
-    .then(videos => res.status(200).send(videos))
+    .then(videos => res.status(200).send({ videos }))
     .catch(next);
 
 exports.deleteVideo = ({ params: { id } }, res, next) =>
