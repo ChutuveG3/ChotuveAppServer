@@ -1,4 +1,4 @@
-const axios = require('axios').default;
+const axios = require('axios');
 const {
   common: {
     urls: { mediaServer },
@@ -11,7 +11,7 @@ const { databaseError, mediaServerError } = require('../errors');
 const { getUserFromUsername } = require('./users');
 
 exports.uploadVideo = (username, body) => {
-  const videoData = { ...body, owner: username };
+  const videoData = { ...body };
   delete videoData.title;
   delete videoData.description;
   delete videoData.visibility;

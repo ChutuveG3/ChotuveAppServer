@@ -172,3 +172,21 @@ exports.deleteFirebaseToken = ({ username }) => {
     return saveUserInDB(user);
   });
 };
+
+const makePotentialFriendsFilter = (srcUsername, keyUsername) => ({
+  username: { $ne: srcUsername, $regex: new RegExp(keyUsername, 'i') },
+  friendRequests: { $nin: [srcUsername] },
+  friends: { $nin: [srcUsername] }
+});
+
+exports.getPotentialFriends = ({ srcUsername, keyUsername }) => {
+  info('Getting potential friends');
+  const filter = makePotentialFriendsFilter(srcUsername, keyUsername);
+  return User.find(filter, 'username', { limit: 10 })
+    .select({ _id: 0 })
+    .then(usernames => usernames)
+    .catch(dbError => {
+      error(`Users could not be found. Error: ${dbError}`);
+      throw databaseError(`Users could not be found. Error: ${dbError}`);
+    });
+};

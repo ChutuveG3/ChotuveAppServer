@@ -11,14 +11,20 @@ const {
   rejectFriendRequest,
   saveFirebaseToken,
   getUserFromUsername,
-  deleteFirebaseToken
+  deleteFirebaseToken,
+  getPotentialFriends
 } = require('../services/users');
-const { getFriendRequestsSerializer, getFriendsSerializer } = require('../serializers/friends');
+const {
+  getFriendRequestsSerializer,
+  getFriendsSerializer,
+  getPotentialFriendsSerializer
+} = require('../serializers/friends');
 const {
   updateUserMapper,
   userFriendshipMapper,
   userLoginMapper,
-  logOutUserMapper
+  logOutUserMapper,
+  potentialFriendsMapper
 } = require('../mappers/users');
 const { notifyUser } = require('../services/push_notifications');
 const { sendFriendRequestPushBuilder, acceptFriendRequestPushBuilder } = require('../utils/push_builder');
@@ -38,9 +44,20 @@ exports.login = ({ body }, res, next) =>
     )
     .catch(next);
 
-exports.viewProfile = ({ params: { username }, headers: { authorization: token } }, res, next) =>
+exports.viewProfile = ({ user, params: { username }, headers: { authorization: token } }, res, next) =>
   viewUserProfile(username, token)
-    .then(userProfile => res.status(200).send(userProfile))
+    .then(dstUserProfile =>
+      getUserFromUsername(dstUserProfile.user_name).then(dstUser => {
+        if (dstUser.friendRequests.includes(user.user_name)) {
+          dstUserProfile.friendship = 'pending';
+        } else if (dstUser.friends.includes(user.user_name)) {
+          dstUserProfile.friendship = 'yes';
+        } else {
+          dstUserProfile.friendship = 'no';
+        }
+        return res.status(200).send(dstUserProfile);
+      })
+    )
     .catch(next);
 
 exports.updateProfile = ({ headers: { authorization: token }, body, params }, res, next) =>
@@ -90,4 +107,9 @@ exports.rejectFriendRequest = ({ params }, res, next) =>
 exports.logOut = ({ params }, res, next) =>
   deleteFirebaseToken({ ...logOutUserMapper(params) })
     .then(() => res.status(200).send({ message: 'ok' }))
+    .catch(next);
+
+exports.getPotentialFriends = ({ params, query }, res, next) =>
+  getPotentialFriends(potentialFriendsMapper(params, query))
+    .then(usernames => res.status(200).send(getPotentialFriendsSerializer(usernames)))
     .catch(next);
