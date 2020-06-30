@@ -55,10 +55,9 @@ exports.viewProfile = ({ user, params: { username }, headers: { authorization: t
         } else {
           dstUserProfile.friendship = 'no';
         }
-        return dstUserProfile;
+        return res.status(200).send(dstUserProfile);
       })
     )
-    .then(dstUserProfile => res.status(200).send(dstUserProfile))
     .catch(next);
 
 exports.updateProfile = ({ headers: { authorization: token }, body, params }, res, next) =>
