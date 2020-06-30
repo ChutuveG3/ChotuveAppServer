@@ -16,6 +16,10 @@ addons:
 
 services:
   - docker
+  - mongodb
+
+before_script:
+  - sleep 15
 
 before_install:
   - wget -q0- https://toolbelt.heroku.com/install.sh | sh
