@@ -45,3 +45,7 @@ deploy:
       heroku container:release web --app $HEROKU_APP_NAME_PRODUCTION;
     on:
       branch: master
+
+after_success:
+  - npm run cover
+  - npm run coveralls
