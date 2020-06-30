@@ -181,9 +181,9 @@ exports.getPotentialFriends = ({ srcUsername, keyUsername }) => {
   const filter = makePotentialFriendsFilter(srcUsername, keyUsername);
   return User.find(filter, 'username', { limit: 10 })
     .select({ _id: 0 })
+    .then(usernames => usernames)
     .catch(dbError => {
       error(`Users could not be found. Error: ${dbError}`);
       throw databaseError(`Users could not be found. Error: ${dbError}`);
-    })
-    .then(usernames => usernames);
+    });
 };
