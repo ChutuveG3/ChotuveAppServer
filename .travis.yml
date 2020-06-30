@@ -47,5 +47,4 @@ deploy:
       branch: master
 
 after_success:
-  - npm run cover
   - npm run coveralls
