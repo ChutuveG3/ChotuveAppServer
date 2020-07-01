@@ -27,7 +27,7 @@ before_install:
   - echo "$HEROKU_PASSWORD" | docker login -u "$HEROKU_USERNAME" --password-stdin registry.heroku.com
 
 script:
-  - docker exec app sh -c "npm run coveralls"
+  - npm run coveralls
 
 deploy:
   - provider: script
