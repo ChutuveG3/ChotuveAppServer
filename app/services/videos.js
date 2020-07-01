@@ -15,6 +15,8 @@ exports.uploadVideo = (username, body) => {
   delete videoData.title;
   delete videoData.description;
   delete videoData.visibility;
+  delete videoData.latitude;
+  delete videoData.longitude;
   info(`Sending video data to Media Server at ${mediaServer} for video with url: ${videoData.download_url}`);
   return axios
     .post(`${mediaServer}/videos`, videoData, { headers: { x_api_key: apiKey } })
@@ -36,7 +38,9 @@ exports.createVideo = (username, videoData, videoId) => {
     id: videoId,
     title: videoData.title,
     description: videoData.description,
-    visibility: videoData.visibility
+    visibility: videoData.visibility,
+    latitude: videoData.latitude,
+    longitude: videoData.longitude
   });
 
   return video.save().catch(dbError => {

@@ -19,7 +19,9 @@ const videoData = {
   datetime: '2020-05-18T18:43:35',
   visibility: 'private',
   file_name: 'video.mp4',
-  file_size: '24335'
+  file_size: '24335',
+  latitude: 50,
+  longitude: 50
 };
 
 describe('POST /videos upload', () => {
@@ -179,6 +181,32 @@ describe('POST /videos upload', () => {
         expect(res.status).toBe(400);
         expect(res.body.message.errors).toHaveLength(1);
         expect(res.body.message.errors[0].param).toBe('datetime');
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+
+    it('Should be status 400 if longitude is not numeric', () =>
+      getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: { ...videoData, longitude: 'longitude' },
+        header: videoHeader
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('longitude');
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+
+    it('Should be status 400 if latitude is not numeric', () =>
+      getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: { ...videoData, latitude: 'latitude' },
+        header: videoHeader
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('latitude');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
   });
