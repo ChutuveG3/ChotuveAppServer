@@ -5,5 +5,7 @@ exports.getVideosSerializer = videos =>
     title: video.title,
     description: video.description,
     datetime: video.datetime,
-    visibility: video.visibility
+    visibility: video.visibility,
+    latitude: video.latitude,
+    longitude: video.longitude
   }));

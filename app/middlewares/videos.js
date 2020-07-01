@@ -50,6 +50,18 @@ exports.createVideoSchema = {
     isString: true,
     optional: false,
     errorMessage: 'file_size should be a string'
+  },
+  latitude: {
+    in: ['body'],
+    isNumeric: true,
+    optional: true,
+    errorMessage: 'latitude should be numeric'
+  },
+  longitude: {
+    in: ['body'],
+    isNumeric: true,
+    optional: true,
+    errorMessage: 'longitude should be numeric'
   }
 };
 
