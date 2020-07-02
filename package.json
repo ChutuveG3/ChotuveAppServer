@@ -40,11 +40,7 @@
     "email": "tls@wolox.com.ar"
   },
   "jest": {
-    "coverageThreshold": {
-      "global": {
-        "lines": 75
-      }
-    },
+    "coverageThreshold": {},
     "collectCoverageFrom": [
       "**/*.js",
       "!**/console.js",
