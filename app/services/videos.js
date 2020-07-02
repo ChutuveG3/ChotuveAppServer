@@ -7,7 +7,7 @@ const {
 } = require('../../config');
 const { info, error } = require('../logger');
 const Video = require('../models/video');
-const { databaseError, mediaServerError } = require('../errors');
+const { databaseError, mediaServerError, videoNotExists } = require('../errors');
 const { getUserFromUsername } = require('./users');
 
 exports.uploadVideo = (username, body) => {
@@ -91,10 +91,15 @@ exports.getVideos = (filters, order, options) => {
 };
 
 const getVideoFromId = id =>
-  Video.findOne({ id }).catch(dbError => {
-    error(`Videos could not be found. Error: ${dbError}`);
-    throw databaseError(`Videos could not be found. Error: ${dbError}`);
-  });
+  Video.findOne({ id })
+    .catch(dbError => {
+      error(`Videos could not be found. Error: ${dbError}`);
+      throw databaseError(`Videos could not be found. Error: ${dbError}`);
+    })
+    .then(video => {
+      if (!video) throw videoNotExists(`Video with id ${id} does not exist`);
+      return video;
+    });
 
 exports.deleteVideo = id => {
   info(`Deleting video with id ${id}`);
