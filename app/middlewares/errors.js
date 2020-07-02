@@ -15,7 +15,8 @@ const statusCodes = {
   [errors.SAME_USER_ERROR]: 400,
   [errors.ALREADY_FRIENDS_ERROR]: 409,
   [errors.MISSING_FRIEND_REQUEST_ERROR]: 409,
-  [errors.UNAUTHORIZED]: 403
+  [errors.UNAUTHORIZED]: 403,
+  [errors.VIDEO_NOT_EXISTS]: 409
 };
 
 exports.handle = (error, req, res, next) => {

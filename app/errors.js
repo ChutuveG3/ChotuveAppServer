@@ -41,3 +41,6 @@ exports.notificationError = message => internalError(message, exports.NOTIFICATI
 
 exports.UNAUTHORIZED = 'unauthorized';
 exports.unauthorized = message => internalError(message, exports.UNAUTHORIZED);
+
+exports.VIDEO_NOT_EXISTS = 'video_not_exists';
+exports.videoNotExists = message => internalError(message, exports.VIDEO_NOT_EXISTS);
