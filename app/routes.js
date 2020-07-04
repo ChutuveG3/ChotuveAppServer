@@ -1,31 +1,109 @@
 const { healthCheck } = require('./controllers/healthCheck');
-const { home } = require('./controllers/home');
-const { upload, getVideos, getOwnVideos } = require('./controllers/videos');
-const { createVideoSchema, getVideosSchema, getOwnVideosSchema, loadUser } = require('./middlewares/videos');
+const { upload, getVideos, getUserVideos, deleteVideo } = require('./controllers/videos');
+const {
+  createVideoSchema,
+  homeSchema,
+  getVideosFromUserSchema,
+  deleteVideoSchema
+} = require('./middlewares/videos');
 const { validateSchema } = require('./middlewares/params_validator');
 const { addPagingParams } = require('./middlewares/paging');
-const { signUp, login, viewProfile, updateProfile } = require('./controllers/users');
+const {
+  signUp,
+  login,
+  viewProfile,
+  updateProfile,
+  sendFriendRequest,
+  listFriendRequests,
+  listFriends,
+  acceptFriendRequest,
+  rejectFriendRequest,
+  logOut,
+  getPotentialFriends
+} = require('./controllers/users');
 const {
   createUserSchema,
   createUserLoginSchema,
   getCurrentUserSchema,
-  updateProfileSchema
+  updateProfileSchema,
+  sendFriendRequestSchema,
+  validateUser,
+  validateParamsUsers,
+  listFriendRequestsSchema,
+  listFriendsSchema,
+  acceptFriendRequestSchema,
+  rejectFriendRequestSchema,
+  logOutUserSchema,
+  potentialFriendsSchema
 } = require('./middlewares/users');
-const { validateToken } = require('./middlewares/token_validator');
+const { validateToken, validateTokenAndLoadUser, checkPrivileges } = require('./middlewares/token_validator');
 
 exports.init = app => {
+  // Testeado
   app.get('/health', healthCheck);
-  app.get('/', [], home);
+  // Testeado
   app.post('/users', [validateSchema(createUserSchema)], signUp);
+  // Testeado
   app.post('/users/sessions', [validateSchema(createUserLoginSchema)], login);
-  app.get('/users/me', [validateSchema(getCurrentUserSchema)], viewProfile);
-  app.get('/videos', [validateSchema(getVideosSchema), addPagingParams, validateToken], getVideos);
   app.get(
-    '/videos/me',
-    [validateSchema(getOwnVideosSchema), addPagingParams, validateToken, loadUser],
-    getOwnVideos
+    '/users/:src_username/home',
+    [validateSchema(homeSchema), validateTokenAndLoadUser, validateUser, addPagingParams],
+    getVideos
   );
-  app.post('/videos', [validateSchema(createVideoSchema), validateToken, loadUser], upload);
-  app.get('/users/me', [validateSchema(getCurrentUserSchema), validateToken], viewProfile);
-  app.put('/users/me', [validateSchema(updateProfileSchema), validateToken], updateProfile);
+  app.get(
+    '/users/:username/videos',
+    [validateSchema(getVideosFromUserSchema), validateTokenAndLoadUser, addPagingParams],
+    getUserVideos
+  );
+  app.post('/videos', [validateSchema(createVideoSchema), validateTokenAndLoadUser], upload);
+  // Testeado
+  app.get('/users/:username', [validateSchema(getCurrentUserSchema), validateTokenAndLoadUser], viewProfile);
+  // Testeado
+  app.put(
+    '/users/:src_username',
+    [validateSchema(updateProfileSchema), validateTokenAndLoadUser, validateUser],
+    updateProfile
+  );
+  // Testeado
+  app.post(
+    '/users/:src_username/friends/:dst_username',
+    [validateSchema(sendFriendRequestSchema), validateTokenAndLoadUser, validateUser, validateParamsUsers],
+    sendFriendRequest
+  );
+  // Testeado
+  app.get(
+    '/users/:src_username/friends/pending',
+    [validateSchema(listFriendRequestsSchema), validateTokenAndLoadUser, validateUser, addPagingParams],
+    listFriendRequests
+  );
+  // Testeado
+  app.get(
+    '/users/:src_username/friends',
+    [validateSchema(listFriendsSchema), validateTokenAndLoadUser, validateUser, addPagingParams],
+    listFriends
+  );
+  // Testeado
+  app.post(
+    '/users/:src_username/friends/:dst_username/accept',
+    [validateSchema(acceptFriendRequestSchema), validateTokenAndLoadUser, validateUser, validateParamsUsers],
+    acceptFriendRequest
+  );
+  // Testeado
+  app.post(
+    '/users/:src_username/friends/:dst_username/reject',
+    [validateSchema(rejectFriendRequestSchema), validateTokenAndLoadUser, validateUser, validateParamsUsers],
+    rejectFriendRequest
+  );
+
+  app.delete(
+    '/users/:src_username/sessions',
+    [validateSchema(logOutUserSchema), validateTokenAndLoadUser, validateUser],
+    logOut
+  );
+  app.delete('/videos/:id', [validateSchema(deleteVideoSchema), validateToken, checkPrivileges], deleteVideo);
+  app.get(
+    '/users/:src_username/potential_friends',
+    [validateSchema(potentialFriendsSchema), validateTokenAndLoadUser, validateUser],
+    getPotentialFriends
+  );
 };

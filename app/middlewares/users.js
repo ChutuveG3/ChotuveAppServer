@@ -1,5 +1,7 @@
 const moment = require('moment');
 const { authorizationSchema } = require('./authorization');
+const { userMismatchError, sameUserError } = require('../errors');
+const { pagingSchema } = require('./paging');
 
 exports.createUserSchema = {
   first_name: {
@@ -44,11 +46,11 @@ exports.createUserSchema = {
 };
 
 exports.createUserLoginSchema = {
-  email: {
+  username: {
     in: ['body'],
-    isEmail: true,
+    isString: true,
     optional: false,
-    errorMessage: 'email should be a valid email'
+    errorMessage: 'username should be a string'
   },
   password: {
     in: ['body'],
@@ -56,11 +58,23 @@ exports.createUserLoginSchema = {
     isLength: { errorMessage: 'Password should have at least 6 characters', options: { min: 6 } },
     optional: false,
     errorMessage: 'password should be a string'
+  },
+  firebase_token: {
+    in: ['body'],
+    isString: true,
+    optional: true,
+    errorMessage: 'firebase_token should be a string'
   }
 };
 
 exports.getCurrentUserSchema = {
-  ...authorizationSchema
+  ...authorizationSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
+  }
 };
 
 exports.updateProfileSchema = {
@@ -90,5 +104,103 @@ exports.updateProfileSchema = {
     },
     optional: false,
     errorMessage: 'birthdate should be a valid date'
+  },
+  profile_img_url: {
+    in: ['body'],
+    isString: true,
+    optional: true,
+    isURL: true,
+    errorMessage: 'profile_image_url should be a string'
+  }
+};
+
+const twoUsersSchema = {
+  ...authorizationSchema,
+  src_username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'src_username should be a string'
+  },
+  dst_username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'dst_username should be a string'
+  }
+};
+
+exports.sendFriendRequestSchema = {
+  ...twoUsersSchema
+};
+
+exports.validateUser = ({ user: { user_name }, params: { src_username } }, res, next) => {
+  if (user_name !== src_username) return next(userMismatchError('Token user does not match route user'));
+  return next();
+};
+
+const validateDifferentUsers = (username1, username2) => {
+  if (username1 === username2) throw sameUserError(`Users must be different: ${username1}, ${username2}`);
+};
+
+exports.validateParamsUsers = ({ params: { src_username, dst_username } }, res, next) => {
+  try {
+    validateDifferentUsers(src_username, dst_username);
+  } catch (err) {
+    return next(err);
+  }
+  return next();
+};
+
+const listSchema = {
+  ...authorizationSchema,
+  ...pagingSchema,
+  src_username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'src_username should be a string'
+  }
+};
+
+exports.listFriendRequestsSchema = {
+  ...listSchema
+};
+
+exports.listFriendsSchema = {
+  ...listSchema
+};
+
+exports.acceptFriendRequestSchema = {
+  ...twoUsersSchema
+};
+
+exports.rejectFriendRequestSchema = {
+  ...twoUsersSchema
+};
+
+exports.logOutUserSchema = {
+  ...authorizationSchema,
+  src_username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'src_username should be a string'
+  }
+};
+
+exports.potentialFriendsSchema = {
+  ...authorizationSchema,
+  src_username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'src_username should be a string'
+  },
+  username: {
+    in: ['query'],
+    isString: true,
+    optional: true,
+    errorMessage: 'username should be a string'
   }
 };

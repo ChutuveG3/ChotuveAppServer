@@ -1,7 +1,6 @@
 const moment = require('moment');
 const { authorizationSchema } = require('./authorization');
 const { pagingSchema } = require('./paging');
-const { viewUserProfile } = require('../services/users');
 
 exports.createVideoSchema = {
   ...authorizationSchema,
@@ -51,23 +50,43 @@ exports.createVideoSchema = {
     isString: true,
     optional: false,
     errorMessage: 'file_size should be a string'
+  },
+  latitude: {
+    in: ['body'],
+    isNumeric: true,
+    optional: true,
+    errorMessage: 'latitude should be numeric'
+  },
+  longitude: {
+    in: ['body'],
+    isNumeric: true,
+    optional: true,
+    errorMessage: 'longitude should be numeric'
   }
 };
 
-exports.getVideosSchema = {
+exports.homeSchema = {
   ...authorizationSchema,
   ...pagingSchema
 };
 
-exports.getOwnVideosSchema = {
+exports.getVideosFromUserSchema = {
   ...authorizationSchema,
-  ...pagingSchema
+  ...pagingSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
+  }
 };
 
-exports.loadUser = (req, res, next) =>
-  viewUserProfile(req.headers.authorization)
-    .then(user => {
-      req.user = user;
-      return next();
-    })
-    .catch(next);
+exports.deleteVideoSchema = {
+  ...authorizationSchema,
+  id: {
+    in: ['params'],
+    isInt: true,
+    optional: false,
+    errorMessage: 'id should be an int'
+  }
+};

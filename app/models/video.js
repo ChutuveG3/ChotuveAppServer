@@ -5,7 +5,9 @@ const videoSchema = new Schema({
   id: { type: Number },
   title: { type: String },
   description: { type: String },
-  visibility: { type: String, allowNull: false }
+  visibility: { type: String, allowNull: false },
+  latitude: { type: Number },
+  longitude: { type: Number }
 });
 
 module.exports = model('Video', videoSchema);

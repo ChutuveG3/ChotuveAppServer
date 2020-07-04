@@ -50,6 +50,12 @@ const config = {
     urls: {
       authServer: process.env.AUTH_SERVER_URL,
       mediaServer: process.env.MEDIA_SERVER_URL
+    },
+    firebase: {
+      firebaseConfig: process.env.FIREBASE_CONFIG || '{}'
+    },
+    authorization: {
+      apiKey: process.env.API_KEY
     }
   }
 };

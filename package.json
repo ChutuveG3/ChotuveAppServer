@@ -11,7 +11,7 @@
     "cover": "npm run test -- --coverage",
     "test": "NODE_ENV=testing jest --runInBand --forceExit --detectOpenHandles",
     "test-inspect": "NODE_ENV=testing node --inspect --debug-brk jest",
-    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls",
+    "coveralls": "npm run cover && cat ./coverage/lcov.info | coveralls",
     "eslint-check": "eslint --print-config .eslintrc.js --ignore-pattern ./.eslintrc.js | eslint-config-prettier-check",
     "lint": "eslint \"**/*.js\" --ignore-pattern ./.eslintrc.js",
     "lint-diff": "git diff --diff-filter=ACM --name-only --cached --relative | grep \\\\.js$ | xargs eslint",
@@ -40,14 +40,7 @@
     "email": "tls@wolox.com.ar"
   },
   "jest": {
-    "coverageThreshold": {
-      "global": {
-        "branches": 80,
-        "functions": 80,
-        "lines": 80,
-        "statements": 80
-      }
-    },
+    "coverageThreshold": {},
     "collectCoverageFrom": [
       "**/*.js",
       "!**/console.js",
@@ -55,7 +48,10 @@
       "!**/build/**",
       "!**/migrations/**",
       "!**/config/**",
-      "!**/scripts/**"
+      "!**/scripts/**",
+      "!**/coverage/**",
+      "!**server.js",
+      "!**/apiInfo.js/**"
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup.js"
@@ -69,13 +65,16 @@
     "axios": "^0.19.2",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
+    "chance": "^1.1.6",
+    "cors": "^2.8.5",
     "express": "^4.16.2",
+    "express-validator": "^6.4.1",
     "express-wolox-logger": "^2.0.0",
+    "firebase-admin": "^8.12.1",
     "jwt-simple": "^0.5.1",
     "moment": "^2.25.1",
     "mongodb": "^3.3.0-beta2",
     "mongoose": "^5.9.3",
-    "express-validator": "^6.4.1",
     "swagger-ui-express": "^4.0.7",
     "umzug": "^2.1.0"
   },

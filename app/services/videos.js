@@ -1,22 +1,25 @@
-const axios = require('axios').default;
+const axios = require('axios');
 const {
   common: {
-    urls: { mediaServer }
+    urls: { mediaServer },
+    authorization: { apiKey }
   }
 } = require('../../config');
 const { info, error } = require('../logger');
 const Video = require('../models/video');
-const { databaseError } = require('../errors');
-const { mediaServerError } = require('../errors');
+const { databaseError, mediaServerError, videoNotExists } = require('../errors');
+const { getUserFromUsername } = require('./users');
 
 exports.uploadVideo = (username, body) => {
-  const videoData = { ...body, owner: username };
+  const videoData = { ...body };
   delete videoData.title;
   delete videoData.description;
   delete videoData.visibility;
+  delete videoData.latitude;
+  delete videoData.longitude;
   info(`Sending video data to Media Server at ${mediaServer} for video with url: ${videoData.download_url}`);
   return axios
-    .post(`${mediaServer}/videos`, videoData)
+    .post(`${mediaServer}/videos`, videoData, { headers: { x_api_key: apiKey } })
     .catch(mserror => {
       if (!mserror.response || !mserror.response.data) throw mediaServerError(mserror);
       error(`Media Server failed to save video. ${mserror.response.data.message}`);
@@ -35,7 +38,9 @@ exports.createVideo = (username, videoData, videoId) => {
     id: videoId,
     title: videoData.title,
     description: videoData.description,
-    visibility: videoData.visibility
+    visibility: videoData.visibility,
+    latitude: videoData.latitude,
+    longitude: videoData.longitude
   });
 
   return video.save().catch(dbError => {
@@ -56,13 +61,23 @@ const buildIdsParam = ids => {
 exports.getMediaVideosFromIds = ids => {
   info('Getting media videos by ids');
   return axios
-    .get(`${mediaServer}/videos?${buildIdsParam(ids)}`)
+    .get(`${mediaServer}/videos?${buildIdsParam(ids)}`, { headers: { x_api_key: apiKey } })
     .then(res => res.data)
     .catch(mserror => {
       if (!mserror.response || !mserror.response.data) throw mediaServerError(mserror);
       error(`Media Server failed to return video. ${mserror.response.data.message}`);
       throw mediaServerError(mserror.response.data);
     });
+};
+
+exports.makeFilter = ({ tokenUsername }, { pathUsername }) => {
+  let filter = { owner: pathUsername };
+  return getUserFromUsername(tokenUsername).then(user => {
+    if (tokenUsername !== pathUsername && !user.friends.includes(pathUsername)) {
+      filter = { ...filter, visibility: 'public' };
+    }
+    return filter;
+  });
 };
 
 exports.getVideos = (filters, order, options) => {
@@ -73,4 +88,27 @@ exports.getVideos = (filters, order, options) => {
       error(`Videos could not be found. Error: ${dbError}`);
       throw databaseError(`Videos could not be found. Error: ${dbError}`);
     });
+};
+
+const getVideoFromId = id =>
+  Video.findOne({ id })
+    .catch(dbError => {
+      error(`Videos could not be found. Error: ${dbError}`);
+      throw databaseError(`Videos could not be found. Error: ${dbError}`);
+    })
+    .then(video => {
+      if (!video) throw videoNotExists(`Video with id ${id} does not exist`);
+      return video;
+    });
+
+exports.deleteVideo = id => {
+  info(`Deleting video with id ${id}`);
+  return getVideoFromId(id).then(video =>
+    Video.deleteOne({ id })
+      .catch(dbError => {
+        error(`Video could not be deleted. Error: ${dbError}`);
+        throw databaseError(`Video could not be deleted. Error: ${dbError}`);
+      })
+      .then(() => video.owner)
+  );
 };

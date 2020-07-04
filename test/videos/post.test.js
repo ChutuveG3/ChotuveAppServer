@@ -1,4 +1,10 @@
-const { getResponse } = require('../setup');
+const { getResponse, truncateUserCollection, truncateVideoCollection } = require('../utils/utils');
+const { mockValidateTokenAndLoadUser } = require('../mocks/authorization');
+const { mockNotifyUser } = require('../mocks/push_notifications');
+const { mockUploadVideo, mockFailUploadVideo } = require('../mocks/videos');
+const { createUserFactory, userDataFactory } = require('../factories/users');
+const { TOKEN_FOR_AUTH } = require('../utils/constants');
+const Videos = require('../../app/models/video');
 
 const baseUrl = '/videos';
 
@@ -13,11 +19,26 @@ const videoData = {
   datetime: '2020-05-18T18:43:35',
   visibility: 'private',
   file_name: 'video.mp4',
-  file_size: '24335'
+  file_size: '24335',
+  latitude: 50,
+  longitude: 50
 };
 
 describe('POST /videos upload', () => {
   describe('Missing parameters', () => {
+    it('Should be 400 if header is missing', () => {
+      const currentVideoData = { ...videoData };
+      return getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: currentVideoData
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.internal_code).toBe('invalid_params');
+      });
+    });
+
     it('Should be status 400 if download url is missing', () => {
       const currentVideoData = { ...videoData };
       delete currentVideoData.download_url;
@@ -162,5 +183,95 @@ describe('POST /videos upload', () => {
         expect(res.body.message.errors[0].param).toBe('datetime');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
+
+    it('Should be status 400 if longitude is not numeric', () =>
+      getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: { ...videoData, longitude: 'longitude' },
+        header: videoHeader
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('longitude');
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+
+    it('Should be status 400 if latitude is not numeric', () =>
+      getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: { ...videoData, latitude: 'latitude' },
+        header: videoHeader
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('latitude');
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+  });
+  describe('Upload video correctly', () => {
+    const userData = userDataFactory();
+    let createVideoResponse = {};
+    const videoId = 1;
+    beforeAll(async () => {
+      await truncateUserCollection();
+      await truncateVideoCollection();
+      await createUserFactory(userData.username);
+
+      mockValidateTokenAndLoadUser(userData);
+      mockUploadVideo(videoId);
+      mockNotifyUser();
+      createVideoResponse = await getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: videoData,
+        header: { authorization: TOKEN_FOR_AUTH }
+      });
+    });
+
+    it('Check status', () => {
+      expect(createVideoResponse.status).toBe(201);
+    });
+
+    it('Check message', () => {
+      expect(createVideoResponse.body).toStrictEqual({ message: 'ok' });
+    });
+
+    it('Check that the video is created', () =>
+      Videos.findOne({ id: 1 }).then(video => {
+        expect(video.title).toBe(videoData.title);
+      }));
+  });
+  describe('Media server error', () => {
+    const userData = userDataFactory();
+    let mediaErrorResponse = {};
+    const videoId = 1;
+    beforeAll(async () => {
+      await truncateUserCollection();
+      await truncateVideoCollection();
+      await createUserFactory(userData.username);
+
+      mockValidateTokenAndLoadUser(userData);
+      mockFailUploadVideo(videoId);
+      mockNotifyUser();
+      mediaErrorResponse = await getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: videoData,
+        header: { authorization: TOKEN_FOR_AUTH }
+      });
+    });
+
+    it('Check status', () => {
+      expect(mediaErrorResponse.status).toBe(502);
+    });
+    it('Check internal code', () => {
+      expect(mediaErrorResponse.body.internal_code).toBe('media_server_error');
+    });
+
+    it('Check message', () => {
+      expect(mediaErrorResponse.body.message.internal_code).toBe('upload_video_error');
+    });
   });
 });
