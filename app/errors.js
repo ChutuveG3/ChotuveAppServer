@@ -44,3 +44,6 @@ exports.unauthorized = message => internalError(message, exports.UNAUTHORIZED);
 
 exports.VIDEO_NOT_EXISTS = 'video_not_exists';
 exports.videoNotExists = message => internalError(message, exports.VIDEO_NOT_EXISTS);
+
+exports.VIDEO_UNAVAILABLE = 'video_unavailable';
+exports.videoUnavailable = message => internalError(message, exports.VIDEO_UNAVAILABLE);

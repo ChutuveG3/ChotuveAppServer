@@ -90,7 +90,7 @@ exports.getVideos = (filters, order, options) => {
     });
 };
 
-const getVideoFromId = id =>
+exports.getVideoFromId = id =>
   Video.findOne({ id })
     .catch(dbError => {
       error(`Videos could not be found. Error: ${dbError}`);
@@ -103,7 +103,7 @@ const getVideoFromId = id =>
 
 exports.deleteVideo = id => {
   info(`Deleting video with id ${id}`);
-  return getVideoFromId(id).then(video =>
+  return exports.getVideoFromId(id).then(video =>
     Video.deleteOne({ id })
       .catch(dbError => {
         error(`Video could not be deleted. Error: ${dbError}`);
@@ -111,4 +111,37 @@ exports.deleteVideo = id => {
       })
       .then(() => video.owner)
   );
+};
+
+const saveVideoInDb = video =>
+  video.save().catch(dbError => {
+    error(`Video could not be saved. Error: ${dbError}`);
+    throw databaseError(`Video could not be saved. Error: ${dbError}`);
+  });
+
+exports.addLikeToVideo = ({ username, video }) => video.likes.push(username);
+
+exports.removeLikeFromVideo = ({ username, video }) => video.likes.filter(like => like !== username);
+
+exports.addDislikeToVideo = ({ username, video }) => video.dislikes.push(username);
+
+exports.removeDislikeFromVideo = ({ username, video }) =>
+  video.dislikes.filter(dislike => dislike !== username);
+
+exports.removeReaction = ({ video, reactionList, username, removingFunction }) => {
+  if (!video[reactionList].includes(username)) return Promise.resolve();
+
+  video[reactionList] = removingFunction({ video, username });
+  return saveVideoInDb(video);
+};
+
+exports.addReaction = ({ video, addingList, removingList, username, addingFunction, removingFunction }) => {
+  if (video[addingList].includes(username)) {
+    return Promise.resolve();
+  }
+  addingFunction({ video, username });
+  if (video[removingList].includes(username)) {
+    video[removingList] = removingFunction({ video, username });
+  }
+  return saveVideoInDb(video);
 };
