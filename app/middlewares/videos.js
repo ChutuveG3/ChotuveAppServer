@@ -3,7 +3,7 @@ const { authorizationSchema } = require('./authorization');
 const { pagingSchema } = require('./paging');
 const { getVideoFromId } = require('../services/videos');
 const { getUserFromUsername } = require('../services/users');
-const { videoNotAvailable } = require('../errors');
+const { videoUnavailable } = require('../errors');
 
 exports.createVideoSchema = {
   ...authorizationSchema,
@@ -112,7 +112,7 @@ exports.checkAvailabilityAndLoadVideo = (req, res, next) =>
         !user.friends.includes(video.owner) &&
         video.visibility !== 'public'
       ) {
-        return next(videoNotAvailable(`User ${user.username} does not have access to this video`));
+        return next(videoUnavailable(`User ${user.username} does not have access to this video`));
       }
       req.video = video;
       return next();
