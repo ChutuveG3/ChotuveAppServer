@@ -15,7 +15,8 @@ const {
   getVideosFromUserSchema,
   deleteVideoSchema,
   likeVideoSchema,
-  checkAvailabilityAndLoadVideo
+  checkVideoAvailability,
+  loadVideo
 } = require('./middlewares/videos');
 const { validateSchema } = require('./middlewares/params_validator');
 const { addPagingParams } = require('./middlewares/paging');
@@ -110,25 +111,25 @@ exports.init = app => {
 
   app.patch(
     '/videos/:id/like',
-    [validateSchema(likeVideoSchema), validateTokenAndLoadUser, checkAvailabilityAndLoadVideo],
+    [validateSchema(likeVideoSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
     likeVideo
   );
 
   app.patch(
     '/videos/:id/dislike',
-    [validateSchema(likeVideoSchema), validateTokenAndLoadUser, checkAvailabilityAndLoadVideo],
+    [validateSchema(likeVideoSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
     dislikeVideo
   );
 
   app.patch(
     '/videos/:id/unlike',
-    [validateSchema(likeVideoSchema), validateTokenAndLoadUser, checkAvailabilityAndLoadVideo],
+    [validateSchema(likeVideoSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
     unlikeVideo
   );
 
   app.patch(
     '/videos/:id/undislike',
-    [validateSchema(likeVideoSchema), validateTokenAndLoadUser, checkAvailabilityAndLoadVideo],
+    [validateSchema(likeVideoSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
     undislikeVideo
   );
 };

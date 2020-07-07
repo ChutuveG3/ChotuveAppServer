@@ -104,16 +104,21 @@ exports.likeVideoSchema = {
   }
 };
 
-exports.checkAvailabilityAndLoadVideo = (req, res, next) =>
-  Promise.all([getVideoFromId(req.params.id), getUserFromUsername(req.user.user_name)])
-    .then(([video, user]) => {
-      if (
-        video.owner !== user.username &&
-        !user.friends.includes(video.owner) &&
-        video.visibility !== 'public'
-      ) {
-        return next(videoUnavailable(`User ${user.username} does not have access to this video`));
-      }
+exports.checkVideoAvailability = ({ video, user }, res, next) =>
+  getUserFromUsername(user.user_name).then(foundUser => {
+    if (
+      video.owner !== foundUser.username &&
+      !foundUser.friends.includes(video.owner) &&
+      video.visibility !== 'public'
+    ) {
+      return next(videoUnavailable(`User ${foundUser.username} does not have access to this video`));
+    }
+    return next();
+  });
+
+exports.loadVideo = (req, res, next) =>
+  getVideoFromId(req.params.id)
+    .then(video => {
       req.video = video;
       return next();
     })

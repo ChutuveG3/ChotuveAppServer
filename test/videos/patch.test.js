@@ -58,7 +58,7 @@ describe('PATCH /videos/:id/like', () => {
     });
   });
 
-  describe('like private video of a friend', () => {
+  describe('Like private video of another non-friend user', () => {
     let privateSuccesfulResponse = {};
     const userData = userDataFactory();
     const userData2 = userDataFactory();
@@ -255,7 +255,7 @@ describe('PATCH /videos/:id/dislike', () => {
     });
   });
 
-  describe('Dislike private video of a friend', () => {
+  describe('Dislike private video of another non-friend user', () => {
     let privateSuccesfulResponse = {};
     const userData = userDataFactory();
     const userData2 = userDataFactory();
