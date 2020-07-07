@@ -4,13 +4,19 @@ const {
   getMediaVideosFromIds,
   getVideos,
   makeFilter,
-  deleteVideo
+  deleteVideo,
+  addLikeToVideo,
+  addDislikeToVideo,
+  removeLikeFromVideo,
+  removeDislikeFromVideo,
+  removeReaction,
+  addReaction
 } = require('../services/videos');
 const { getVideosSerializer } = require('../serializers/videos');
 const { getUserFromUsername } = require('../services/users');
 const { notifyUser } = require('../services/push_notifications');
 const { newVideoPushBuilder, deleteVideoPushBuilder } = require('../utils/push_builder');
-const { userTokenMapper, userParamMapper } = require('../mappers/users');
+const { userTokenMapper, userParamMapper, usernameMapper } = require('../mappers/users');
 
 const notifyFriendsOnNewVideo = username =>
   getUserFromUsername(username)
@@ -65,3 +71,48 @@ exports.deleteVideo = ({ params: { id } }, res, next) =>
     .then(owner => notifyUser(deleteVideoPushBuilder({ ownerFirebaseToken: owner.firebaseToken })))
     .then(() => res.status(200).send({ message: 'ok' }))
     .catch(next);
+
+exports.likeVideo = ({ user, video }, res, next) =>
+  addReaction({
+    video,
+    addingList: 'likes',
+    removingList: 'dislikes',
+    username: usernameMapper(user).username,
+    addingFunction: addLikeToVideo,
+    removingFunction: removeDislikeFromVideo
+  })
+    .then(() => res.status(200).send())
+    .catch(next);
+
+exports.dislikeVideo = ({ user, video }, res, next) =>
+  addReaction({
+    video,
+    addingList: 'dislikes',
+    removingList: 'likes',
+    username: usernameMapper(user).username,
+    addingFunction: addDislikeToVideo,
+    removingFunction: removeLikeFromVideo
+  })
+    .then(() => res.status(200).send())
+    .catch(next);
+
+exports.unlikeVideo = ({ user, video }, res, next) =>
+  removeReaction({
+    video,
+    reactionList: 'likes',
+    username: usernameMapper(user).username,
+    removingFunction: removeLikeFromVideo
+  })
+    .then(() => res.status(200).send())
+    .catch(next);
+
+exports.undislikeVideo = ({ user, video }, res, next) => {
+  removeReaction({
+    video,
+    reactionList: 'dislikes',
+    username: usernameMapper(user).username,
+    removingFunction: removeDislikeFromVideo
+  })
+    .then(() => res.status(200).send())
+    .catch(next);
+};

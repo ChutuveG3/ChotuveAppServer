@@ -1,6 +1,9 @@
 const moment = require('moment');
 const { authorizationSchema } = require('./authorization');
 const { pagingSchema } = require('./paging');
+const { getVideoFromId } = require('../services/videos');
+const { getUserFromUsername } = require('../services/users');
+const { videoUnavailable } = require('../errors');
 
 exports.createVideoSchema = {
   ...authorizationSchema,
@@ -90,3 +93,35 @@ exports.deleteVideoSchema = {
     errorMessage: 'id should be an int'
   }
 };
+
+exports.likeVideoSchema = {
+  ...authorizationSchema,
+  id: {
+    in: ['params'],
+    isInt: true,
+    optional: false,
+    errorMessage: 'id should be an int'
+  }
+};
+
+exports.checkVideoAvailability = ({ video, user }, res, next) =>
+  getUserFromUsername(user.user_name)
+    .then(foundUser => {
+      if (
+        video.owner !== foundUser.username &&
+        !foundUser.friends.includes(video.owner) &&
+        video.visibility !== 'public'
+      ) {
+        return next(videoUnavailable(`User ${foundUser.username} does not have access to this video`));
+      }
+      return next();
+    })
+    .catch(next);
+
+exports.loadVideo = (req, res, next) =>
+  getVideoFromId(req.params.id)
+    .then(video => {
+      req.video = video;
+      return next();
+    })
+    .catch(next);

@@ -23,3 +23,7 @@ exports.userTokenMapper = user => ({
 exports.userParamMapper = params => ({
   pathUsername: params.username
 });
+
+exports.usernameMapper = params => ({
+  username: params.user_name
+});
