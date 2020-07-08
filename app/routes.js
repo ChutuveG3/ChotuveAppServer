@@ -7,7 +7,8 @@ const {
   likeVideo,
   dislikeVideo,
   unlikeVideo,
-  undislikeVideo
+  undislikeVideo,
+  postComment
 } = require('./controllers/videos');
 const {
   createVideoSchema,
@@ -16,7 +17,8 @@ const {
   deleteVideoSchema,
   likeVideoSchema,
   checkVideoAvailability,
-  loadVideo
+  loadVideo,
+  postCommentSchema
 } = require('./middlewares/videos');
 const { validateSchema } = require('./middlewares/params_validator');
 const { addPagingParams } = require('./middlewares/paging');
@@ -96,7 +98,6 @@ exports.init = app => {
     [validateSchema(rejectFriendRequestSchema), validateTokenAndLoadUser, validateUser, validateParamsUsers],
     rejectFriendRequest
   );
-
   app.delete(
     '/users/:src_username/sessions',
     [validateSchema(logOutUserSchema), validateTokenAndLoadUser, validateUser],
@@ -108,28 +109,29 @@ exports.init = app => {
     [validateSchema(potentialFriendsSchema), validateTokenAndLoadUser, validateUser],
     getPotentialFriends
   );
-
   app.patch(
     '/videos/:id/like',
     [validateSchema(likeVideoSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
     likeVideo
   );
-
   app.patch(
     '/videos/:id/dislike',
     [validateSchema(likeVideoSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
     dislikeVideo
   );
-
   app.patch(
     '/videos/:id/unlike',
     [validateSchema(likeVideoSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
     unlikeVideo
   );
-
   app.patch(
     '/videos/:id/undislike',
     [validateSchema(likeVideoSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
     undislikeVideo
+  );
+  app.post(
+    '/videos/:id/comments',
+    [validateSchema(postCommentSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
+    postComment
   );
 };

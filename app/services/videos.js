@@ -145,3 +145,14 @@ exports.addReaction = ({ video, addingList, removingList, username, addingFuncti
   }
   return saveVideoInDb(video);
 };
+
+exports.postComment = (username, commentData, video) => {
+  info(`Posting comment from ${username} on video with id ${video.id}`);
+  const comment = {
+    username,
+    datetime: Date.parse(commentData.datetime),
+    comment: commentData.comment
+  };
+  video.comments.push(comment);
+  return saveVideoInDb(video);
+};

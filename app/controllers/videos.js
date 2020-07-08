@@ -10,7 +10,8 @@ const {
   removeLikeFromVideo,
   removeDislikeFromVideo,
   removeReaction,
-  addReaction
+  addReaction,
+  postComment
 } = require('../services/videos');
 const { getVideosSerializer } = require('../serializers/videos');
 const { getUserFromUsername } = require('../services/users');
@@ -106,7 +107,7 @@ exports.unlikeVideo = ({ user, video }, res, next) =>
     .then(() => res.status(200).send())
     .catch(next);
 
-exports.undislikeVideo = ({ user, video }, res, next) => {
+exports.undislikeVideo = ({ user, video }, res, next) =>
   removeReaction({
     video,
     reactionList: 'dislikes',
@@ -115,4 +116,8 @@ exports.undislikeVideo = ({ user, video }, res, next) => {
   })
     .then(() => res.status(200).send())
     .catch(next);
-};
+
+exports.postComment = ({ user, video, body }, res, next) =>
+  postComment(usernameMapper(user).username, body, video)
+    .then(() => res.status(201).send({ message: 'ok' }))
+    .catch(next);
