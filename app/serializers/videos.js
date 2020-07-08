@@ -25,8 +25,8 @@ exports.getVideoSerializer = ({ video, requesterUsername }) => {
     latitude: video.latitude,
     longitude: video.longitude,
     id: video.id,
-    likesAmount: video.likes.length,
-    dislikesAmount: video.dislikes.length,
+    likes: video.likes.length,
+    dislikes: video.dislikes.length,
     reaction
   };
 };
