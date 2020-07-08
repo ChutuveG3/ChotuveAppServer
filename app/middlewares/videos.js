@@ -94,7 +94,7 @@ exports.deleteVideoSchema = {
   }
 };
 
-exports.likeVideoSchema = {
+exports.reactionSchema = {
   ...authorizationSchema,
   id: {
     in: ['params'],
@@ -125,3 +125,13 @@ exports.loadVideo = (req, res, next) =>
       return next();
     })
     .catch(next);
+
+exports.getVideoSchema = {
+  ...authorizationSchema,
+  id: {
+    in: ['params'],
+    isInt: true,
+    optional: false,
+    errorMessage: 'id should be an int'
+  }
+};
