@@ -27,6 +27,7 @@ exports.getVideoSerializer = ({ video, requesterUsername }) => {
     id: video.id,
     likes: video.likes.length,
     dislikes: video.dislikes.length,
+    comments: video.comments,
     reaction
   };
 };
