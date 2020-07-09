@@ -11,9 +11,10 @@ const {
   removeDislikeFromVideo,
   removeReaction,
   addReaction,
-  postComment
+  postComment,
+  getVideoFromId
 } = require('../services/videos');
-const { getVideosSerializer } = require('../serializers/videos');
+const { getVideosSerializer, getVideoSerializer } = require('../serializers/videos');
 const { getUserFromUsername } = require('../services/users');
 const { notifyUser } = require('../services/push_notifications');
 const { newVideoPushBuilder, deleteVideoPushBuilder } = require('../utils/push_builder');
@@ -52,6 +53,19 @@ const getVideosAndMedia = (filters, order, { offset, limit }) => {
           ...mediaVideos.find(mediaVideo => mediaVideo.id === video.id)
         }))
       )
+    );
+};
+
+const getVideoAndMediaById = (id, requesterUsername) => {
+  let video = {};
+  return getVideoFromId(id)
+    .then(foundVideo => {
+      video = foundVideo;
+      return getMediaVideosFromIds([video.id]);
+    })
+    .then(mediaVideos =>
+      // eslint-disable-next-line no-underscore-dangle
+      getVideoSerializer({ video: { ...video._doc, ...mediaVideos[0] }, requesterUsername })
     );
 };
 
@@ -120,4 +134,9 @@ exports.undislikeVideo = ({ user, video }, res, next) =>
 exports.postComment = ({ user, video, body }, res, next) =>
   postComment(usernameMapper(user).username, body, video)
     .then(() => res.status(201).send({ message: 'ok' }))
+    .catch(next);
+
+exports.getVideo = ({ video, user }, res, next) =>
+  getVideoAndMediaById(video.id, user.user_name)
+    .then(videoFound => res.status(200).send(videoFound))
     .catch(next);
