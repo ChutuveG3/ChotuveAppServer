@@ -135,3 +135,27 @@ exports.getVideoSchema = {
     errorMessage: 'id should be an int'
   }
 };
+
+exports.postCommentSchema = {
+  ...authorizationSchema,
+  id: {
+    in: ['params'],
+    isInt: true,
+    optional: false,
+    errorMessage: 'id should be an int'
+  },
+  datetime: {
+    in: ['body'],
+    custom: {
+      options: datetime => moment(datetime, 'YYYY-MM-DDTHH:mm:ss', true).isValid() === true
+    },
+    optional: false,
+    errorMessage: 'datetime should be a valid datetime YYYY-MM-DDTHH:mm:ss'
+  },
+  comment: {
+    in: ['body'],
+    isString: true,
+    optional: false,
+    errorMessage: 'comment should be a string'
+  }
+};
