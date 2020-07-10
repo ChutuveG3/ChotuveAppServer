@@ -1,3 +1,12 @@
+const moment = require('moment');
+
+const commentsSerializer = comments =>
+  comments.map(commentData => ({
+    username: commentData.username,
+    datetime: moment(commentData.datetime).format('YYYY-MM-DDTHH:mm:ss'),
+    comment: commentData.comment
+  }));
+
 exports.getVideosSerializer = videos =>
   videos.map(video => ({
     owner: video.owner,
@@ -27,7 +36,7 @@ exports.getVideoSerializer = ({ video, requesterUsername }) => {
     id: video.id,
     likes: video.likes.length,
     dislikes: video.dislikes.length,
-    comments: video.comments,
+    comments: commentsSerializer(video.comments),
     reaction
   };
 };
