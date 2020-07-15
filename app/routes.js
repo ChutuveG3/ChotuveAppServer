@@ -50,13 +50,14 @@ const {
   acceptFriendRequestSchema,
   rejectFriendRequestSchema,
   logOutUserSchema,
-  potentialFriendsSchema
+  potentialFriendsSchema,
+  validateSignUp
 } = require('./middlewares/users');
 const { validateToken, validateTokenAndLoadUser, checkPrivileges } = require('./middlewares/token_validator');
 
 exports.init = app => {
   app.get('/health', healthCheck);
-  app.post('/users', [validateSchema(createUserSchema)], signUp);
+  app.post('/users', [validateSchema(createUserSchema), validateSignUp], signUp);
   app.post('/users/sessions', [validateSchema(createUserLoginSchema)], login);
   app.get(
     '/users/:src_username/home',

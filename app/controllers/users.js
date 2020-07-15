@@ -31,17 +31,12 @@ const { sendFriendRequestPushBuilder, acceptFriendRequestPushBuilder } = require
 
 exports.signUp = ({ body }, res, next) =>
   signUpUser(body)
-    .then(() => createUser(body))
-    .then(() => res.status(201).send({ message: 'ok' }))
+    .then(token => createUser(body).then(() => res.status(201).send({ token })))
     .catch(next);
 
 exports.login = ({ body }, res, next) =>
   loginUser(body)
-    .then(response =>
-      saveFirebaseToken(userLoginMapper(body)).then(() =>
-        res.status(200).send({ token: response.data.token })
-      )
-    )
+    .then(token => saveFirebaseToken(userLoginMapper(body)).then(() => res.status(200).send(token)))
     .catch(next);
 
 exports.viewProfile = ({ user, params: { username }, headers: { authorization: token } }, res, next) =>
