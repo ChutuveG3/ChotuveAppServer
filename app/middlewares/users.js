@@ -55,21 +55,27 @@ exports.createUserLoginSchema = {
   username: {
     in: ['body'],
     isString: true,
-    optional: false,
+    optional: true,
     errorMessage: 'username should be a string'
   },
   password: {
     in: ['body'],
     isString: true,
     isLength: { errorMessage: 'Password should have at least 6 characters', options: { min: 6 } },
-    optional: false,
+    optional: true,
     errorMessage: 'password should be a string'
   },
   firebase_token: {
     in: ['body'],
+    isJWT: true,
+    optional: true,
+    errorMessage: 'firebase_token should be a jwt'
+  },
+  device_firebase_token: {
+    in: ['body'],
     isString: true,
     optional: true,
-    errorMessage: 'firebase_token should be a string'
+    errorMessage: 'device_firebase_token should be a string'
   }
 };
 
@@ -211,9 +217,16 @@ exports.potentialFriendsSchema = {
   }
 };
 
-exports.validateSignUp = ({ body }, res, next) => {
-  if (!body.password === !body.firebase_token) {
+exports.validateSignUpCredentials = ({ body: { password, firebase_token } }, res, next) => {
+  if (!password === !firebase_token) {
     return next(invalidParams('Password or firebase token must be present'));
+  }
+  return next();
+};
+
+exports.validateLoginCredentials = ({ body: { username, password, firebase_token } }, res, next) => {
+  if ((username || password || !firebase_token) && (!username || !password || firebase_token)) {
+    return next(invalidParams('Username and password, or firebase token must be present'));
   }
   return next();
 };
