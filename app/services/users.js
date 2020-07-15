@@ -22,7 +22,7 @@ const saveUserInDB = user =>
   });
 
 exports.signUpUser = body => {
-  info(`Sending sign up request to Auth Server at ${authServer} for user with username: ${body.username}`);
+  info(`Sending sign up request to Auth Server at ${authServer} for user with username: ${body.user_name}`);
   return axios
     .post(`${authServer}/users`, body, { headers: { x_api_key: apiKey } })
     .then(response => response.data)
