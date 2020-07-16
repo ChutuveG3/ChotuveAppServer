@@ -172,7 +172,7 @@ describe('POST /users signup', () => {
       });
 
       it('Check response message', () => {
-        expect(signUpResponse.body).toHaveProperty('token');
+        expect(signUpResponse.body).toStrictEqual({ message: 'ok' });
       });
     });
 

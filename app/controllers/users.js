@@ -31,7 +31,8 @@ const { sendFriendRequestPushBuilder, acceptFriendRequestPushBuilder } = require
 
 exports.signUp = ({ body }, res, next) =>
   signUpUser(body)
-    .then(token => createUser(body).then(() => res.status(201).send(token)))
+    .then(() => createUser(body))
+    .then(() => res.status(201).send({ message: 'ok' }))
     .catch(next);
 
 exports.login = ({ body }, res, next) =>
