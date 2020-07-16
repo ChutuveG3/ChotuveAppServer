@@ -9,7 +9,7 @@ const {
   listFriends,
   acceptFriendRequest,
   rejectFriendRequest,
-  saveFirebaseToken,
+  saveDeviceFirebaseToken,
   getUserFromUsername,
   deleteFirebaseToken,
   getPotentialFriends
@@ -37,11 +37,7 @@ exports.signUp = ({ body }, res, next) =>
 
 exports.login = ({ body }, res, next) =>
   loginUser(body)
-    .then(response =>
-      saveFirebaseToken(userLoginMapper(body)).then(() =>
-        res.status(200).send({ token: response.data.token })
-      )
-    )
+    .then(token => saveDeviceFirebaseToken(userLoginMapper(body)).then(() => res.status(200).send(token)))
     .catch(next);
 
 exports.viewProfile = ({ user, params: { username }, headers: { authorization: token } }, res, next) =>
