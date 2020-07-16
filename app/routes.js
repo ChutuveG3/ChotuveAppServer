@@ -1,7 +1,6 @@
 const { healthCheck } = require('./controllers/healthCheck');
 const {
   upload,
-  getVideos,
   getUserVideos,
   deleteVideo,
   likeVideo,
@@ -9,7 +8,8 @@ const {
   unlikeVideo,
   undislikeVideo,
   postComment,
-  getVideo
+  getVideo,
+  getHomeVideos
 } = require('./controllers/videos');
 const {
   createVideoSchema,
@@ -63,7 +63,7 @@ exports.init = app => {
   app.get(
     '/users/:src_username/home',
     [validateSchema(homeSchema), validateTokenAndLoadUser, validateUser, addPagingParams],
-    getVideos
+    getHomeVideos
   );
   app.get(
     '/users/:username/videos',
@@ -143,4 +143,6 @@ exports.init = app => {
     [validateSchema(getVideoSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
     getVideo
   );
+
+  app.get('/test/videos', validateTokenAndLoadUser, getHomeVideos);
 };

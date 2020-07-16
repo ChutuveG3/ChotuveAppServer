@@ -7,6 +7,15 @@ const commentsSerializer = comments =>
     comment: commentData.comment
   }));
 
+exports.getHomeVideosSerializer = videos =>
+  videos.map(video => ({
+    owner: video.owner.username,
+    url: video.download_url,
+    title: video.title,
+    datetime: video.datetime,
+    id: video.id
+  }));
+
 exports.getVideosSerializer = videos =>
   videos.map(video => ({
     owner: video.owner,
