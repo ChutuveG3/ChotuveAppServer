@@ -143,6 +143,4 @@ exports.init = app => {
     [validateSchema(getVideoSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
     getVideo
   );
-
-  app.get('/test/videos', validateTokenAndLoadUser, getHomeVideos);
 };
