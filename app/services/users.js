@@ -163,7 +163,7 @@ exports.rejectFriendRequest = ({ srcUsername, dstUsername }) => {
   });
 };
 
-exports.saveFirebaseToken = ({ username, firebaseToken }) => {
+exports.saveDeviceFirebaseToken = ({ username, firebaseToken }) => {
   info(`Saving firebase token for user ${username}`);
   if (!firebaseToken) {
     info("Not updating firebaseToken because it's not received.");
