@@ -54,6 +54,8 @@ exports.loginUser = body => {
       error(`Auth Server failed to authenticate user. ${aserror.response.data.message}`);
       if (aserror.response.status === 401) {
         throw invalidTokenError(aserror.response.data);
+      } else if (aserror.response.status === 409) {
+        throw userNotExists(aserror.response.data);
       } else {
         throw authServerError(aserror.response.data);
       }
