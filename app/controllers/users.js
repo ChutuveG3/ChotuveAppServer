@@ -37,7 +37,9 @@ exports.signUp = ({ body }, res, next) =>
 
 exports.login = ({ body }, res, next) =>
   loginUser(body)
-    .then(token => saveDeviceFirebaseToken(userLoginMapper(body)).then(() => res.status(200).send(token)))
+    .then(userInfo =>
+      saveDeviceFirebaseToken(userLoginMapper(body)).then(() => res.status(200).send(userInfo))
+    )
     .catch(next);
 
 exports.viewProfile = ({ user, params: { username }, headers: { authorization: token } }, res, next) =>
