@@ -38,7 +38,7 @@ exports.signUp = ({ body }, res, next) =>
 exports.login = ({ body }, res, next) =>
   loginUser(body)
     .then(userInfo =>
-      saveDeviceFirebaseToken(userLoginMapper(body)).then(() => res.status(200).send(userInfo))
+      saveDeviceFirebaseToken(userLoginMapper(userInfo, body)).then(() => res.status(200).send(userInfo))
     )
     .catch(next);
 
