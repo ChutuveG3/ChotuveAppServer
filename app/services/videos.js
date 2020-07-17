@@ -156,3 +156,17 @@ exports.postComment = (username, commentData, video) => {
   video.comments.push(comment);
   return saveVideoInDb(video);
 };
+
+exports.filterHomeVideos = (videos, username) =>
+  Promise.all(
+    // eslint-disable-next-line no-underscore-dangle
+    videos.map(video => getUserFromUsername(video.owner).then(user => ({ ...video._doc, owner: user })))
+  ).then(videosWithOwner => {
+    const filteredVideos = videosWithOwner.filter(
+      video =>
+        video.visibility === 'public' ||
+        video.owner.username === username ||
+        video.owner.friends.includes(username)
+    );
+    return filteredVideos;
+  });

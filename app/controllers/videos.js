@@ -12,13 +12,15 @@ const {
   removeReaction,
   addReaction,
   postComment,
-  getVideoFromId
+  getVideoFromId,
+  filterHomeVideos
 } = require('../services/videos');
-const { getVideosSerializer, getVideoSerializer } = require('../serializers/videos');
+const { getVideosSerializer, getVideoSerializer, getHomeVideosSerializer } = require('../serializers/videos');
 const { getUserFromUsername } = require('../services/users');
 const { notifyUser } = require('../services/push_notifications');
 const { newVideoPushBuilder, deleteVideoPushBuilder } = require('../utils/push_builder');
 const { userTokenMapper, userParamMapper, usernameMapper } = require('../mappers/users');
+const { rankVideos } = require('../services/ranker');
 
 const notifyFriendsOnNewVideo = username =>
   getUserFromUsername(username)
@@ -75,9 +77,22 @@ exports.getUserVideos = ({ user, params, query: { offset, limit } }, res, next) 
     .then(videos => res.status(200).send({ videos }))
     .catch(next);
 
-exports.getVideos = ({ query: { offset, limit } }, res, next) =>
-  getVideosAndMedia({ visibility: 'public' }, { id: 'asc' }, { offset, limit })
-    .then(videos => res.status(200).send({ videos }))
+exports.getHomeVideos = ({ user, query: { offset, limit } }, res, next) =>
+  getVideos({}, {}, {})
+    .then(videosFound => filterHomeVideos(videosFound, user.user_name))
+    .then(filteredVideos =>
+      getMediaVideosFromIds(filteredVideos.map(video => video.id)).then(mediaVideos =>
+        filteredVideos.map(video => ({
+          // eslint-disable-next-line no-underscore-dangle
+          ...video,
+          ...mediaVideos.find(mediaVideo => mediaVideo.id === video.id)
+        }))
+      )
+    )
+    .then(videosWithMedia => rankVideos(videosWithMedia))
+    .then(rankedVideos => {
+      res.status(200).send({ videos: getHomeVideosSerializer(rankedVideos.slice(offset, limit)) });
+    })
     .catch(next);
 
 exports.deleteVideo = ({ params: { id } }, res, next) =>
