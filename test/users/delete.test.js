@@ -27,7 +27,7 @@ describe('DELETE /users/:username', () => {
     });
 
     it('Check that the user is deleted', () =>
-      User.findOne({ userName: userData.username }).then(user => {
+      User.findOne({ username: userData.username }).then(user => {
         expect(user).toBe(null);
       }));
   });

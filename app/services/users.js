@@ -119,11 +119,32 @@ exports.sendFriendRequest = ({ srcUsername, dstUsername }) => {
   });
 };
 
+const removeIfNotExists = (usernames, username) => {
+  exports.getUserFromUsername(username).catch(err => {
+    if (err.internalCode === 'user_not_exists') {
+      usernames.splice(usernames.indexOf(username), 1);
+      console.log('AAAAAA');
+      console.log(usernames);
+    } else {
+      throw databaseError(err);
+    }
+  });
+};
+
 exports.listFriendRequests = ({ srcUsername: username }, offset, limit) => {
   info(`Obtaining friend requests for ${username}`);
   return exports
     .getUserFromUsername(username)
-    .then(user => user.friendRequests.slice(offset, offset + limit));
+    .then(user => user.friendRequests.slice(offset, offset + limit))
+    .then(usernames => {
+      usernames.forEach(pendingUsername => removeIfNotExists(usernames, pendingUsername));
+      return usernames;
+    })
+    .then(usernames => {
+      console.log('BBBBBB');
+      console.log(usernames);
+      return usernames;
+    });
 };
 
 exports.listFriends = ({ srcUsername: username }, offset, limit) => {
@@ -203,8 +224,8 @@ exports.getPotentialFriends = ({ srcUsername, keyUsername }) => {
     });
 };
 
-const deleteUserFromUsername = userName =>
-  User.deleteOne({ userName }).catch(dbError => {
+const deleteUserFromUsername = username =>
+  User.deleteOne({ username }).catch(dbError => {
     error(`User could not be deleted. Error: ${dbError}`);
     throw databaseError(`User could not be deleted. Error: ${dbError}`);
   });
