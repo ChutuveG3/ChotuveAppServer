@@ -12,7 +12,8 @@ const {
   saveDeviceFirebaseToken,
   getUserFromUsername,
   deleteFirebaseToken,
-  getPotentialFriends
+  getPotentialFriends,
+  deleteUser
 } = require('../services/users');
 const {
   getFriendRequestsSerializer,
@@ -110,4 +111,9 @@ exports.logOut = ({ params }, res, next) =>
 exports.getPotentialFriends = ({ params, query }, res, next) =>
   getPotentialFriends(potentialFriendsMapper(params, query))
     .then(usernames => res.status(200).send(getPotentialFriendsSerializer(usernames)))
+    .catch(next);
+
+exports.deleteUser = ({ params: { username } }, res, next) =>
+  deleteUser(username)
+    .then(() => res.status(200).end())
     .catch(next);

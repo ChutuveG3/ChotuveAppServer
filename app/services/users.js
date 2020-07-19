@@ -202,3 +202,14 @@ exports.getPotentialFriends = ({ srcUsername, keyUsername }) => {
       throw databaseError(`Users could not be found. Error: ${dbError}`);
     });
 };
+
+const deleteUserFromUsername = userName =>
+  User.deleteOne({ userName }).catch(dbError => {
+    error(`User could not be deleted. Error: ${dbError}`);
+    throw databaseError(`User could not be deleted. Error: ${dbError}`);
+  });
+
+exports.deleteUser = username => {
+  info(`Deleting user with username: ${username}`);
+  return deleteUserFromUsername(username);
+};
