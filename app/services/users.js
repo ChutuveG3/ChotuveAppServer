@@ -232,5 +232,12 @@ const deleteUserFromUsername = username =>
 
 exports.deleteUser = username => {
   info(`Deleting user with username: ${username}`);
-  return deleteUserFromUsername(username);
+  return exports
+    .getUserFromUsername(username)
+    .then(user => deleteUserFromUsername(username).then(() => user.friends))
+    .then(friends => {
+      // Buscar a todos estos en la base de datos y
+      // borrar a "username" de su lista de amigos
+      console.log(friends);
+    });
 };
