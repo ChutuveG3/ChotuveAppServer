@@ -119,32 +119,11 @@ exports.sendFriendRequest = ({ srcUsername, dstUsername }) => {
   });
 };
 
-const removeIfNotExists = (usernames, username) => {
-  exports.getUserFromUsername(username).catch(err => {
-    if (err.internalCode === 'user_not_exists') {
-      usernames.splice(usernames.indexOf(username), 1);
-      console.log('AAAAAA');
-      console.log(usernames);
-    } else {
-      throw databaseError(err);
-    }
-  });
-};
-
 exports.listFriendRequests = ({ srcUsername: username }, offset, limit) => {
   info(`Obtaining friend requests for ${username}`);
   return exports
     .getUserFromUsername(username)
-    .then(user => user.friendRequests.slice(offset, offset + limit))
-    .then(usernames => {
-      usernames.forEach(pendingUsername => removeIfNotExists(usernames, pendingUsername));
-      return usernames;
-    })
-    .then(usernames => {
-      console.log('BBBBBB');
-      console.log(usernames);
-      return usernames;
-    });
+    .then(user => user.friendRequests.slice(offset, offset + limit));
 };
 
 exports.listFriends = ({ srcUsername: username }, offset, limit) => {
@@ -230,14 +209,31 @@ const deleteUserFromUsername = username =>
     throw databaseError(`User could not be deleted. Error: ${dbError}`);
   });
 
+const getUsers = (filters, order, options) => {
+  info('Getting users');
+  return User.find(filters, null, { skip: options.offset, limit: options.limit })
+    .sort(order)
+    .catch(dbError => {
+      error(`Users could not be found. Error: ${dbError}`);
+      throw databaseError(`Users could not be found. Error: ${dbError}`);
+    });
+};
+
 exports.deleteUser = username => {
   info(`Deleting user with username: ${username}`);
-  return exports
-    .getUserFromUsername(username)
-    .then(user => deleteUserFromUsername(username).then(() => user.friends))
-    .then(friends => {
-      // Buscar a todos estos en la base de datos y
-      // borrar a "username" de su lista de amigos
-      console.log(friends);
-    });
+  return deleteUserFromUsername(username)
+    .then(() => getUsers({}, {}, {}))
+    .then(users =>
+      Promise.all(
+        users.map(user => {
+          if (user.friendRequests.includes(username)) {
+            user.friendRequests.splice(user.friendRequests.indexOf(username), 1);
+          }
+          if (user.friends.includes(username)) {
+            user.friends.splice(user.friends.indexOf(username), 1);
+          }
+          return saveUserInDB(user);
+        })
+      )
+    );
 };
