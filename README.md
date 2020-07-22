@@ -12,7 +12,7 @@ Install NodeJS and npm via the official site (https://nodejs.org)
 
 **Installing dependencies**
 
-Run `npm start` to install dependencies.
+Run `npm install` to install dependencies.
 
 **Database setup**
 

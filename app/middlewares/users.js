@@ -230,3 +230,13 @@ exports.validateLoginCredentials = ({ body: { username, password, firebase_token
   }
   return next();
 };
+
+exports.deleteUserSchema = {
+  ...authorizationSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
+  }
+};

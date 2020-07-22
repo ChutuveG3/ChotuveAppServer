@@ -99,7 +99,7 @@ exports.deleteVideo = ({ params: { id } }, res, next) =>
   deleteVideo(id)
     .then(ownerUsername => getUserFromUsername(ownerUsername))
     .then(owner => notifyUser(deleteVideoPushBuilder({ ownerFirebaseToken: owner.firebaseToken })))
-    .then(() => res.status(200).send({ message: 'ok' }))
+    .then(() => res.status(200).end())
     .catch(next);
 
 exports.likeVideo = ({ user, video }, res, next) =>

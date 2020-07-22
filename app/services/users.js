@@ -202,3 +202,34 @@ exports.getPotentialFriends = ({ srcUsername, keyUsername }) => {
       throw databaseError(`Users could not be found. Error: ${dbError}`);
     });
 };
+
+const deleteUserFromUsername = username =>
+  User.deleteOne({ username }).catch(dbError => {
+    error(`User could not be deleted. Error: ${dbError}`);
+    throw databaseError(`User could not be deleted. Error: ${dbError}`);
+  });
+
+const getUsers = (filters, order, options) => {
+  info('Getting users');
+  return User.find(filters, null, { skip: options.offset, limit: options.limit })
+    .sort(order)
+    .catch(dbError => {
+      error(`Users could not be found. Error: ${dbError}`);
+      throw databaseError(`Users could not be found. Error: ${dbError}`);
+    });
+};
+
+exports.deleteUser = username => {
+  info(`Deleting user with username: ${username}`);
+  return deleteUserFromUsername(username)
+    .then(() => getUsers({}, {}, {}))
+    .then(users =>
+      Promise.all(
+        users.map(user => {
+          user.friendRequests = user.friendRequests.filter(pendingUsername => pendingUsername !== username);
+          user.friends = user.friends.filter(friendUsername => friendUsername !== username);
+          return saveUserInDB(user);
+        })
+      )
+    );
+};

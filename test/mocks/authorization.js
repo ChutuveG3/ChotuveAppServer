@@ -5,6 +5,9 @@ const axios = require('axios');
 exports.mockValidateTokenOnce = () =>
   axios.get.mockResolvedValueOnce({ status: 200, data: { privilege: false } });
 
+exports.mockValidateAdminTokenOnce = () =>
+  axios.get.mockResolvedValueOnce({ status: 200, data: { privilege: true } });
+
 exports.mockFailValidateTokenOnce = () =>
   axios.get.mockRejectedValueOnce({
     response: {
