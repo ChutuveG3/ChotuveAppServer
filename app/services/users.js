@@ -226,12 +226,8 @@ exports.deleteUser = username => {
     .then(users =>
       Promise.all(
         users.map(user => {
-          if (user.friendRequests.includes(username)) {
-            user.friendRequests.splice(user.friendRequests.indexOf(username), 1);
-          }
-          if (user.friends.includes(username)) {
-            user.friends.splice(user.friends.indexOf(username), 1);
-          }
+          user.friendRequests = user.friendRequests.filter(pendingUsername => pendingUsername !== username);
+          user.friends = user.friends.filter(friendUsername => friendUsername !== username);
           return saveUserInDB(user);
         })
       )
