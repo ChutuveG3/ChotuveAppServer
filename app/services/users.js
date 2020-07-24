@@ -233,3 +233,33 @@ exports.deleteUser = username => {
       )
     );
 };
+
+exports.recoverPassword = email => {
+  info(`Obtaining password recovery token for email ${email}`);
+  return axios
+    .post(`${authServer}/sessions/password_recovery`, { email }, { headers: { x_api_key: apiKey } })
+    .catch(aserror => {
+      if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
+      error(`Auth Server failed to create password recovery token. ${aserror.response.data.message}`);
+      if (aserror.response.status === 409) {
+        throw userNotExists(aserror.response.data);
+      } else {
+        throw authServerError(aserror.response.data);
+      }
+    });
+};
+
+exports.configurePassword = body => {
+  info('Sending password configuration request to auth server');
+  return axios
+    .put(`${authServer}/sessions/password_configuration`, body, { headers: { x_api_key: apiKey } })
+    .catch(aserror => {
+      if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
+      error(`Auth Server failed to configure new password. ${aserror.response.data.message}`);
+      if (aserror.response.status === 409) {
+        throw userNotExists(aserror.response.data);
+      } else {
+        throw authServerError(aserror.response.data);
+      }
+    });
+};

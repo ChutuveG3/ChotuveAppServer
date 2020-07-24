@@ -240,3 +240,30 @@ exports.deleteUserSchema = {
     errorMessage: 'username should be a string'
   }
 };
+
+exports.passwordRecoverySchema = {
+  ...authorizationSchema,
+  email: {
+    in: ['body'],
+    isEmail: true,
+    optional: false,
+    errorMessage: 'email should be a valid email'
+  }
+};
+
+exports.passwordConfigurationSchema = {
+  ...authorizationSchema,
+  recovery_token: {
+    in: ['body'],
+    isString: true,
+    optional: false,
+    errorMessage: 'recovery_token should be a string'
+  },
+  password: {
+    in: ['body'],
+    isString: true,
+    isLength: { errorMessage: 'Password should have at least 6 characters', options: { min: 6 } },
+    optional: false,
+    errorMessage: 'password should be a string'
+  }
+};
