@@ -22,7 +22,7 @@ exports.deleteVideoPushBuilder = ({ ownerFirebaseToken }) => ({
   firebaseToken: ownerFirebaseToken
 });
 
-exports.newMessageBuilder = ({ srcUsername, message, receiverFirebaseToken }) => ({
+exports.newMessagePushBuilder = ({ srcUsername, message, receiverFirebaseToken }) => ({
   title: `New message from ${srcUsername}`,
   body: message,
   firebaseToken: receiverFirebaseToken

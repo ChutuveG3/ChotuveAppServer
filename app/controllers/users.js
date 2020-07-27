@@ -32,7 +32,7 @@ const { notifyUser } = require('../services/push_notifications');
 const {
   sendFriendRequestPushBuilder,
   acceptFriendRequestPushBuilder,
-  newMessageBuilder
+  newMessagePushBuilder
 } = require('../utils/push_builder');
 
 exports.signUp = ({ body }, res, next) =>
@@ -127,7 +127,9 @@ exports.sendMessageNotification = (req, res, next) => {
   const { srcUsername, dstUsername, message } = sendMessageNotificationMapper(req);
   return getUserFromUsername(dstUsername)
     .then(dstUser =>
-      notifyUser(newMessageBuilder({ srcUsername, message, receiverFirebaseToken: dstUser.firebaseToken }))
+      notifyUser(
+        newMessagePushBuilder({ srcUsername, message, receiverFirebaseToken: dstUser.firebaseToken })
+      )
     )
     .then(() => res.status(201).send({ message: 'ok' }))
     .catch(next);
