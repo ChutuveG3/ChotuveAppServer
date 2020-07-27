@@ -17,7 +17,13 @@ exports.newVideoPushBuilder = ({ username, friendFirebaseToken }) => ({
 });
 
 exports.deleteVideoPushBuilder = ({ ownerFirebaseToken }) => ({
-  title: 'Video deleted',
+  title: 'Video deleted.',
   body: 'One of your videos has been taken down.',
   firebaseToken: ownerFirebaseToken
+});
+
+exports.newMessageBuilder = ({ srcUsername, message, receiverFirebaseToken }) => ({
+  title: `New message from ${srcUsername}`,
+  body: message,
+  firebaseToken: receiverFirebaseToken
 });

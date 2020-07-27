@@ -240,3 +240,13 @@ exports.deleteUserSchema = {
     errorMessage: 'username should be a string'
   }
 };
+
+exports.sendMessageNotificationSchema = {
+  ...authorizationSchema,
+  message: {
+    in: ['body'],
+    isString: true,
+    optional: false,
+    errorMessage: 'message should be a string'
+  }
+};
