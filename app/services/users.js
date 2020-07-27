@@ -13,7 +13,8 @@ const {
   databaseError,
   alreadyFriendsError,
   missingFriendRequestError,
-  invalidTokenError
+  invalidTokenError,
+  invalidRecoveryToken
 } = require('../errors');
 
 const saveUserInDB = user =>
@@ -257,7 +258,11 @@ exports.configurePassword = body => {
       if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
       error(`Auth Server failed to configure new password. ${aserror.response.data.message}`);
       if (aserror.response.status === 409) {
-        throw userNotExists(aserror.response.data);
+        if (aserror.response.data.internalCode === 'user_not_exists') {
+          throw userNotExists(aserror.response.data);
+        } else {
+          throw invalidRecoveryToken(aserror.response.data);
+        }
       } else {
         throw authServerError(aserror.response.data);
       }

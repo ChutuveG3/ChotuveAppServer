@@ -47,3 +47,6 @@ exports.videoNotExists = message => internalError(message, exports.VIDEO_NOT_EXI
 
 exports.VIDEO_UNAVAILABLE = 'video_unavailable';
 exports.videoUnavailable = message => internalError(message, exports.VIDEO_UNAVAILABLE);
+
+exports.INVALID_RECOVERY_TOKEN = 'invalid_recovery_token';
+exports.invalidRecoveryToken = message => internalError(message, exports.INVALID_RECOVERY_TOKEN);

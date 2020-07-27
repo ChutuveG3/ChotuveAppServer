@@ -16,7 +16,8 @@ const statusCodes = {
   [errors.ALREADY_FRIENDS_ERROR]: 409,
   [errors.MISSING_FRIEND_REQUEST_ERROR]: 409,
   [errors.UNAUTHORIZED]: 403,
-  [errors.VIDEO_NOT_EXISTS]: 409
+  [errors.VIDEO_NOT_EXISTS]: 409,
+  [errors.INVALID_RECOVERY_TOKEN]: 409
 };
 
 exports.handle = (error, req, res, next) => {
