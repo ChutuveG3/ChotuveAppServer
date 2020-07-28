@@ -13,7 +13,8 @@ const {
   addReaction,
   postComment,
   getVideoFromId,
-  filterHomeVideos
+  filterHomeVideos,
+  saveVideoInDb
 } = require('../services/videos');
 const { getVideosSerializer, getVideoSerializer, getHomeVideosSerializer } = require('../serializers/videos');
 const { getUserFromUsername } = require('../services/users');
@@ -63,7 +64,8 @@ const getVideoAndMediaById = (id, requesterUsername) => {
   return getVideoFromId(id)
     .then(foundVideo => {
       video = foundVideo;
-      return getMediaVideosFromIds([video.id]);
+      video.views += 1;
+      return saveVideoInDb(video).then(() => getMediaVideosFromIds([video.id]));
     })
     .then(mediaVideos =>
       // eslint-disable-next-line no-underscore-dangle

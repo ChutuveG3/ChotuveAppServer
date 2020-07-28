@@ -113,7 +113,7 @@ exports.deleteVideo = id => {
   );
 };
 
-const saveVideoInDb = video =>
+exports.saveVideoInDb = video =>
   video.save().catch(dbError => {
     error(`Video could not be saved. Error: ${dbError}`);
     throw databaseError(`Video could not be saved. Error: ${dbError}`);
@@ -132,7 +132,7 @@ exports.removeReaction = ({ video, reactionList, username, removingFunction }) =
   if (!video[reactionList].includes(username)) return Promise.resolve();
 
   video[reactionList] = removingFunction({ video, username });
-  return saveVideoInDb(video);
+  return exports.saveVideoInDb(video);
 };
 
 exports.addReaction = ({ video, addingList, removingList, username, addingFunction, removingFunction }) => {
@@ -143,7 +143,7 @@ exports.addReaction = ({ video, addingList, removingList, username, addingFuncti
   if (video[removingList].includes(username)) {
     video[removingList] = removingFunction({ video, username });
   }
-  return saveVideoInDb(video);
+  return exports.saveVideoInDb(video);
 };
 
 exports.postComment = (username, commentData, video) => {
@@ -154,7 +154,7 @@ exports.postComment = (username, commentData, video) => {
     comment: commentData.comment
   };
   video.comments.push(comment);
-  return saveVideoInDb(video);
+  return exports.saveVideoInDb(video);
 };
 
 exports.filterHomeVideos = (videos, username) =>
