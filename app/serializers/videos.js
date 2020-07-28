@@ -13,7 +13,8 @@ exports.getHomeVideosSerializer = videos =>
     url: video.download_url,
     title: video.title,
     datetime: video.datetime,
-    id: video.id
+    id: video.id,
+    views: video.views
   }));
 
 exports.getVideosSerializer = videos =>
@@ -22,7 +23,8 @@ exports.getVideosSerializer = videos =>
     url: video.download_url,
     title: video.title,
     datetime: video.datetime,
-    id: video.id
+    id: video.id,
+    views: video.views
   }));
 
 exports.getVideoSerializer = ({ video, requesterUsername }) => {
@@ -42,6 +44,7 @@ exports.getVideoSerializer = ({ video, requesterUsername }) => {
     visibility: video.visibility,
     latitude: video.latitude,
     longitude: video.longitude,
+    views: video.views,
     id: video.id,
     likes: video.likes.length,
     dislikes: video.dislikes.length,

@@ -16,6 +16,7 @@ const videoSchema = new Schema({
   visibility: { type: String, allowNull: false },
   latitude: { type: Number },
   longitude: { type: Number },
+  views: { type: Number, default: 0 },
   likes: { type: [String] },
   dislikes: { type: [String] },
   comments: [commentSchema]
