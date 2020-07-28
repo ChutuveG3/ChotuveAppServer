@@ -30,3 +30,9 @@ exports.userParamMapper = params => ({
 exports.usernameMapper = params => ({
   username: params.user_name
 });
+
+exports.sendMessageNotificationMapper = req => ({
+  srcUsername: req.user.user_name,
+  dstUsername: req.params.username,
+  message: req.body.message
+});

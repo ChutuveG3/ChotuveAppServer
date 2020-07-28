@@ -241,6 +241,22 @@ exports.deleteUserSchema = {
   }
 };
 
+exports.sendMessageNotificationSchema = {
+  ...authorizationSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
+  },
+  message: {
+    in: ['body'],
+    isString: true,
+    optional: false,
+    errorMessage: 'message should be a string'
+  }
+};
+
 exports.passwordRecoverySchema = {
   ...authorizationSchema,
   email: {

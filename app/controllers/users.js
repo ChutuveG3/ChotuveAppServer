@@ -27,10 +27,15 @@ const {
   userFriendshipMapper,
   userLoginMapper,
   logOutUserMapper,
-  potentialFriendsMapper
+  potentialFriendsMapper,
+  sendMessageNotificationMapper
 } = require('../mappers/users');
 const { notifyUser } = require('../services/push_notifications');
-const { sendFriendRequestPushBuilder, acceptFriendRequestPushBuilder } = require('../utils/push_builder');
+const {
+  sendFriendRequestPushBuilder,
+  acceptFriendRequestPushBuilder,
+  newMessagePushBuilder
+} = require('../utils/push_builder');
 
 exports.signUp = ({ body }, res, next) =>
   signUpUser(body)
@@ -119,6 +124,18 @@ exports.deleteUser = ({ params: { username } }, res, next) =>
   deleteUser(username)
     .then(() => res.status(200).end())
     .catch(next);
+
+exports.sendMessageNotification = (req, res, next) => {
+  const { srcUsername, dstUsername, message } = sendMessageNotificationMapper(req);
+  return getUserFromUsername(dstUsername)
+    .then(dstUser =>
+      notifyUser(
+        newMessagePushBuilder({ srcUsername, message, receiverFirebaseToken: dstUser.firebaseToken })
+      )
+    )
+    .then(() => res.status(200).send({ message: 'ok' }))
+    .catch(next);
+};
 
 exports.recoverPassword = ({ body: { email } }, res, next) =>
   recoverPassword(email)
