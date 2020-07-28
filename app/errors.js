@@ -50,3 +50,6 @@ exports.videoUnavailable = message => internalError(message, exports.VIDEO_UNAVA
 
 exports.INVALID_RECOVERY_TOKEN = 'invalid_recovery_token';
 exports.invalidRecoveryToken = message => internalError(message, exports.INVALID_RECOVERY_TOKEN);
+
+exports.INVALID_EMAIL_ERROR = 'invalid_email_error';
+exports.invalidEmailError = message => internalError(message, exports.INVALID_EMAIL_ERROR);

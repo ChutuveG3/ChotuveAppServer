@@ -14,7 +14,8 @@ const {
   alreadyFriendsError,
   missingFriendRequestError,
   invalidTokenError,
-  invalidRecoveryToken
+  invalidRecoveryToken,
+  invalidEmailError
 } = require('../errors');
 
 const saveUserInDB = user =>
@@ -243,7 +244,11 @@ exports.recoverPassword = email => {
       if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
       error(`Auth Server failed to create password recovery token. ${aserror.response.data.message}`);
       if (aserror.response.status === 409) {
-        throw userNotExists(aserror.response.data);
+        if (aserror.response.data.internal_code === 'user_not_exists') {
+          throw userNotExists(aserror.response.data);
+        } else {
+          throw invalidEmailError(aserror.response.data);
+        }
       } else {
         throw authServerError(aserror.response.data);
       }
