@@ -131,6 +131,6 @@ exports.sendMessageNotification = (req, res, next) => {
         newMessagePushBuilder({ srcUsername, message, receiverFirebaseToken: dstUser.firebaseToken })
       )
     )
-    .then(() => res.status(201).send({ message: 'ok' }))
+    .then(() => res.status(200).send({ message: 'ok' }))
     .catch(next);
 };
