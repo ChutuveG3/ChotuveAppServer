@@ -37,7 +37,9 @@ const {
   logOut,
   getPotentialFriends,
   deleteUser,
-  sendMessageNotification
+  sendMessageNotification,
+  recoverPassword,
+  configurePassword
 } = require('./controllers/users');
 const {
   createUserSchema,
@@ -56,7 +58,9 @@ const {
   validateSignUpCredentials,
   validateLoginCredentials,
   deleteUserSchema,
-  sendMessageNotificationSchema
+  sendMessageNotificationSchema,
+  passwordRecoverySchema,
+  passwordConfigurationSchema
 } = require('./middlewares/users');
 const { validateToken, validateTokenAndLoadUser, checkPrivileges } = require('./middlewares/token_validator');
 
@@ -156,5 +160,15 @@ exports.init = app => {
     '/users/:username/messages',
     [validateSchema(sendMessageNotificationSchema), validateTokenAndLoadUser],
     sendMessageNotification
+  );
+  app.post(
+    '/sessions/password_recovery',
+    [validateSchema(passwordRecoverySchema), validateToken],
+    recoverPassword
+  );
+  app.put(
+    '/sessions/password_configuration',
+    [validateSchema(passwordConfigurationSchema), validateToken],
+    configurePassword
   );
 };

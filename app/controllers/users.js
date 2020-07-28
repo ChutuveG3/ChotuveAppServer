@@ -13,7 +13,9 @@ const {
   getUserFromUsername,
   deleteFirebaseToken,
   getPotentialFriends,
-  deleteUser
+  deleteUser,
+  recoverPassword,
+  configurePassword
 } = require('../services/users');
 const {
   getFriendRequestsSerializer,
@@ -134,3 +136,13 @@ exports.sendMessageNotification = (req, res, next) => {
     .then(() => res.status(200).send({ message: 'ok' }))
     .catch(next);
 };
+
+exports.recoverPassword = ({ body: { email } }, res, next) =>
+  recoverPassword(email)
+    .then(() => res.status(201).send({ message: 'ok' }))
+    .catch(next);
+
+exports.configurePassword = ({ body }, res, next) =>
+  configurePassword(body)
+    .then(() => res.status(200).send({ message: 'ok' }))
+    .catch(next);
