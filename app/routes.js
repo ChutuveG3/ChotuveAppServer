@@ -36,7 +36,9 @@ const {
   rejectFriendRequest,
   logOut,
   getPotentialFriends,
-  deleteUser
+  deleteUser,
+  recoverPassword,
+  configurePassword
 } = require('./controllers/users');
 const {
   createUserSchema,
@@ -54,7 +56,9 @@ const {
   potentialFriendsSchema,
   validateSignUpCredentials,
   validateLoginCredentials,
-  deleteUserSchema
+  deleteUserSchema,
+  passwordRecoverySchema,
+  passwordConfigurationSchema
 } = require('./middlewares/users');
 const { validateToken, validateTokenAndLoadUser, checkPrivileges } = require('./middlewares/token_validator');
 
@@ -149,5 +153,15 @@ exports.init = app => {
     '/users/:username',
     [validateSchema(deleteUserSchema), validateToken, checkPrivileges],
     deleteUser
+  );
+  app.post(
+    '/sessions/password_recovery',
+    [validateSchema(passwordRecoverySchema), validateToken],
+    recoverPassword
+  );
+  app.put(
+    '/sessions/password_configuration',
+    [validateSchema(passwordConfigurationSchema), validateToken],
+    configurePassword
   );
 };
