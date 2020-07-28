@@ -161,14 +161,10 @@ exports.init = app => {
     [validateSchema(sendMessageNotificationSchema), validateTokenAndLoadUser],
     sendMessageNotification
   );
-  app.post(
-    '/sessions/password_recovery',
-    [validateSchema(passwordRecoverySchema), validateToken],
-    recoverPassword
-  );
+  app.post('/sessions/password_recovery', [validateSchema(passwordRecoverySchema)], recoverPassword);
   app.put(
     '/sessions/password_configuration',
-    [validateSchema(passwordConfigurationSchema), validateToken],
+    [validateSchema(passwordConfigurationSchema)],
     configurePassword
   );
 };

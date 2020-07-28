@@ -258,7 +258,6 @@ exports.sendMessageNotificationSchema = {
 };
 
 exports.passwordRecoverySchema = {
-  ...authorizationSchema,
   email: {
     in: ['body'],
     isEmail: true,
@@ -268,7 +267,6 @@ exports.passwordRecoverySchema = {
 };
 
 exports.passwordConfigurationSchema = {
-  ...authorizationSchema,
   recovery_token: {
     in: ['body'],
     isString: true,
