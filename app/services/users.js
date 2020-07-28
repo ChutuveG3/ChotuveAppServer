@@ -258,7 +258,7 @@ exports.configurePassword = body => {
       if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
       error(`Auth Server failed to configure new password. ${aserror.response.data.message}`);
       if (aserror.response.status === 409) {
-        if (aserror.response.data.internalCode === 'user_not_exists') {
+        if (aserror.response.data.internal_code === 'user_not_exists') {
           throw userNotExists(aserror.response.data);
         } else {
           throw invalidRecoveryToken(aserror.response.data);
