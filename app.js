@@ -1,3 +1,38 @@
+const monitorOptions = {
+  title: 'Express Status',
+  theme: 'default.css',
+  spans: [
+    {
+      interval: 0.5,
+      retention: 60
+    },
+    {
+      interval: 1,
+      retention: 60
+    },
+    {
+      interval: 5,
+      retention: 60
+    },
+    {
+      interval: 15,
+      retention: 60
+    }
+  ],
+  chartVisibility: {
+    cpu: true,
+    mem: true,
+    load: true,
+    eventLoop: true,
+    heap: true,
+    responseTime: true,
+    rps: true,
+    statusCodes: true
+  },
+  ignoreStartsWith: '/admin'
+};
+
+const monitor = require('express-status-monitor')(monitorOptions);
 const { expressMiddleware, expressRequestIdMiddleware } = require('express-wolox-logger');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -33,7 +68,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(documentation));
 app.use(cors());
 
 if (!config.isTesting) app.use(expressMiddleware({ loggerFn: logger.info }));
-
+app.use(monitor);
 routes.init(app);
 
 app.use(errors.handle);

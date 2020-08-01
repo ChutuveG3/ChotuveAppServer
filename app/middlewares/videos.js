@@ -1,6 +1,9 @@
 const moment = require('moment');
 const { authorizationSchema } = require('./authorization');
 const { pagingSchema } = require('./paging');
+const { getVideoFromId } = require('../services/videos');
+const { getUserFromUsername } = require('../services/users');
+const { videoUnavailable } = require('../errors');
 
 exports.createVideoSchema = {
   ...authorizationSchema,
@@ -88,5 +91,71 @@ exports.deleteVideoSchema = {
     isInt: true,
     optional: false,
     errorMessage: 'id should be an int'
+  }
+};
+
+exports.reactionSchema = {
+  ...authorizationSchema,
+  id: {
+    in: ['params'],
+    isInt: true,
+    optional: false,
+    errorMessage: 'id should be an int'
+  }
+};
+
+exports.checkVideoAvailability = ({ video, user }, res, next) =>
+  getUserFromUsername(user.user_name)
+    .then(foundUser => {
+      if (
+        video.owner !== foundUser.username &&
+        !foundUser.friends.includes(video.owner) &&
+        video.visibility !== 'public'
+      ) {
+        return next(videoUnavailable(`User ${foundUser.username} does not have access to this video`));
+      }
+      return next();
+    })
+    .catch(next);
+
+exports.loadVideo = (req, res, next) =>
+  getVideoFromId(req.params.id)
+    .then(video => {
+      req.video = video;
+      return next();
+    })
+    .catch(next);
+
+exports.getVideoSchema = {
+  ...authorizationSchema,
+  id: {
+    in: ['params'],
+    isInt: true,
+    optional: false,
+    errorMessage: 'id should be an int'
+  }
+};
+
+exports.postCommentSchema = {
+  ...authorizationSchema,
+  id: {
+    in: ['params'],
+    isInt: true,
+    optional: false,
+    errorMessage: 'id should be an int'
+  },
+  datetime: {
+    in: ['body'],
+    custom: {
+      options: datetime => moment(datetime, 'YYYY-MM-DDTHH:mm:ss', true).isValid() === true
+    },
+    optional: false,
+    errorMessage: 'datetime should be a valid datetime YYYY-MM-DDTHH:mm:ss'
+  },
+  comment: {
+    in: ['body'],
+    isString: true,
+    optional: false,
+    errorMessage: 'comment should be a string'
   }
 };

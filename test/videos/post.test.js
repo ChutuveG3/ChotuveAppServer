@@ -1,18 +1,17 @@
+/* eslint-disable max-lines */
 const { getResponse, truncateUserCollection, truncateVideoCollection } = require('../utils/utils');
 const { mockValidateTokenAndLoadUser } = require('../mocks/authorization');
 const { mockNotifyUser } = require('../mocks/push_notifications');
 const { mockUploadVideo, mockFailUploadVideo } = require('../mocks/videos');
 const { createUserFactory, userDataFactory } = require('../factories/users');
+const { createVideoFactory } = require('../factories/videos');
 const { TOKEN_FOR_AUTH } = require('../utils/constants');
 const Videos = require('../../app/models/video');
 
-const baseUrl = '/videos';
+const uploadVideoBaseUrl = '/videos';
+const postCommentBaseUrl = id => `/videos/${id}/comments`;
 
-const videoHeader = {
-  authorization: 'aToken'
-};
-
-const videoData = {
+const uploadVideoData = {
   title: 'AVideoTitle',
   description: 'AVideoDescription',
   download_url: 'https://someUrl.com',
@@ -25,12 +24,15 @@ const videoData = {
 };
 
 describe('POST /videos upload', () => {
+  const videoHeader = {
+    authorization: 'aToken'
+  };
   describe('Missing parameters', () => {
     it('Should be 400 if header is missing', () => {
-      const currentVideoData = { ...videoData };
+      const currentVideoData = { ...uploadVideoData };
       return getResponse({
         method: 'post',
-        endpoint: baseUrl,
+        endpoint: uploadVideoBaseUrl,
         body: currentVideoData
       }).then(res => {
         expect(res.status).toBe(400);
@@ -40,11 +42,11 @@ describe('POST /videos upload', () => {
     });
 
     it('Should be status 400 if download url is missing', () => {
-      const currentVideoData = { ...videoData };
+      const currentVideoData = { ...uploadVideoData };
       delete currentVideoData.download_url;
       return getResponse({
         method: 'post',
-        endpoint: baseUrl,
+        endpoint: uploadVideoBaseUrl,
         body: currentVideoData,
         header: videoHeader
       }).then(res => {
@@ -55,11 +57,11 @@ describe('POST /videos upload', () => {
     });
 
     it('Should be status 400 if datetime is missing', () => {
-      const currentVideoData = { ...videoData };
+      const currentVideoData = { ...uploadVideoData };
       delete currentVideoData.datetime;
       return getResponse({
         method: 'post',
-        endpoint: baseUrl,
+        endpoint: uploadVideoBaseUrl,
         body: currentVideoData,
         header: videoHeader
       }).then(res => {
@@ -71,11 +73,11 @@ describe('POST /videos upload', () => {
     });
 
     it('Should be status 400 if visibility is missing', () => {
-      const currentVideoData = { ...videoData };
+      const currentVideoData = { ...uploadVideoData };
       delete currentVideoData.visibility;
       return getResponse({
         method: 'post',
-        endpoint: baseUrl,
+        endpoint: uploadVideoBaseUrl,
         body: currentVideoData,
         header: videoHeader
       }).then(res => {
@@ -87,11 +89,11 @@ describe('POST /videos upload', () => {
     });
 
     it('Should be status 400 if file_name is missing', () => {
-      const currentVideoData = { ...videoData };
+      const currentVideoData = { ...uploadVideoData };
       delete currentVideoData.file_name;
       return getResponse({
         method: 'post',
-        endpoint: baseUrl,
+        endpoint: uploadVideoBaseUrl,
         body: currentVideoData,
         header: videoHeader
       }).then(res => {
@@ -103,11 +105,11 @@ describe('POST /videos upload', () => {
     });
 
     it('Should be status 400 if file_size is missing', () => {
-      const currentVideoData = { ...videoData };
+      const currentVideoData = { ...uploadVideoData };
       delete currentVideoData.file_size;
       return getResponse({
         method: 'post',
-        endpoint: baseUrl,
+        endpoint: uploadVideoBaseUrl,
         body: currentVideoData,
         header: videoHeader
       }).then(res => {
@@ -122,8 +124,8 @@ describe('POST /videos upload', () => {
     it('Should be status 400 if download url is invalid', () =>
       getResponse({
         method: 'post',
-        endpoint: baseUrl,
-        body: { ...videoData, download_url: 'notAnURL' },
+        endpoint: uploadVideoBaseUrl,
+        body: { ...uploadVideoData, download_url: 'notAnURL' },
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
@@ -135,8 +137,8 @@ describe('POST /videos upload', () => {
     it('Should be status 400 if visibility is invalid', () =>
       getResponse({
         method: 'post',
-        endpoint: baseUrl,
-        body: { ...videoData, visibility: 'notVisible' },
+        endpoint: uploadVideoBaseUrl,
+        body: { ...uploadVideoData, visibility: 'notVisible' },
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
@@ -148,8 +150,8 @@ describe('POST /videos upload', () => {
     it('Should be status 400 if datetime is invalid I', () =>
       getResponse({
         method: 'post',
-        endpoint: baseUrl,
-        body: { ...videoData, datetime: 'notADate4632' },
+        endpoint: uploadVideoBaseUrl,
+        body: { ...uploadVideoData, datetime: 'notADate4632' },
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
@@ -161,8 +163,8 @@ describe('POST /videos upload', () => {
     it('Should be status 400 if datetime is invalid II', () =>
       getResponse({
         method: 'post',
-        endpoint: baseUrl,
-        body: { ...videoData, datetime: '2/4/2020' },
+        endpoint: uploadVideoBaseUrl,
+        body: { ...uploadVideoData, datetime: '2/4/2020' },
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
@@ -174,8 +176,8 @@ describe('POST /videos upload', () => {
     it('Should be status 400 if datetime is invalid III', () =>
       getResponse({
         method: 'post',
-        endpoint: baseUrl,
-        body: { ...videoData, datetime: '2020-05-18T14:43:35.0453Z' },
+        endpoint: uploadVideoBaseUrl,
+        body: { ...uploadVideoData, datetime: '2020-05-18T14:43:35.0453Z' },
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
@@ -187,8 +189,8 @@ describe('POST /videos upload', () => {
     it('Should be status 400 if longitude is not numeric', () =>
       getResponse({
         method: 'post',
-        endpoint: baseUrl,
-        body: { ...videoData, longitude: 'longitude' },
+        endpoint: uploadVideoBaseUrl,
+        body: { ...uploadVideoData, longitude: 'longitude' },
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
@@ -200,8 +202,8 @@ describe('POST /videos upload', () => {
     it('Should be status 400 if latitude is not numeric', () =>
       getResponse({
         method: 'post',
-        endpoint: baseUrl,
-        body: { ...videoData, latitude: 'latitude' },
+        endpoint: uploadVideoBaseUrl,
+        body: { ...uploadVideoData, latitude: 'latitude' },
         header: videoHeader
       }).then(res => {
         expect(res.status).toBe(400);
@@ -224,8 +226,8 @@ describe('POST /videos upload', () => {
       mockNotifyUser();
       createVideoResponse = await getResponse({
         method: 'post',
-        endpoint: baseUrl,
-        body: videoData,
+        endpoint: uploadVideoBaseUrl,
+        body: uploadVideoData,
         header: { authorization: TOKEN_FOR_AUTH }
       });
     });
@@ -240,7 +242,7 @@ describe('POST /videos upload', () => {
 
     it('Check that the video is created', () =>
       Videos.findOne({ id: 1 }).then(video => {
-        expect(video.title).toBe(videoData.title);
+        expect(video.title).toBe(uploadVideoData.title);
       }));
   });
   describe('Media server error', () => {
@@ -257,8 +259,8 @@ describe('POST /videos upload', () => {
       mockNotifyUser();
       mediaErrorResponse = await getResponse({
         method: 'post',
-        endpoint: baseUrl,
-        body: videoData,
+        endpoint: uploadVideoBaseUrl,
+        body: uploadVideoData,
         header: { authorization: TOKEN_FOR_AUTH }
       });
     });
@@ -272,6 +274,49 @@ describe('POST /videos upload', () => {
 
     it('Check message', () => {
       expect(mediaErrorResponse.body.message.internal_code).toBe('upload_video_error');
+    });
+  });
+});
+
+describe('POST /videos/:id/comments to post a comment', () => {
+  const videoData = { ...uploadVideoData, videoId: 1 };
+  const postCommentBody = {
+    datetime: '2020-07-10T10:32:53',
+    comment: 'Nice vid!'
+  };
+  describe('Valid or invalid operations', () => {
+    describe('Comment on public video', () => {
+      let commentOnPublicRes = {};
+      const userData = userDataFactory();
+      const userData2 = userDataFactory();
+
+      beforeAll(async () => {
+        await truncateUserCollection();
+        await truncateVideoCollection();
+        await createUserFactory(userData.username);
+        await createUserFactory(userData2.username);
+        await createVideoFactory({ ...videoData, owner: userData.username, visibility: 'public' });
+        mockValidateTokenAndLoadUser(userData2);
+        commentOnPublicRes = await getResponse({
+          method: 'post',
+          endpoint: postCommentBaseUrl(videoData.videoId),
+          body: postCommentBody,
+          header: { authorization: TOKEN_FOR_AUTH }
+        });
+      });
+
+      afterAll(() => jest.clearAllMocks());
+
+      it('Check status', () => {
+        expect(commentOnPublicRes.status).toBe(201);
+      });
+
+      it('Check the comment is created', () =>
+        Videos.findOne({ id: videoData.videoId }).then(video => {
+          expect(video.comments[0]).toHaveProperty('username', userData2.username);
+          expect(video.comments[0]).toHaveProperty('datetime');
+          expect(video.comments[0]).toHaveProperty('comment', postCommentBody.comment);
+        }));
     });
   });
 });

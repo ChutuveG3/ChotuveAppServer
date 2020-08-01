@@ -1,6 +1,6 @@
 const moment = require('moment');
 const { authorizationSchema } = require('./authorization');
-const { userMismatchError, sameUserError } = require('../errors');
+const { invalidParams, userMismatchError, sameUserError } = require('../errors');
 const { pagingSchema } = require('./paging');
 
 exports.createUserSchema = {
@@ -26,8 +26,14 @@ exports.createUserSchema = {
     in: ['body'],
     isString: true,
     isLength: { errorMessage: 'Password should have at least 6 characters', options: { min: 6 } },
-    optional: false,
+    optional: true,
     errorMessage: 'password should be a string'
+  },
+  firebase_token: {
+    in: ['body'],
+    isJWT: true,
+    optional: true,
+    errorMessage: 'firebase_token should be a jwt'
   },
   user_name: {
     in: ['body'],
@@ -49,21 +55,27 @@ exports.createUserLoginSchema = {
   username: {
     in: ['body'],
     isString: true,
-    optional: false,
+    optional: true,
     errorMessage: 'username should be a string'
   },
   password: {
     in: ['body'],
     isString: true,
     isLength: { errorMessage: 'Password should have at least 6 characters', options: { min: 6 } },
-    optional: false,
+    optional: true,
     errorMessage: 'password should be a string'
   },
   firebase_token: {
     in: ['body'],
+    isJWT: true,
+    optional: true,
+    errorMessage: 'firebase_token should be a jwt'
+  },
+  device_firebase_token: {
+    in: ['body'],
     isString: true,
     optional: true,
-    errorMessage: 'firebase_token should be a string'
+    errorMessage: 'device_firebase_token should be a string'
   }
 };
 
@@ -202,5 +214,70 @@ exports.potentialFriendsSchema = {
     isString: true,
     optional: true,
     errorMessage: 'username should be a string'
+  }
+};
+
+exports.validateSignUpCredentials = ({ body: { password, firebase_token } }, res, next) => {
+  if (!password === !firebase_token) {
+    return next(invalidParams('Password or firebase token must be present'));
+  }
+  return next();
+};
+
+exports.validateLoginCredentials = ({ body: { username, password, firebase_token } }, res, next) => {
+  if ((username || password || !firebase_token) && (!username || !password || firebase_token)) {
+    return next(invalidParams('Username and password, or firebase token must be present'));
+  }
+  return next();
+};
+
+exports.deleteUserSchema = {
+  ...authorizationSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
+  }
+};
+
+exports.sendMessageNotificationSchema = {
+  ...authorizationSchema,
+  username: {
+    in: ['params'],
+    isString: true,
+    optional: false,
+    errorMessage: 'username should be a string'
+  },
+  message: {
+    in: ['body'],
+    isString: true,
+    optional: false,
+    errorMessage: 'message should be a string'
+  }
+};
+
+exports.passwordRecoverySchema = {
+  email: {
+    in: ['body'],
+    isEmail: true,
+    optional: false,
+    errorMessage: 'email should be a valid email'
+  }
+};
+
+exports.passwordConfigurationSchema = {
+  recovery_token: {
+    in: ['body'],
+    isString: true,
+    optional: false,
+    errorMessage: 'recovery_token should be a string'
+  },
+  password: {
+    in: ['body'],
+    isString: true,
+    isLength: { errorMessage: 'Password should have at least 6 characters', options: { min: 6 } },
+    optional: false,
+    errorMessage: 'password should be a string'
   }
 };

@@ -10,7 +10,7 @@ const { mockSignUpOnce, mockLoginOnce } = require('../mocks/users');
 const { mockValidateTokenAndLoadUser } = require('../mocks/authorization');
 const { mockNotifyUser } = require('../mocks/push_notifications');
 const User = require('../../app/models/user');
-const { LOGIN_TOKEN, TOKEN_FOR_AUTH } = require('../utils/constants');
+const { LOGIN_TOKEN, TOKEN_FOR_AUTH, SIGNUP_TOKEN } = require('../utils/constants');
 
 const baseUrl = '/users';
 const sessionsUrl = `${baseUrl}/sessions`;
@@ -60,16 +60,6 @@ describe('POST /users signup', () => {
       });
     });
 
-    it('Should be status 400 if password is missing', () => {
-      const currentUserData = { ...requestData };
-      delete currentUserData.password;
-      return getResponse({ method: 'post', endpoint: baseUrl, body: currentUserData }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(2);
-        expect(res.body.internal_code).toBe('invalid_params');
-      });
-    });
-
     it('Should be status 400 if username is missing', () => {
       const currentUserData = { ...requestData };
       delete currentUserData.user_name;
@@ -91,13 +81,6 @@ describe('POST /users signup', () => {
         expect(res.body.internal_code).toBe('invalid_params');
       });
     });
-
-    it('Should be status 400 if it is missing multiple parameters', () =>
-      getResponse({ method: 'post', endpoint: baseUrl, body: {} }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(7);
-        expect(res.body.internal_code).toBe('invalid_params');
-      }));
   });
 
   describe('Invalid parameters', () => {
@@ -134,6 +117,41 @@ describe('POST /users signup', () => {
         expect(res.status).toBe(400);
         expect(res.body.message.errors).toHaveLength(1);
         expect(res.body.message.errors[0].param).toBe('password');
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+    it('Should be status 400 if firebase token is not jwt', () => {
+      const currentUserData = { ...requestData };
+      delete currentUserData.password;
+      return getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: { ...currentUserData, firebase_token: 'aaa' }
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.message.errors).toHaveLength(1);
+        expect(res.body.message.errors[0].param).toBe('firebase_token');
+        expect(res.body.internal_code).toBe('invalid_params');
+      });
+    });
+    it('Should be status 400 if neither password or firebase token are present', () => {
+      const currentUserData = { ...requestData };
+      delete currentUserData.password;
+      return getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: { ...currentUserData }
+      }).then(res => {
+        expect(res.status).toBe(400);
+        expect(res.body.internal_code).toBe('invalid_params');
+      });
+    });
+    it('Should be status 400 if both password and firebase token are present', () =>
+      getResponse({
+        method: 'post',
+        endpoint: baseUrl,
+        body: { ...requestData, firebase_token: SIGNUP_TOKEN }
+      }).then(res => {
+        expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       }));
   });
@@ -180,70 +198,50 @@ describe('POST /users signup', () => {
 
 describe('POST /users/sessions', () => {
   const userData = userDataFactory();
-  describe('Missing parameters', () => {
-    it('Should be status 400 if username is missing', () => {
-      const currentUserData = { ...userData };
-      delete currentUserData.username;
-      return getResponse({ method: 'post', endpoint: sessionsUrl, body: currentUserData }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(1);
-        expect(res.body.message.errors[0].param).toBe('username');
-        expect(res.body.internal_code).toBe('invalid_params');
-      });
-    });
-
-    it('Should be status 400 if password is missing', () => {
-      const currentUserData = { ...userData };
-      delete currentUserData.password;
-      return getResponse({ method: 'post', endpoint: sessionsUrl, body: currentUserData }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(2);
-        expect(res.body.internal_code).toBe('invalid_params');
-      });
-    });
-
-    it('Should be status 400 if both username and password are missing', () =>
-      getResponse({ method: 'post', endpoint: sessionsUrl, body: {} }).then(res => {
-        expect(res.status).toBe(400);
-        expect(res.body.message.errors).toHaveLength(3);
-        expect(res.body.internal_code).toBe('invalid_params');
-      }));
-  });
+  const loginUserData = { username: userData.username, password: userData.password };
 
   describe('Invalid parameters', () => {
     it('Should be status 400 if password is shorter than 6 characters', () =>
       getResponse({
         method: 'post',
         endpoint: sessionsUrl,
-        body: { ...userData, password: '1234' }
+        body: { ...loginUserData, password: '1234' }
       }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.message.errors).toHaveLength(1);
         expect(res.body.message.errors[0].param).toBe('password');
         expect(res.body.internal_code).toBe('invalid_params');
       }));
-
-    it('Should be status 400 if firebase_token is not a string', () =>
+    it('Should be status 400 if device_firebase_token is not a string', () =>
       getResponse({
         method: 'post',
         endpoint: sessionsUrl,
-        body: { ...userData, firebase_token: 4 }
+        body: { ...loginUserData, device_firebase_token: 4 }
       }).then(res => {
         expect(res.status).toBe(400);
         expect(res.body.message.errors).toHaveLength(1);
-        expect(res.body.message.errors[0].param).toBe('firebase_token');
+        expect(res.body.message.errors[0].param).toBe('device_firebase_token');
+        expect(res.body.internal_code).toBe('invalid_params');
+      }));
+    it('Should be status 400 if username, password and firebase_token are all present', () =>
+      getResponse({
+        method: 'post',
+        endpoint: sessionsUrl,
+        body: { ...loginUserData, firebase_token: SIGNUP_TOKEN }
+      }).then(res => {
+        expect(res.status).toBe(400);
         expect(res.body.internal_code).toBe('invalid_params');
       }));
   });
 
   describe('Correct login', () => {
-    let LoginResponse = {};
+    let loginResponse = {};
 
     beforeAll(async () => {
       mockLoginOnce();
-      LoginResponse = await getResponse({
+      loginResponse = await getResponse({
         endpoint: sessionsUrl,
-        body: { ...userData },
+        body: { ...loginUserData },
         method: 'post'
       });
     });
@@ -251,11 +249,11 @@ describe('POST /users/sessions', () => {
     afterAll(() => jest.clearAllMocks());
 
     it('Check response status', () => {
-      expect(LoginResponse.status).toBe(200);
+      expect(loginResponse.status).toBe(200);
     });
 
     it('Check token in response', () => {
-      expect(LoginResponse.body.token).toBe(LOGIN_TOKEN);
+      expect(loginResponse.body.token).toBe(LOGIN_TOKEN);
     });
   });
 });

@@ -9,10 +9,13 @@ const {
   listFriends,
   acceptFriendRequest,
   rejectFriendRequest,
-  saveFirebaseToken,
+  saveDeviceFirebaseToken,
   getUserFromUsername,
   deleteFirebaseToken,
-  getPotentialFriends
+  getPotentialFriends,
+  deleteUser,
+  recoverPassword,
+  configurePassword
 } = require('../services/users');
 const {
   getFriendRequestsSerializer,
@@ -24,10 +27,15 @@ const {
   userFriendshipMapper,
   userLoginMapper,
   logOutUserMapper,
-  potentialFriendsMapper
+  potentialFriendsMapper,
+  sendMessageNotificationMapper
 } = require('../mappers/users');
 const { notifyUser } = require('../services/push_notifications');
-const { sendFriendRequestPushBuilder, acceptFriendRequestPushBuilder } = require('../utils/push_builder');
+const {
+  sendFriendRequestPushBuilder,
+  acceptFriendRequestPushBuilder,
+  newMessagePushBuilder
+} = require('../utils/push_builder');
 
 exports.signUp = ({ body }, res, next) =>
   signUpUser(body)
@@ -37,10 +45,8 @@ exports.signUp = ({ body }, res, next) =>
 
 exports.login = ({ body }, res, next) =>
   loginUser(body)
-    .then(response =>
-      saveFirebaseToken(userLoginMapper(body)).then(() =>
-        res.status(200).send({ token: response.data.token })
-      )
+    .then(userInfo =>
+      saveDeviceFirebaseToken(userLoginMapper(userInfo, body)).then(() => res.status(200).send(userInfo))
     )
     .catch(next);
 
@@ -112,4 +118,31 @@ exports.logOut = ({ params }, res, next) =>
 exports.getPotentialFriends = ({ params, query }, res, next) =>
   getPotentialFriends(potentialFriendsMapper(params, query))
     .then(usernames => res.status(200).send(getPotentialFriendsSerializer(usernames)))
+    .catch(next);
+
+exports.deleteUser = ({ params: { username } }, res, next) =>
+  deleteUser(username)
+    .then(() => res.status(200).end())
+    .catch(next);
+
+exports.sendMessageNotification = (req, res, next) => {
+  const { srcUsername, dstUsername, message } = sendMessageNotificationMapper(req);
+  return getUserFromUsername(dstUsername)
+    .then(dstUser =>
+      notifyUser(
+        newMessagePushBuilder({ srcUsername, message, receiverFirebaseToken: dstUser.firebaseToken })
+      )
+    )
+    .then(() => res.status(200).send({ message: 'ok' }))
+    .catch(next);
+};
+
+exports.recoverPassword = ({ body: { email } }, res, next) =>
+  recoverPassword(email)
+    .then(() => res.status(201).send({ message: 'ok' }))
+    .catch(next);
+
+exports.configurePassword = ({ body }, res, next) =>
+  configurePassword(body)
+    .then(() => res.status(200).send({ message: 'ok' }))
     .catch(next);

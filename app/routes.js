@@ -1,10 +1,26 @@
 const { healthCheck } = require('./controllers/healthCheck');
-const { upload, getVideos, getUserVideos, deleteVideo } = require('./controllers/videos');
+const {
+  upload,
+  getUserVideos,
+  deleteVideo,
+  likeVideo,
+  dislikeVideo,
+  unlikeVideo,
+  undislikeVideo,
+  postComment,
+  getVideo,
+  getHomeVideos
+} = require('./controllers/videos');
 const {
   createVideoSchema,
   homeSchema,
   getVideosFromUserSchema,
-  deleteVideoSchema
+  deleteVideoSchema,
+  reactionSchema,
+  checkVideoAvailability,
+  loadVideo,
+  postCommentSchema,
+  getVideoSchema
 } = require('./middlewares/videos');
 const { validateSchema } = require('./middlewares/params_validator');
 const { addPagingParams } = require('./middlewares/paging');
@@ -19,7 +35,11 @@ const {
   acceptFriendRequest,
   rejectFriendRequest,
   logOut,
-  getPotentialFriends
+  getPotentialFriends,
+  deleteUser,
+  sendMessageNotification,
+  recoverPassword,
+  configurePassword
 } = require('./controllers/users');
 const {
   createUserSchema,
@@ -34,21 +54,24 @@ const {
   acceptFriendRequestSchema,
   rejectFriendRequestSchema,
   logOutUserSchema,
-  potentialFriendsSchema
+  potentialFriendsSchema,
+  validateSignUpCredentials,
+  validateLoginCredentials,
+  deleteUserSchema,
+  sendMessageNotificationSchema,
+  passwordRecoverySchema,
+  passwordConfigurationSchema
 } = require('./middlewares/users');
 const { validateToken, validateTokenAndLoadUser, checkPrivileges } = require('./middlewares/token_validator');
 
 exports.init = app => {
-  // Testeado
   app.get('/health', healthCheck);
-  // Testeado
-  app.post('/users', [validateSchema(createUserSchema)], signUp);
-  // Testeado
-  app.post('/users/sessions', [validateSchema(createUserLoginSchema)], login);
+  app.post('/users', [validateSchema(createUserSchema), validateSignUpCredentials], signUp);
+  app.post('/users/sessions', [validateSchema(createUserLoginSchema), validateLoginCredentials], login);
   app.get(
     '/users/:src_username/home',
     [validateSchema(homeSchema), validateTokenAndLoadUser, validateUser, addPagingParams],
-    getVideos
+    getHomeVideos
   );
   app.get(
     '/users/:username/videos',
@@ -56,45 +79,37 @@ exports.init = app => {
     getUserVideos
   );
   app.post('/videos', [validateSchema(createVideoSchema), validateTokenAndLoadUser], upload);
-  // Testeado
   app.get('/users/:username', [validateSchema(getCurrentUserSchema), validateTokenAndLoadUser], viewProfile);
-  // Testeado
   app.put(
     '/users/:src_username',
     [validateSchema(updateProfileSchema), validateTokenAndLoadUser, validateUser],
     updateProfile
   );
-  // Testeado
   app.post(
     '/users/:src_username/friends/:dst_username',
     [validateSchema(sendFriendRequestSchema), validateTokenAndLoadUser, validateUser, validateParamsUsers],
     sendFriendRequest
   );
-  // Testeado
   app.get(
     '/users/:src_username/friends/pending',
     [validateSchema(listFriendRequestsSchema), validateTokenAndLoadUser, validateUser, addPagingParams],
     listFriendRequests
   );
-  // Testeado
   app.get(
     '/users/:src_username/friends',
     [validateSchema(listFriendsSchema), validateTokenAndLoadUser, validateUser, addPagingParams],
     listFriends
   );
-  // Testeado
   app.post(
     '/users/:src_username/friends/:dst_username/accept',
     [validateSchema(acceptFriendRequestSchema), validateTokenAndLoadUser, validateUser, validateParamsUsers],
     acceptFriendRequest
   );
-  // Testeado
   app.post(
     '/users/:src_username/friends/:dst_username/reject',
     [validateSchema(rejectFriendRequestSchema), validateTokenAndLoadUser, validateUser, validateParamsUsers],
     rejectFriendRequest
   );
-
   app.delete(
     '/users/:src_username/sessions',
     [validateSchema(logOutUserSchema), validateTokenAndLoadUser, validateUser],
@@ -105,5 +120,51 @@ exports.init = app => {
     '/users/:src_username/potential_friends',
     [validateSchema(potentialFriendsSchema), validateTokenAndLoadUser, validateUser],
     getPotentialFriends
+  );
+  app.patch(
+    '/videos/:id/like',
+    [validateSchema(reactionSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
+    likeVideo
+  );
+  app.patch(
+    '/videos/:id/dislike',
+    [validateSchema(reactionSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
+    dislikeVideo
+  );
+  app.patch(
+    '/videos/:id/unlike',
+    [validateSchema(reactionSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
+    unlikeVideo
+  );
+  app.patch(
+    '/videos/:id/undislike',
+    [validateSchema(reactionSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
+    undislikeVideo
+  );
+  app.post(
+    '/videos/:id/comments',
+    [validateSchema(postCommentSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
+    postComment
+  );
+  app.get(
+    '/videos/:id',
+    [validateSchema(getVideoSchema), validateTokenAndLoadUser, loadVideo, checkVideoAvailability],
+    getVideo
+  );
+  app.delete(
+    '/users/:username',
+    [validateSchema(deleteUserSchema), validateToken, checkPrivileges],
+    deleteUser
+  );
+  app.post(
+    '/users/:username/messages',
+    [validateSchema(sendMessageNotificationSchema), validateTokenAndLoadUser],
+    sendMessageNotification
+  );
+  app.post('/sessions/password_recovery', [validateSchema(passwordRecoverySchema)], recoverPassword);
+  app.put(
+    '/sessions/password_configuration',
+    [validateSchema(passwordConfigurationSchema)],
+    configurePassword
   );
 };

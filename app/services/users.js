@@ -12,7 +12,10 @@ const {
   userNotExists,
   databaseError,
   alreadyFriendsError,
-  missingFriendRequestError
+  missingFriendRequestError,
+  invalidTokenError,
+  invalidRecoveryToken,
+  invalidEmailError
 } = require('../errors');
 
 const saveUserInDB = user =>
@@ -22,11 +25,15 @@ const saveUserInDB = user =>
   });
 
 exports.signUpUser = body => {
-  info(`Sending sign up request to Auth Server at ${authServer} for user with email: ${body.email}`);
+  info(`Sending sign up request to Auth Server at ${authServer} for user with username: ${body.user_name}`);
   return axios.post(`${authServer}/users`, body, { headers: { x_api_key: apiKey } }).catch(aserror => {
     if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
     error(`Auth Server failed to create user. ${aserror.response.data.message}`);
-    throw authServerError(aserror.response.data);
+    if (aserror.response.status === 401) {
+      throw invalidTokenError(aserror.response.data);
+    } else {
+      throw authServerError(aserror.response.data);
+    }
   });
 };
 
@@ -43,10 +50,17 @@ exports.loginUser = body => {
   info(`Sending login request to Auth Server at ${authServer} for user with username: ${body.username}`);
   return axios
     .post(`${authServer}/users/sessions`, body, { headers: { x_api_key: apiKey } })
+    .then(response => response.data)
     .catch(aserror => {
       if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
       error(`Auth Server failed to authenticate user. ${aserror.response.data.message}`);
-      throw authServerError(aserror.response.data);
+      if (aserror.response.status === 401) {
+        throw invalidTokenError(aserror.response.data);
+      } else if (aserror.response.status === 409) {
+        throw userNotExists(aserror.response.data);
+      } else {
+        throw authServerError(aserror.response.data);
+      }
     });
 };
 
@@ -153,7 +167,7 @@ exports.rejectFriendRequest = ({ srcUsername, dstUsername }) => {
   });
 };
 
-exports.saveFirebaseToken = ({ username, firebaseToken }) => {
+exports.saveDeviceFirebaseToken = ({ username, firebaseToken }) => {
   info(`Saving firebase token for user ${username}`);
   if (!firebaseToken) {
     info("Not updating firebaseToken because it's not received.");
@@ -188,5 +202,74 @@ exports.getPotentialFriends = ({ srcUsername, keyUsername }) => {
     .catch(dbError => {
       error(`Users could not be found. Error: ${dbError}`);
       throw databaseError(`Users could not be found. Error: ${dbError}`);
+    });
+};
+
+const deleteUserFromUsername = username =>
+  User.deleteOne({ username }).catch(dbError => {
+    error(`User could not be deleted. Error: ${dbError}`);
+    throw databaseError(`User could not be deleted. Error: ${dbError}`);
+  });
+
+const getUsers = (filters, order, options) => {
+  info('Getting users');
+  return User.find(filters, null, { skip: options.offset, limit: options.limit })
+    .sort(order)
+    .catch(dbError => {
+      error(`Users could not be found. Error: ${dbError}`);
+      throw databaseError(`Users could not be found. Error: ${dbError}`);
+    });
+};
+
+exports.deleteUser = username => {
+  info(`Deleting user with username: ${username}`);
+  return deleteUserFromUsername(username)
+    .then(() => getUsers({}, {}, {}))
+    .then(users =>
+      Promise.all(
+        users.map(user => {
+          user.friendRequests = user.friendRequests.filter(pendingUsername => pendingUsername !== username);
+          user.friends = user.friends.filter(friendUsername => friendUsername !== username);
+          return saveUserInDB(user);
+        })
+      )
+    );
+};
+
+exports.recoverPassword = email => {
+  info(`Obtaining password recovery token for email ${email}`);
+  return axios
+    .post(`${authServer}/sessions/password_recovery`, { email }, { headers: { x_api_key: apiKey } })
+    .catch(aserror => {
+      if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
+      error(`Auth Server failed to create password recovery token. ${aserror.response.data.message}`);
+      if (aserror.response.status === 409) {
+        if (aserror.response.data.internal_code === 'user_not_exists') {
+          throw userNotExists(aserror.response.data);
+        } else {
+          throw invalidEmailError(aserror.response.data);
+        }
+      } else {
+        throw authServerError(aserror.response.data);
+      }
+    });
+};
+
+exports.configurePassword = body => {
+  info('Sending password configuration request to auth server');
+  return axios
+    .put(`${authServer}/sessions/password_configuration`, body, { headers: { x_api_key: apiKey } })
+    .catch(aserror => {
+      if (!aserror.response || !aserror.response.data) throw authServerError(aserror);
+      error(`Auth Server failed to configure new password. ${aserror.response.data.message}`);
+      if (aserror.response.status === 409) {
+        if (aserror.response.data.internal_code === 'user_not_exists') {
+          throw userNotExists(aserror.response.data);
+        } else {
+          throw invalidRecoveryToken(aserror.response.data);
+        }
+      } else {
+        throw authServerError(aserror.response.data);
+      }
     });
 };
